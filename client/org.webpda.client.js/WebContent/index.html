@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Start Page</title>
+</head>
+<body onunload="disconnect()">
+
+	<h1>WebPDA Test</h1>
+	
+	<div >
+			PV Name: 
+            <input id="pvName" class="text-field" type="text" placeholder="PV Name"/> 
+            <input type="submit" value="Create PV" onclick="createPV();" />
+    </div>
+
+
+	<div >
+            <input type="submit" value="Close WebSocket" onclick="disconnect();" />
+    </div>
+	<div id="output">Output: </div>
+	<script type="text/javascript" src="websocket.js"></script>
+	<script type="text/javascript" src="webpdatest.js"></script>
+	
+
+</body>
+</html>
