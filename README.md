@@ -1,4 +1,4 @@
-WebPV
+WebPDA
 =====
 
-A tomcat servlet and js library for accessing PV in web browser using WebSocket.
+WebSocket based Process Data Access (WebPDA) is a protocol to access process data using standard WebSocket technologies.
