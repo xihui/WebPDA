@@ -6,7 +6,7 @@ import javax.websocket.EndpointConfig;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-public class ServerMessageEncoder implements Encoder.Text<AbstractServerMessage>{
+public class ServerMessageEncoder implements Encoder.Text<IServerMessage>{
 
 	@Override
 	public void destroy() {
@@ -19,7 +19,7 @@ public class ServerMessageEncoder implements Encoder.Text<AbstractServerMessage>
 	}
 
 	@Override
-	public String encode(AbstractServerMessage object) throws EncodeException {	
+	public String encode(IServerMessage object) throws EncodeException {	
 		try {
 			return object.toJson();
 		} catch (JsonProcessingException e) {

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/jackson-annotations-2.1.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://fasterxml.github.io/jackson-annotations/javadoc/2.1.0/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/jackson-core-2.1.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://fasterxml.github.io/jackson-core/javadoc/2.1.0/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/jackson-databind-2.1.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://fasterxml.github.io/jackson-databind/javadoc/2.1.0/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="lib" path="lib/hamcrest-core-1.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/junit-4.11.jar" sourcepath="lib/junit-4.11-sources.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="con" path="oracle.eclipse.tools.glassfish.lib.system">
+		<attributes>
+			<attribute name="owner.project.facets" value="jst.utility"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7.0_21">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
