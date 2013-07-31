@@ -13,14 +13,14 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
+import org.webpda.server.core.LoggerUtil;
 import org.webpda.server.war.clientcommand.AbstractClientCommand;
 import org.webpda.server.war.clientcommand.ClientCommandDecoder;
 import org.webpda.server.war.clientcommand.ClientSession;
 import org.webpda.server.war.servermessage.ServerMessageEncoder;
-import org.webpda.server.war.util.LoggerUtil;
 
 @ServerEndpoint(value="/webpda", encoders={ServerMessageEncoder.class}, decoders={ClientCommandDecoder.class})
-public class WebPDAServer {
+public class WebPDAWSServer {
 	
 	private static Map<Session, ClientSession> sessionRegistry = Collections.synchronizedMap(
 			new HashMap<Session, ClientSession>());

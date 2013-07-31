@@ -13,56 +13,42 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class PVEventMessage implements IServerMessage{
 
+	private static final String DATA = "d";
+
+	private static final String EVENT = "e";
+
+	private static final String PVNAME = "pv";
+
 	private String pv;
 	
 	private PVEventType evt;
 	
 	private Object data;
 
-	public PVEventMessage(String pvName, PVEventType eventType, Object data) {
-		this.setPv(pvName);
-		this.setEvt(eventType);
+	private boolean isRawJson;
+
+	public PVEventMessage(String pvName, PVEventType eventType, Object data, boolean isRawJson) {
+		this.pv = pvName;
+		this.evt = eventType;
 		this.data = data;
+		this.isRawJson =isRawJson;
 	}
 
 
-	public Object getData() {
-		return data;
-	}
-
-	public void setData(Object data) {
-		this.data = data;
-	}
-
-
-	public PVEventType getEvt() {
-		return evt;
-	}
-
-
-	public void setEvt(PVEventType evt) {
-		this.evt = evt;
-	}
-
-
-	public String getPv() {
-		return pv;
-	}
-
-
-	public void setPv(String pv) {
-		this.pv = pv;
-	}
-
+	
 	@Override
 	public String toJson() throws JsonProcessingException {
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			JsonGenerator jg = JsonUtil.jsonFactory.createGenerator(outputStream);
 			jg.writeStartObject();
-			jg.writeStringField("pv", pv);
-			jg.writeStringField("evt", evt.name());
-			jg.writeObjectField("data", data);				
+			jg.writeStringField(PVNAME, pv);
+			jg.writeStringField(EVENT, evt.name());
+			jg.writeFieldName(DATA);
+			if(isRawJson)
+				jg.writeRaw(":"+data);
+			else
+				jg.writeObject(data);
 			jg.writeEndObject();
 			jg.close();
 			String s = outputStream.toString(Constants.CHARSET);

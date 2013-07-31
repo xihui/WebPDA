@@ -26,9 +26,24 @@ function sendText(json){
 websocket.onclose = function(evt){
 	writeToScreen("Websocket closed.");
 };
-
+var value = new Object();
 function onMessage(evt){
 	console.log("received: " + evt.data);
+	var json=JSON.parse(evt.data);
+	if(json.e=="val"){
+		var newValue = json.d;
+		for (x in newValue) {
+			value[x] = newValue[x];
+		}
+		
+		console.log("received: " + value.v + " length: " + value.v.len);
+		console.log(''+binStringToDoubleArray(value.v.arr)[0] + " " + binStringToDoubleArray(value.v.arr)[value.v.len-1]);
+		
+//		console.log("received: " + value.v + " length: " + value.v.length);
+//		
+//		console.log(''+binStringToInt(value.v));
+	}
+	
 //	if(typeof evt.data=="string")
 //		drawImageText(evt.data);
 //	else

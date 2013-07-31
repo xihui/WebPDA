@@ -6,6 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
 package org.webpda.server.datainterface.controlsystem.pvmanager;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -13,17 +14,16 @@ import static org.junit.Assert.assertThat;
 import static org.webpda.server.core.HamcrestMatchers.greaterThanOrEqualTo;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.epics.vtype.VType;
 import org.junit.Test;
 import org.webpda.server.datainterface.AbstractPVFactory;
 import org.webpda.server.datainterface.IPV;
 import org.webpda.server.datainterface.IPVListener;
-import org.webpda.server.datainterface.IValue;
 
 /** JUnit test for reading with PVManagerPVFactory
  * 
@@ -64,10 +64,10 @@ public class PVManagerReadUnitTest extends TestHelper
             @Override
             public void valueChanged(final IPV pv)
             {
-                final IValue value = pv.getValue();
-                System.out.println(pv.getName() + " = " + value.toJson());
+                final VType value = (VType) pv.getValue();
+                System.out.println(pv.getName() + " = " + value);
                 if (value != null)
-                    changes.incrementAndGet(); 
+                    changes.incrementAndGet();
             }
 
             @Override
@@ -81,12 +81,6 @@ public class PVManagerReadUnitTest extends TestHelper
             {
                 error = new Exception("Received write permission change");
             }
-
-			@Override
-			public void metaDataChanged(IPV pv) {
-				// TODO Auto-generated method stub
-				
-			}
         });
         
         assertThat(pv.isStarted(), equalTo(false));
@@ -133,7 +127,7 @@ public class PVManagerReadUnitTest extends TestHelper
         
         final AtomicBoolean got_multiples = new AtomicBoolean();
         
-        final List<IValue> values = new ArrayList<>();
+        final List<VType> values = new ArrayList<>();
         pv.addListener(new IPVListener()
         {
             @Override
@@ -153,15 +147,15 @@ public class PVManagerReadUnitTest extends TestHelper
             @Override
             public void valueChanged(final IPV pv)
             {
-                final IValue[] new_values = pv.getAllBufferedValues();
+                final List<VType> new_values = (List<VType>) pv.getAllBufferedValues();
                 System.out.println(pv.getName() + " = " + new_values);
                 if (new_values != null)
                 {
-                    if (new_values.length > 1)
+                    if (new_values.size() > 1)
                         got_multiples.set(true);
                     synchronized (new_values)
                     {
-                        values.addAll(Arrays.asList(new_values));
+                        values.addAll(new_values);
                     }
                 }
             }
@@ -177,12 +171,6 @@ public class PVManagerReadUnitTest extends TestHelper
             {
                 error = new Exception("Received write permission change");
             }
-
-			@Override
-			public void metaDataChanged(IPV pv) {
-				// TODO Auto-generated method stub
-				
-			}
         });
         
         pv.start();

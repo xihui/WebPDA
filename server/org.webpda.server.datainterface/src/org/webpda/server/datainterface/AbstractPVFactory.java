@@ -11,6 +11,9 @@ package org.webpda.server.datainterface;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+
+import org.webpda.server.core.LoggerUtil;
 
 /**
  * The abstract factory that creates specific PV.
@@ -23,6 +26,14 @@ public abstract class AbstractPVFactory {
 	 * on its first use.
 	 */
 	static ExecutorService SIMPLE_PV_THREAD = null;
+	
+	private static ExceptionHandler DEFAULT_EXCEPTION_HANDLER = new ExceptionHandler() {
+		
+		@Override
+		public void handleException(Exception exception) {
+			LoggerUtil.getLogger().log(Level.SEVERE, "Exception from PV", exception);
+		}
+	};
 	
 	/**Create a PV.
 	 * @param name name of the PV. Must not be null.
@@ -49,7 +60,7 @@ public abstract class AbstractPVFactory {
 	 * minUpdatePeriod = 10 ms;
 	 * bufferAllValues = false;
 	 * notificationThread = {@link #SIMPLE_PV_THREAD}
-	 * exceptionHandler = null;
+	 * exceptionHandler = use system logger.;
 	 * </pre>
 	 * @param name name of the PV. Must not be null.
 	 * @return the pv.
@@ -59,7 +70,28 @@ public abstract class AbstractPVFactory {
 		if (SIMPLE_PV_THREAD == null)
 			SIMPLE_PV_THREAD = Executors.newSingleThreadExecutor();	
 		return createPV(name, false, 10,
-				false, SIMPLE_PV_THREAD, null);
+				false, SIMPLE_PV_THREAD, DEFAULT_EXCEPTION_HANDLER);
+	}
+	
+	/**Create a PV with other parameters in default value:
+	 * <pre>	
+	 * notificationThread = {@link #SIMPLE_PV_THREAD}
+	 * exceptionHandler = use system logger;
+	 * </pre>
+	 * @param name name of the PV. Must not be null.
+	 * @param readOnly true if the client doesn't need to write to the PV.
+	 * @param minUpdatePeriodInMs the minimum update period in milliseconds, 
+	 * which means the PV change event notification will not be faster than this period.
+	 * @param bufferAllValues if all value on the PV should be buffered during two updates.
+	 * @return the pv.
+	 * @throws Exception error on creating pv.
+ 	 */
+	public synchronized IPV createPV(final String name, final boolean readOnly, 
+			final long minUpdatePeriodInMs,	final boolean bufferAllValues) throws Exception{		
+		if (SIMPLE_PV_THREAD == null)
+			SIMPLE_PV_THREAD = Executors.newSingleThreadExecutor();	
+		return createPV(name, readOnly, minUpdatePeriodInMs,
+				bufferAllValues, SIMPLE_PV_THREAD, DEFAULT_EXCEPTION_HANDLER);
 	}
 	
 	public static synchronized ExecutorService getDefaultPVNotificationThread() {

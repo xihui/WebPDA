@@ -14,13 +14,11 @@ import static org.junit.Assert.fail;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.epics.vtype.VNumber;
 import org.epics.vtype.VType;
+import org.epics.vtype.ValueUtil;
 import org.junit.Test;
 import org.webpda.server.datainterface.IPV;
 import org.webpda.server.datainterface.IPVListener;
-import org.webpda.server.datainterface.IValue;
-import org.webpda.server.datainterface.controlsystem.CSNumber;
 
 /** JUnit test for writing with PVManagerPVFactory
  * 
@@ -34,7 +32,7 @@ public class PVManagerWriteUnitTest extends TestHelper
     class TestReader extends IPVListener.Stub
     {
         final private IPV pv;
-        private IValue value = null;
+        private VType value = null;
         
         public TestReader(final String name) throws Exception
         {
@@ -46,7 +44,7 @@ public class PVManagerWriteUnitTest extends TestHelper
         @Override
         public synchronized void valueChanged(IPV pv)
         {
-            value = pv.getValue();
+            value = (VType) pv.getValue();
             System.out.println(pv.getName() + " = " + value);
             notifyAll();
         }
@@ -54,12 +52,12 @@ public class PVManagerWriteUnitTest extends TestHelper
         public synchronized void waitFor(final double desired_value) throws Exception
         {
             for (int seconds=5;  seconds>=0;  --seconds)
-            {	double num = 0;
-            	if(value != null){
-                num = ((CSNumber)value).getValue().doubleValue();
-                if (num == desired_value)
-                    return;
-            	}
+ {				double num = Double.NaN;
+				if (value != null) {
+					 num = ValueUtil.numericValueOf(value);
+					if (num == desired_value)
+						return;
+				}
                 if (seconds > 0)
                     wait(TimeUnit.SECONDS.toMillis(1));
                 else
@@ -113,7 +111,7 @@ public class PVManagerWriteUnitTest extends TestHelper
     @Test
     public void testWriteListener() throws Exception
     {
-        final IPV pv = factory.createPV("loc://pv3(3)");
+        final IPV pv = factory.createPV("loc://pv(3)");
         
         // Expect one 'write' confirmation
         final CountDownLatch written = new CountDownLatch(1);
@@ -137,7 +135,7 @@ public class PVManagerWriteUnitTest extends TestHelper
             @Override
             public void valueChanged(final IPV pv)
             {
-                final IValue value = pv.getValue();
+                final VType value = (VType) pv.getValue();
                 System.out.println(pv.getName() + " = " + value);
                 if (value != null)
                     updates.countDown();
@@ -155,12 +153,6 @@ public class PVManagerWriteUnitTest extends TestHelper
             public void writePermissionChanged(final IPV pv)
             {
             }
-
-			@Override
-			public void metaDataChanged(IPV pv) {
-				// TODO Auto-generated method stub
-				
-			}
         });
         pv.start();
         TestHelper.waitForConnection(pv);

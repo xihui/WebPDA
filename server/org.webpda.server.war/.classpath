@@ -11,7 +11,7 @@
 			<attribute name="owner.project.facets" value="jst.web"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.webpda.server.core"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.webpda.server.datainterface"/>

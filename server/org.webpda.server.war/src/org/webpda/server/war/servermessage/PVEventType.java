@@ -1,11 +1,11 @@
 package org.webpda.server.war.servermessage;
 
 public enum PVEventType {
-	connectionChanged,
-	value,
-	bufValue,
+	conn,
+	val,
+	bufVal,
 	metaData,
 	exception,
-	writePermissionChanged,
+	writePermission,
 	writeFinished
 }

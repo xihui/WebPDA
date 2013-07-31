@@ -24,7 +24,6 @@ public interface IPVListener{
 		public void valueChanged(IPV pv){}
 		public void writeFinished(IPV pv, boolean isWriteSucceeded){}
 		public void writePermissionChanged(IPV pv){}
-		public void metaDataChanged(IPV pv) {}		
 	}
 	
 	/**Will be called when connection state changed.
@@ -46,11 +45,7 @@ public interface IPVListener{
 	 * @param pv the pv whose value has changed.
 	 */
 	void valueChanged(IPV pv);
-	
-	/**Will be called when PV meta data changed.
-	 * @param pv the pv whose value has changed.
-	 */
-	void metaDataChanged(IPV pv);
+
 	
 	/**Will be called when a write is finished. 
 	 * <br><b>Note:</b> when this is called, the value of the pv may not update yet, which 

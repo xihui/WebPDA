@@ -8,6 +8,8 @@
 
 package org.webpda.server.datainterface;
 
+import java.util.List;
+
 
 /**
  * Process Variable Interface. <p>
@@ -31,13 +33,7 @@ public interface IPV {
 	 * It can also be null even the PV is connected. For example, 
 	 * the value is not a VType, not prepared yet or it has null as the initial value.
 	 */
-	public IValue[] getAllBufferedValues();
-
-	/**Get meta data.
-	 * @return meta data of the PV. Null if the pv is not started or connected.
-	 */
-	public IMetaData getMetaData();
-	
+	public List<?> getAllBufferedValues();
 	
 	/**
 	 * Get name of the PV.
@@ -56,7 +52,14 @@ public interface IPV {
 	 * It can also be null even the PV is connected. For example, 
 	 * the value is not a VType, not prepared yet or it has null as the initial value.
 	 */
-	public IValue getValue();
+	public Object getValue();
+	
+	/**
+	 * @return the raw Json string representing the latest value, timestamp and other
+	 * delta changes if it has. If all values were buffered, it will be a raw Json string
+	 * that representing an array of delta changes.
+	 */
+	public String getDeltaJsonString();
 
 	/**
 	 * Return true if all values during an update period should be buffered.
@@ -112,19 +115,6 @@ public interface IPV {
      *  @throws Exception on error.
      */
     public void setValue(Object value);
-    
-    /**Set PV to a given value synchronously. It will block the current thread
-     * until write operation finished or timeout. It is not necessary to call {@link #start()}
-     * before calling this method, because it will handle the connection with timeout in this method.
-    *  Should accept number, number array,
-    *  <code>String</code>, maybe more.
-    *  @param value Value to write to the PV
-    *  @param timeout timeout in millisecond for both pv connection and write operation, so 
-    *  in very rare case, it could take maximum 2*timeout ms for the timeout.  
-    *  @return true if write successful or false otherwise.
-    *  @throws Exception on error such as connection failed.
-    */
-    public boolean setValue(Object value, int timeout) throws Exception;
 	
     
     /**

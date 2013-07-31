@@ -9,10 +9,6 @@ package org.webpda.server.datainterface.controlsystem.pvmanager;
 
 import java.util.concurrent.Executor;
 
-import org.epics.pvmanager.CompositeDataSource;
-import org.epics.pvmanager.PVManager;
-import org.epics.pvmanager.loc.LocalDataSource;
-import org.epics.pvmanager.sim.SimulationDataSource;
 import org.webpda.server.datainterface.AbstractPVFactory;
 import org.webpda.server.datainterface.ExceptionHandler;
 import org.webpda.server.datainterface.IPV;
@@ -23,13 +19,9 @@ import org.webpda.server.datainterface.IPV;
  */
 public class PVManagerPVFactory extends AbstractPVFactory {
 
-	//init PVManager
-	static {
-		  final CompositeDataSource sources = new CompositeDataSource();
-	        sources.putDataSource("sim", new SimulationDataSource());
-	        sources.putDataSource("loc", new LocalDataSource());
-	        sources.setDefaultDataSource("sim");
-	        PVManager.setDefaultDataSource(sources);
+	
+	
+	public PVManagerPVFactory() {
 	}
 	
 	@Override

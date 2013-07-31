@@ -14,6 +14,7 @@ import static org.epics.pvmanager.formula.ExpressionLanguage.channelFromFormula;
 import static org.epics.pvmanager.formula.ExpressionLanguage.formula;
 import static org.epics.util.time.TimeDuration.ofMillis;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
+import org.epics.pvmanager.CompositeDataSource;
 import org.epics.pvmanager.PVManager;
 import org.epics.pvmanager.PVReader;
 import org.epics.pvmanager.PVReaderConfiguration;
@@ -32,16 +34,16 @@ import org.epics.pvmanager.PVWriter;
 import org.epics.pvmanager.PVWriterConfiguration;
 import org.epics.pvmanager.PVWriterEvent;
 import org.epics.pvmanager.PVWriterListener;
-import org.epics.util.time.TimeDuration;
+import org.epics.pvmanager.jca.JCADataSource;
+import org.epics.pvmanager.loc.LocalDataSource;
+import org.epics.pvmanager.sim.SimulationDataSource;
+import org.epics.pvmanager.sys.SystemDataSource;
 import org.epics.vtype.VType;
 import org.webpda.server.core.LoggerUtil;
 import org.webpda.server.datainterface.ExceptionHandler;
-import org.webpda.server.datainterface.IMetaData;
 import org.webpda.server.datainterface.IPV;
 import org.webpda.server.datainterface.IPVListener;
-import org.webpda.server.datainterface.IValue;
-import org.webpda.server.datainterface.controlsystem.VTypeConverter;
-import org.webpda.server.datainterface.controlsystem.ValueWithMeta;
+import org.webpda.server.datainterface.controlsystem.VTypeJsonHelper;
 
 /**
  * An implementation of {@link IPV} using PVManager.
@@ -68,10 +70,18 @@ public class PVManagerPV implements IPV {
 	private static boolean debug = false;
 	private static AtomicInteger counter = new AtomicInteger(0);
 	
-	private IValue value;
-	private IValue[] bufferedValue;
-	private IMetaData meta;
-
+	private VType value;
+	
+	//init PVManager
+	static {
+		final CompositeDataSource sources = new CompositeDataSource();
+		sources.putDataSource("sim", new SimulationDataSource());
+		sources.putDataSource("loc", new LocalDataSource());
+		sources.putDataSource("ca", new JCADataSource());
+		sources.putDataSource("sys", new SystemDataSource());
+		sources.setDefaultDataSource("ca");
+		PVManager.setDefaultDataSource(sources);
+	}
 
 	/**
 	 * Construct a PVManger PV.
@@ -122,7 +132,6 @@ public class PVManagerPV implements IPV {
 									// buffered.
 		else
 			this.name = singleChannel;
-
 	}
 
 	@Override
@@ -153,15 +162,29 @@ public class PVManagerPV implements IPV {
 		}		
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public IValue[] getAllBufferedValues(){
-		return bufferedValue;
+	public List<VType> getAllBufferedValues(){
+		if(pvReader == null)
+			return null;
+		Object obj = pvReader.getValue();
+		if (obj != null) {
+			if (!valueBuffered) {
+				if (obj instanceof VType)
+					return Arrays.asList((VType) obj);
+			} else {
+				if (obj instanceof List<?> && ((List<?>) obj).size() > 0) {
+					// Assume it is returning a VType List. If it is not, the
+					// client needs to handle it.
+					return (List<VType>) obj;
+				}
+			}
+			return null;
+		}
+		return null;
 	}
 
-	@Override
-	public IMetaData getMetaData() {
-		return meta;
-	}
+
 	
 	@Override
 	public String getName() {
@@ -170,40 +193,27 @@ public class PVManagerPV implements IPV {
 
 	@Override
 	// This method should not be synchronized because it may cause deadlock.
-	public IValue getValue() {
-		return value;		
-	}
-	
-	private boolean updateValueAndMeta(Object obj) {
-		boolean metaDataChanged = false;
+	public VType getValue() {
+		if(pvReader == null)
+			return null;
+		Object obj = pvReader.getValue();
 		if (obj != null) {
-			if (valueBuffered && obj instanceof List<?>
-					&& ((List<?>) obj).size() > 0) {
-				bufferedValue = new IValue[((List<?>) obj).size()];
-				int i = 0;
-				for (Object o : (List<?>) obj) {
-					ValueWithMeta vm = VTypeConverter
-							.toValueWithMeta((VType) o);
-					if (i == 0) {
-						value = vm.value;
-						if (vm.meta != null && !vm.meta.equals(meta)) {
-							metaDataChanged = true;
-							meta = vm.meta;
-						}
-					}
-					bufferedValue[i++] = vm.value;
-				}
-			} else if (obj instanceof VType) {
-				ValueWithMeta vm = VTypeConverter.toValueWithMeta((VType) obj);
-				value = vm.value;
-				if (vm.meta != null && !vm.meta.equals(meta)) {
-					metaDataChanged = true;
-					meta = vm.meta;
+			if (!valueBuffered) {
+				if (obj instanceof VType)
+					return (VType) obj;
+			} else {
+				if (obj instanceof List<?> && ((List<?>) obj).size() > 0) {
+					Object lastValue = ((List<?>) obj).get(((List<?>) obj).size() - 1);
+					if (lastValue instanceof VType)
+						return (VType) lastValue;
 				}
 			}
+			return null;
 		}
-		return metaDataChanged;
+		return null;		
 	}
+	
+	
 	/**
 	 * This method must be called in notification thread, because PVManager
 	 * requires that creating PVReader, adding listeners must be done in the
@@ -217,12 +227,7 @@ public class PVManagerPV implements IPV {
 		final PVReaderListener<Object> pvReaderListener = new PVReaderListener<Object>() {
 
 			@Override
-			public void pvChanged(PVReaderEvent<Object> event) {
-				boolean metaDataChanged = false;
-				if(event !=null && event.isValueChanged()){
-					Object obj = event.getPvReader().getValue();
-					metaDataChanged = updateValueAndMeta(obj);
-				}
+			public void pvChanged(PVReaderEvent<Object> event) {			
 				for(IPVListener l : listeners){
 					if (event != null) {
 						if (event.isConnectionChanged())
@@ -232,9 +237,7 @@ public class PVManagerPV implements IPV {
 									.lastException());
 					}
 					if (event == null || event.isValueChanged())
-						l.valueChanged(PVManagerPV.this);
-					if(metaDataChanged)
-						l.metaDataChanged(PVManagerPV.this);
+						l.valueChanged(PVManagerPV.this);					
 				}				
 			}
 
@@ -386,8 +389,10 @@ public class PVManagerPV implements IPV {
 					latch.countDown();
 				}
 			});
-			if(!latch.await(minUpdatePeriod + 10000, TimeUnit.MILLISECONDS)){
-				throw new Exception("Failed to start pv " + getName());
+			if(!latch.await(minUpdatePeriod + 30000, TimeUnit.MILLISECONDS)){
+				Exception e = new Exception("Failed to start pv in 30 seconds: " + getName());
+				fireExceptionOccured(e);
+				throw e;
 			}
 		}else
 			throw new IllegalStateException(
@@ -415,31 +420,32 @@ public class PVManagerPV implements IPV {
 	}
 
 	@Override
-	public boolean setValue(Object value, int timeout) throws Exception {
-		final AtomicBoolean result=new AtomicBoolean();
-		final CountDownLatch latch = new CountDownLatch(1);
-		PVWriter<Object> pvWriter = PVManager.write(channel(name))
-				.timeout(TimeDuration.ofSeconds(timeout)).writeListener(
-						new PVWriterListener<Object>() {
-							@Override
-							public void pvChanged(PVWriterEvent<Object> event) {								
-								latch.countDown();
-								if(event.isWriteFailed()){
-									result.set(false);
-								}
-								if(event.isWriteSucceeded())
-									result.set(true);									
-							}
-						}).sync();
-		try {
-			if(latch.await(timeout, TimeUnit.SECONDS))
-				pvWriter.write(value);
-			else
-				throw new Exception("Failed to connect to the PV in" + timeout + " seconds.");
-		}finally{
-			pvWriter.close();
-		}		
-		return result.get();				
+	public String getDeltaJsonString() {
+		String r=null;
+		if(!isBufferingValues()){
+			VType newValue = getValue();
+			r = VTypeJsonHelper.VTypeToJson(newValue, value);
+			value = newValue;
+		}else{
+			List<VType> newValue = getAllBufferedValues();
+			if(newValue == null){
+				value=null;
+				return null;
+			}
+			StringBuilder sb = new StringBuilder("[");
+			int i=0;
+			for(VType v : newValue){
+				sb.append(VTypeJsonHelper.VTypeToJson(v, value));
+				value = v;
+				if(i < newValue.size()-1)
+					sb.append(",");
+				i++;
+			}
+			sb.append("]");
+			r=sb.toString();
+		}
+		return r;
 	}
+	
 
 }
