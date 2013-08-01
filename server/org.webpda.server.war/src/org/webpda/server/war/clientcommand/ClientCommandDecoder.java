@@ -1,12 +1,26 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ ******************************************************************************/
 package org.webpda.server.war.clientcommand;
+import java.util.logging.Level;
+
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
 import org.webpda.server.core.JsonUtil;
+import org.webpda.server.core.LoggerUtil;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+/**Decoder json message received from client to an {@link AbstractClientCommand}.
+ * @author Xihui Chen
+ *
+ */
 public class ClientCommandDecoder implements Decoder.Text<AbstractClientCommand>{
 
 	private String packageName = AbstractClientCommand.class.getPackage().getName();;
@@ -32,7 +46,8 @@ public class ClientCommandDecoder implements Decoder.Text<AbstractClientCommand>
 					(AbstractClientCommand) JsonUtil.mapper.readValue(arg0, clazz);
 			return command;
 		} catch (Exception e) {
-			e.printStackTrace();
+			LoggerUtil.getLogger().log(Level.SEVERE, "Error in decoding command.", e);
+		
 		} 
 		return null;
 	}
@@ -47,8 +62,7 @@ public class ClientCommandDecoder implements Decoder.Text<AbstractClientCommand>
 			if(clazz != null)
 				return true;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LoggerUtil.getLogger().log(Level.SEVERE, "Error in decoding command.", e);
 		} 
 		return false;
 	}

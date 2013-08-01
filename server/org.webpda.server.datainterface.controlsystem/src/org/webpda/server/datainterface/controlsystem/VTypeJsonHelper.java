@@ -5,18 +5,19 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 import org.epics.util.array.CollectionNumbers;
-import org.epics.util.array.ListDouble;
 import org.epics.vtype.Alarm;
 import org.epics.vtype.Display;
 import org.epics.vtype.Time;
+import org.epics.vtype.VByte;
 import org.epics.vtype.VDouble;
-import org.epics.vtype.VDoubleArray;
 import org.epics.vtype.VEnum;
+import org.epics.vtype.VEnumArray;
 import org.epics.vtype.VFloat;
 import org.epics.vtype.VNumber;
 import org.epics.vtype.VNumberArray;
 import org.epics.vtype.VShort;
 import org.epics.vtype.VString;
+import org.epics.vtype.VStringArray;
 import org.epics.vtype.VType;
 import org.epics.vtype.ValueUtil;
 import org.webpda.server.core.Constants;
@@ -28,7 +29,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 public class VTypeJsonHelper {
 	
-	private static final String TYPE = "type";
+	private static final String ARRAY = "arr"; //$NON-NLS-1$
+	private static final String LENGTH = "len"; //$NON-NLS-1$
+	private static final String TYPE = "type"; //$NON-NLS-1$
 	public final static String TIME = "t"; //$NON-NLS-1$
 	public final static String SECOND = "s"; //$NON-NLS-1$
 	public final static String NANOSECOND = "ns"; //$NON-NLS-1$
@@ -85,6 +88,8 @@ public class VTypeJsonHelper {
 			jg.writeStringField(VALUE, JsonUtil.floatToBinString(((VFloat)v).getValue()));
 		}else if(v instanceof VShort){
 			jg.writeStringField(VALUE, JsonUtil.shortToBinString(((VShort)v).getValue()));
+		}else if(v instanceof VByte){
+			jg.writeStringField(VALUE, JsonUtil.byteToBinString(((VByte)v).getValue()));
 		}else if(v instanceof VNumber){
 			jg.writeStringField(VALUE, JsonUtil.intToBinString(((VNumber)v).getValue().intValue()));
 		}else if(v instanceof VEnum){
@@ -94,13 +99,39 @@ public class VTypeJsonHelper {
 		}else if(v instanceof VNumberArray){
 			jg.writeFieldName(VALUE);
 			jg.writeStartObject();
-			jg.writeNumberField("len", ((VNumberArray)v).getData().size());
+			jg.writeNumberField(LENGTH, ((VNumberArray)v).getData().size());
 			Object wrappedArray = CollectionNumbers.wrappedArray(((VNumberArray) v).getData());
 			if(wrappedArray instanceof double[])
-				jg.writeStringField("arr", JsonUtil.doubleArrayToBinString((double[]) wrappedArray));
+				jg.writeStringField(ARRAY, JsonUtil.doubleArrayToBinString((double[]) wrappedArray));
+			else if(wrappedArray instanceof float[])
+				jg.writeStringField(ARRAY, JsonUtil.floatArrayToBinString((float[]) wrappedArray));
+			else if(wrappedArray instanceof long[])
+				jg.writeStringField(ARRAY, JsonUtil.longArrayToBinString((long[]) wrappedArray));
+			else if(wrappedArray instanceof int[])
+				jg.writeStringField(ARRAY, JsonUtil.intArrayToBinString((int[]) wrappedArray));
+			else if(wrappedArray instanceof short[])
+				jg.writeStringField(ARRAY, JsonUtil.shortArrayToBinString((short[]) wrappedArray));
+			else if(wrappedArray instanceof byte[])
+				jg.writeStringField(ARRAY, JsonUtil.byteArrayToBinString((byte[]) wrappedArray));			
 			else
-				throw new JsonGenerationException("The warpped array is not primary array.");
-			
+				throw new JsonGenerationException("The wrapped array is not primary array.");
+			jg.writeEndObject();
+		}else if(v instanceof VEnumArray){
+			jg.writeFieldName(VALUE);
+			jg.writeStartObject();
+			jg.writeNumberField(LENGTH, ((VEnumArray)v).getIndexes().size());
+			Object wrappedArray = CollectionNumbers.wrappedArray(((VNumberArray) v).getData());
+			if(wrappedArray instanceof int[])
+				jg.writeStringField(ARRAY, JsonUtil.intArrayToBinString((int[]) wrappedArray));
+			else
+				throw new JsonGenerationException("The wrapped array is not primary array.");
+			jg.writeEndObject();
+		}else if(v instanceof VStringArray){
+			jg.writeFieldName(VALUE);
+			jg.writeStartArray();
+			for(String s: ((VStringArray)v).getData())
+				jg.writeString(s);
+			jg.writeEndArray();			
 		}
 		
 	}
@@ -108,8 +139,9 @@ public class VTypeJsonHelper {
 	private static void writeTimeToJson(Time t, JsonGenerator jg) throws JsonGenerationException, IOException{
 		jg.writeFieldName(TIME);
 		jg.writeStartObject();
-		jg.writeNumberField(SECOND, t.getTimestamp().getSec());
-		jg.writeNumberField(NANOSECOND, t.getTimestamp().getNanoSec());
+		jg.writeStringField(SECOND, JsonUtil.longToBinString(t.getTimestamp().getSec()));
+		jg.writeStringField(NANOSECOND, JsonUtil.intToBinString(
+				t.getTimestamp().getNanoSec()));
 		jg.writeEndObject();
 	}
 	
@@ -126,7 +158,6 @@ public class VTypeJsonHelper {
 		if (!((Alarm) oldValue).getAlarmName().equals(a.getAlarmName())) {
 			jg.writeStringField(ALARM_NAME, a.getAlarmName());
 		}
-
 	}
 	
 	private static void writeDisplayToJson(Display d, Object oldValue, JsonGenerator jg) throws JsonGenerationException, IOException{

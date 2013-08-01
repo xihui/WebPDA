@@ -15,10 +15,20 @@ function stopPV(){
 	var pvName = document.getElementById("pvName").value.trim();
 	var json = JSON.stringify({
 		"commandName": "StopPV",
-		"pvName": pvName,	
+		"pvName": pvName,
+		"minUpdatePeriodInMs": 100,
+		"bufferAllValues":false	
 	});
 	sendText(json);
 }
+
+function listAllPVs(){
+	var json = JSON.stringify({
+		"commandName": "ListAllPVs"
+	});
+	sendText(json);
+}
+
 
 /**convert binary represented string to double.
  * @param s the string.
@@ -73,9 +83,7 @@ function binStringToShort(s){
  * @returns the number.
  */
 function binStringToByte(s){
-	var buf = binStringToBuf(s);
-	var bufView = new Int8Array(buf);	
-	return bufView[0];
+	return binStringToShort(s);
 }
 
 /**Fill binary represented string to char buffer.

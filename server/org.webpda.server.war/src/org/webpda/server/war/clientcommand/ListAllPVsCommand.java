@@ -5,17 +5,22 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package org.webpda.server.war.servermessage;
+package org.webpda.server.war.clientcommand;
 
-/**PV event type.
+import org.webpda.server.war.servermessage.ListAllPVsMessage;
+
+/**Client command to list all pvs on the client.
  * @author Xihui Chen
  *
  */
-public enum PVEventType {
-	conn,
-	val,
-	bufVal,
-	error,
-	writePermission,
-	writeFinished
+public class ListAllPVsCommand extends AbstractClientCommand{
+
+
+	@Override
+	public void run() {
+		send(new ListAllPVsMessage(getClientSession().getAllPVs()));		
+	}
+
+	
+
 }

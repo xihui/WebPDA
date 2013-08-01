@@ -31,7 +31,7 @@ public class JsonUtil {
 		return String.valueOf(sc);
 	}
 	
-	/**Convert double value to a String that has 4 chars which represents the binary value.
+	/**Convert double array to a String that has 4 chars representing each value.
 	 * @param v the value to be converted.
 	 * @return the binary string.
 	 */
@@ -57,6 +57,18 @@ public class JsonUtil {
 		return String.valueOf(sc);
 	}
 	
+	/**Convert float array to a String that has 2 chars representing each value.
+	 * @param v the value to be converted.
+	 * @return the binary string.
+	 */
+	public static String floatArrayToBinString(float[] v){
+		StringBuilder sb = new StringBuilder(2*v.length);
+		for(float d:v){
+			sb.append(floatToBinString(d));
+		}
+		return sb.toString();		
+	}
+	
 	/**Convert int value to a String that has 2 chars which represents the binary value.
 	 * @param v the value to be converted.
 	 * @return the binrary string.
@@ -69,6 +81,18 @@ public class JsonUtil {
 		return String.valueOf(sc);
 	}
 	
+	/**Convert int array to a String that has 2 chars representing each value.
+	 * @param v the value to be converted.
+	 * @return the binary string.
+	 */
+	public static String intArrayToBinString(int[] v){
+		StringBuilder sb = new StringBuilder(2*v.length);
+		for(int d:v){
+			sb.append(intToBinString(d));
+		}
+		return sb.toString();		
+	}
+	
 	/**Convert long value to a String that has 4 chars which represents the binary value.
 	 * @param v the value to be converted.
 	 * @return the binary string.
@@ -76,6 +100,19 @@ public class JsonUtil {
 	public static String longToBinString(long v){
 		return doubleToBinString(v);
 	}
+	
+	/**Convert long array to a String that has 4 chars representing each value.
+	 * @param v the value to be converted.
+	 * @return the binary string.
+	 */
+	public static String longArrayToBinString(long[] v){
+		StringBuilder sb = new StringBuilder(4*v.length);
+		for(long d:v){
+			sb.append(longToBinString(d));
+		}
+		return sb.toString();		
+	}
+	
 	
 	/**Convert short value to a String that has 1 char which represents the binary value.
 	 * @param v the value to be converted.
@@ -85,11 +122,35 @@ public class JsonUtil {
 		return String.valueOf((char)v);
 	}
 	
+	/**Convert short array to a String that has 1 char representing each value.
+	 * @param v the value to be converted.
+	 * @return the binary string.
+	 */
+	public static String shortArrayToBinString(short[] v){
+		StringBuilder sb = new StringBuilder(v.length);
+		for(short d:v){
+			sb.append(shortToBinString(d));
+		}
+		return sb.toString();		
+	}
+	
 	/**Convert byte value to a String that has 1 char which represents the binary value.
 	 * @param v the value to be converted.
 	 * @return the binary string.
 	 */
 	public static String byteToBinString(byte v){				
-		return String.valueOf((char)v);
+		return shortToBinString(v);
+	}
+	
+	/**Convert byte array to a String that has 1 char representing each value.
+	 * @param v the value to be converted.
+	 * @return the binary string.
+	 */
+	public static String byteArrayToBinString(byte[] v){
+		StringBuilder sb = new StringBuilder(v.length);
+		for(byte d:v){
+			sb.append(byteToBinString(d));
+		}
+		return sb.toString();		
 	}
 }

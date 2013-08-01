@@ -1,8 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ ******************************************************************************/
 package org.webpda.server.war.clientcommand;
 
 import java.util.logging.Level;
-
-import javax.websocket.Session;
 
 import org.webpda.server.core.LoggerUtil;
 import org.webpda.server.datainterface.IPV;
@@ -11,7 +16,7 @@ import org.webpda.server.datainterface.PVFactory;
 import org.webpda.server.war.servermessage.PVEventMessage;
 import org.webpda.server.war.servermessage.PVEventType;
 
-/**
+/**A client command to create a pv.
  * @author Xihui Chen
  * 
  */
@@ -45,25 +50,16 @@ public class CreatePVCommand extends AbstractPVCommand {
 		this.bufferAllValues = bufferAllValues;
 	}
 
-	private void send(PVEventMessage message){
-		final Session session = getClientSession().getSession();
-		if(session.isOpen()){
-			try {
-				session.getBasicRemote().sendObject(message);
-			} catch (Exception e) {
-				LoggerUtil.getLogger().log(Level.SEVERE, "Send Object Error.", e);
-			} 
-		}else
-			getClientSession().close();
-	}
-			
 	@Override
 	public void run() {				
 		try {
-			IPV pv = PVFactory.getInstance().createPV(getPvName(), isReadOnly(),
+			IPV pv =getClientSession().getPV(this);
+			if(pv==null){
+				pv= PVFactory.getInstance().createPV(getPvName(), isReadOnly(),
 					getMinUpdatePeriodInMs(), isBufferAllValues());
-			getClientSession().addPV(getPvName(), pv);
-			pv.start();
+				getClientSession().addPV(this, pv);
+				pv.start();
+			}			
 			pv.addListener(new IPVListener(){
 
 				@Override
@@ -75,7 +71,7 @@ public class CreatePVCommand extends AbstractPVCommand {
 				@Override
 				public void exceptionOccurred(IPV pv, Exception exception) {
 					send(new PVEventMessage(
-							getPvName(), PVEventType.exception, exception.getMessage(), false));
+							getPvName(), PVEventType.error, exception.getMessage(), false));
 				}
 
 				@Override
@@ -99,9 +95,30 @@ public class CreatePVCommand extends AbstractPVCommand {
 			});
 		} catch (Exception e1) {
 			LoggerUtil.getLogger().log(Level.SEVERE, e1.getMessage(), e1);
+		}	
+	}
+	
+	@Override
+	public boolean equals(Object obj) {		
+		if(!super.equals(obj))
+			return false;
+		if(obj instanceof CreatePVCommand){
+			CreatePVCommand target = (CreatePVCommand)obj;
+			if(bufferAllValues == target.bufferAllValues && 
+					readOnly == target.readOnly && 
+					minUpdatePeriodInMs == target.minUpdatePeriodInMs)
+				return true;
 		}
-
-		
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31*result+(readOnly?1:0);
+		result = 31*result+(bufferAllValues?1:0);
+		result = 31*result+(int)(minUpdatePeriodInMs^(minUpdatePeriodInMs>>>32));
+		return result;
 	}
 
 }

@@ -12,10 +12,6 @@ import static org.junit.Assert.assertThat;
 
 import java.util.concurrent.TimeUnit;
 
-import org.epics.pvmanager.CompositeDataSource;
-import org.epics.pvmanager.PVManager;
-import org.epics.pvmanager.loc.LocalDataSource;
-import org.epics.pvmanager.sim.SimulationDataSource;
 import org.junit.Before;
 import org.webpda.server.core.ConfigurePropertyConstants;
 import org.webpda.server.datainterface.AbstractPVFactory;

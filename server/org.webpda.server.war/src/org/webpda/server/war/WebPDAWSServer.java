@@ -1,3 +1,10 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ ******************************************************************************/
 package org.webpda.server.war;
 
 import java.io.IOException;
@@ -19,6 +26,10 @@ import org.webpda.server.war.clientcommand.ClientCommandDecoder;
 import org.webpda.server.war.clientcommand.ClientSession;
 import org.webpda.server.war.servermessage.ServerMessageEncoder;
 
+/**The WebSocket server of WebPDA.
+ * @author Xihui Chen
+ *
+ */
 @ServerEndpoint(value="/webpda", encoders={ServerMessageEncoder.class}, decoders={ClientCommandDecoder.class})
 public class WebPDAWSServer {
 	

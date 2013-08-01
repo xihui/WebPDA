@@ -147,7 +147,8 @@ public class PVManagerReadUnitTest extends TestHelper
             @Override
             public void valueChanged(final IPV pv)
             {
-                final List<VType> new_values = (List<VType>) pv.getAllBufferedValues();
+                @SuppressWarnings("unchecked")
+				final List<VType> new_values = (List<VType>) pv.getAllBufferedValues();
                 System.out.println(pv.getName() + " = " + new_values);
                 if (new_values != null)
                 {

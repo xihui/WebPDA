@@ -11,66 +11,48 @@ import java.io.ByteArrayOutputStream;
 import java.util.logging.Level;
 
 import org.webpda.server.core.Constants;
-import org.webpda.server.core.JsonUtil;
 import org.webpda.server.core.LoggerUtil;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-
-/**A server message that represents a PV related event.
+/**
+ * A server message that list all pvs on a client.
+ * 
  * @author Xihui Chen
- *
+ * 
  */
-public class PVEventMessage implements IServerMessage{
+public class ListAllPVsMessage extends NonPVEventMessage {
 
-	private static final String DATA = "d";
+	private static final String PVS = "pvs";
 
-	private static final String EVENT = "e";
+	private String[] pvNames;
 
-	private static final String PVNAME = "pv";
-
-	private String pv;
-	
-	private PVEventType evt;
-	
-	private Object data;
-
-	private boolean isRawJson;
-
-	public PVEventMessage(String pvName, PVEventType eventType, Object data, boolean isRawJson) {
-		this.pv = pvName;
-		this.evt = eventType;
-		this.data = data;
-		this.isRawJson =isRawJson;
+	public ListAllPVsMessage(String[] pvNames) {
+		this.pvNames = pvNames;
 	}
 
-
-	
 	@Override
 	public String toJson() throws JsonProcessingException {
 		try {
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			JsonGenerator jg = JsonUtil.jsonFactory.createGenerator(outputStream);
-			jg.writeStartObject();
-			jg.writeStringField(PVNAME, pv);
-			jg.writeStringField(EVENT, evt.name());
-			jg.writeFieldName(DATA);
-			if(isRawJson)
-				jg.writeRaw(":"+data);
-			else
-				jg.writeObject(data);
+			JsonGenerator jg = createJsonGenerator();
+			jg.writeArrayFieldStart(PVS);
+			for (String s : pvNames)
+				jg.writeString(s);
+			jg.writeEndArray();
 			jg.writeEndObject();
 			jg.close();
+			ByteArrayOutputStream outputStream = (ByteArrayOutputStream) jg
+					.getOutputTarget();
 			String s = outputStream.toString(Constants.CHARSET);
 			outputStream.close();
 			return s;
 		} catch (Exception e) {
-			LoggerUtil.getLogger().log(Level.SEVERE, "Failed to create json.", e);
+			LoggerUtil.getLogger().log(Level.SEVERE, "Failed to create json.",
+					e);
 		}
-		
+
 		return null;
 	}
-	
-	
+
 }
