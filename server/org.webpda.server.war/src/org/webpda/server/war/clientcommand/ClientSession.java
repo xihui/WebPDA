@@ -23,35 +23,35 @@ public class ClientSession {
 	
 	private Session session;
 	
-	private Map<CreatePVCommand, IPV> pvMap;
+	private Map<Integer, IPV> pvMap;
 	private volatile boolean isClosed = false;
 
 	public ClientSession(Session session) {
 		this.session = session;
-		pvMap = new HashMap<CreatePVCommand, IPV>();		
+		pvMap = new HashMap<Integer, IPV>();		
 	}
 	
-	public synchronized void addPV(CreatePVCommand command, IPV pv){
+	public synchronized void addPV(int id, IPV pv){
 		if(!isClosed)
-			pvMap.put(command, pv);
+			pvMap.put(id, pv);
 	}
 	
-	public synchronized IPV getPV(CreatePVCommand command){
-		return pvMap.get(command);
+	public synchronized IPV getPV(int id){
+		return pvMap.get(id);
 	}
 	
-	public synchronized void removePV(CreatePVCommand command){
-		IPV pv = pvMap.get(command);
+	public synchronized void removePV(int id){
+		IPV pv = pvMap.get(id);
 		if(pv != null)
 			pv.stop();
-		pvMap.remove(command);
+		pvMap.remove(id);
 	}
 	
 	public synchronized String[] getAllPVs(){
 		String[] result = new String[pvMap.size()];
 		int i=0;
-		for(CreatePVCommand command : pvMap.keySet()){
-			result[i++] = command.getPvName();
+		for(IPV pv : pvMap.values()){
+			result[i++] = pv.getName();
 		};
 		return result;
 	}

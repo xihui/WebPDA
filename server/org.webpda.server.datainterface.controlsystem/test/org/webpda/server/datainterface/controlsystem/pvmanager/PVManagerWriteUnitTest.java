@@ -36,7 +36,7 @@ public class PVManagerWriteUnitTest extends TestHelper
         
         public TestReader(final String name) throws Exception
         {
-            pv = factory.createPV(name);
+            pv = factory.createPV(name, null);
             pv.addListener(this);
             pv.start();
         }
@@ -78,7 +78,7 @@ public class PVManagerWriteUnitTest extends TestHelper
         final TestReader readback = new TestReader("loc://pv3(3)");
         readback.waitFor(3.0);
 
-        final IPV pv = factory.createPV("loc://pv3(3)");
+        final IPV pv = factory.createPV("loc://pv3(3)", null);
         
         pv.start();
         TestHelper.waitForConnection(pv);
@@ -94,13 +94,13 @@ public class PVManagerWriteUnitTest extends TestHelper
     @Test
     public void testReadonly() throws Exception
     {
-        IPV pv = factory.createPV("sim://sine");
+        IPV pv = factory.createPV("sim://sine", null);
         pv.start();
         TestHelper.waitForConnection(pv);
         assertThat(pv.isWriteAllowed(), equalTo(false));
         pv.stop();
 
-        pv = factory.createPV("loc://pv0(0)");
+        pv = factory.createPV("loc://pv0(0)", null);
         pv.start();
         TestHelper.waitForConnection(pv);
 //        assertThat(pv.isWriteAllowed(), equalTo(true));
@@ -111,7 +111,7 @@ public class PVManagerWriteUnitTest extends TestHelper
     @Test
     public void testWriteListener() throws Exception
     {
-        final IPV pv = factory.createPV("loc://pv(3)");
+        final IPV pv = factory.createPV("loc://pv(3)", null);
         
         // Expect one 'write' confirmation
         final CountDownLatch written = new CountDownLatch(1);

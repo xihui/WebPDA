@@ -10,20 +10,20 @@
 	
 	<div >
 			PV Name: 
-            <input id="pvName" class="text-field" type="text" placeholder="PV Name"/> 
-            <input type="submit" value="Create PV" onclick="createPV();" />
-            <input type="submit" value="Stop PV" onclick="stopPV();" />
-            <input type="submit" value="List All PVs" onclick="listAllPVs();" />
-            <input type="submit" value="Test Bin" onclick="testBinaryFormat();" />
+            <input id="pvName" class="text-field" type="text" value = "css:sine" placeholder="PV Name"/> 
+            <input type="submit" value="Create PV" onclick="WebPDATest.createPV();" />
+            <input type="submit" value="Stop PV" onclick="WebPDATest.closePV();" />
+            <input type="submit" value="List All PVs" onclick="WebPDATest.listAllPVs();" />
     </div>
 
 
 	<div >
-            <input type="submit" value="Close WebSocket" onclick="disconnect();" />
+            <input type="submit" value="Close WebSocket" onclick="WebPDATest.closeWebSocket();" />
     </div>
 	<div id="output">Output: </div>
-	<script type="text/javascript" src="websocket.js"></script>
-	<script type="text/javascript" src="webpdalib.js"></script>
+	<script type="text/javascript" src="webpda-core.js"></script>
+	<script type="text/javascript" src="webpda-cs.js"></script>
+	<script type="text/javascript" src="webpda-test.js"></script>
 	
 
 </body>

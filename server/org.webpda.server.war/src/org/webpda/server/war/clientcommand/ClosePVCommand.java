@@ -12,11 +12,11 @@ package org.webpda.server.war.clientcommand;
  * @author Xihui Chen
  *
  */
-public class StopPVCommand extends CreatePVCommand {
+public class ClosePVCommand extends CreatePVCommand {
 
 	@Override
 	public void run() {
-		getClientSession().removePV(this);		
+		getClientSession().removePV(getId());		
 	}
 
 }

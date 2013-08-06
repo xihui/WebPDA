@@ -14,6 +14,7 @@ import static org.junit.Assert.assertThat;
 import static org.webpda.server.core.HamcrestMatchers.greaterThanOrEqualTo;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -43,8 +44,11 @@ public class PVManagerReadUnitTest extends TestHelper
     {
         final boolean readonly = true;
         final boolean buffer = false;
-        final IPV pv = factory.createPV("sim://ramp", readonly, 10, buffer,
-                AbstractPVFactory.getDefaultPVNotificationThread(), null);
+        LinkedHashMap<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put(PVManagerPVFactory.READ_ONLY, readonly);
+        parameters.put(PVManagerPVFactory.UPDATE_PERIOD, 10);
+        parameters.put(PVManagerPVFactory.BUFFER_ALL_VALUES, buffer);
+        final IPV pv = factory.createPV("sim://ramp", parameters);
         pv.addListener(new IPVListener()
         {
             @Override
@@ -122,8 +126,11 @@ public class PVManagerReadUnitTest extends TestHelper
     {
         final boolean readonly = true;
         final boolean buffer = true;
-        final IPV pv = factory.createPV("sim://ramp", readonly, (int)TimeUnit.SECONDS.toMillis(2),
-                    buffer, AbstractPVFactory.getDefaultPVNotificationThread(), null);
+        LinkedHashMap<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put(PVManagerPVFactory.READ_ONLY, readonly);
+        parameters.put(PVManagerPVFactory.UPDATE_PERIOD, 10);
+        parameters.put(PVManagerPVFactory.BUFFER_ALL_VALUES, buffer);
+        final IPV pv = factory.createPV("sim://ramp", parameters);
         
         final AtomicBoolean got_multiples = new AtomicBoolean();
         

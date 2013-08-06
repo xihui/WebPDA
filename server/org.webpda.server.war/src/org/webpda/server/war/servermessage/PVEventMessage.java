@@ -30,7 +30,8 @@ public class PVEventMessage implements IServerMessage{
 
 	private static final String PVNAME = "pv";
 
-	private String pv;
+	//pv id.
+	private int id;
 	
 	private PVEventType evt;
 	
@@ -38,8 +39,8 @@ public class PVEventMessage implements IServerMessage{
 
 	private boolean isRawJson;
 
-	public PVEventMessage(String pvName, PVEventType eventType, Object data, boolean isRawJson) {
-		this.pv = pvName;
+	public PVEventMessage(int pvId, PVEventType eventType, Object data, boolean isRawJson) {
+		this.id = pvId;
 		this.evt = eventType;
 		this.data = data;
 		this.isRawJson =isRawJson;
@@ -53,7 +54,7 @@ public class PVEventMessage implements IServerMessage{
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			JsonGenerator jg = JsonUtil.jsonFactory.createGenerator(outputStream);
 			jg.writeStartObject();
-			jg.writeStringField(PVNAME, pv);
+			jg.writeNumberField(PVNAME, id);
 			jg.writeStringField(EVENT, evt.name());
 			jg.writeFieldName(DATA);
 			if(isRawJson)

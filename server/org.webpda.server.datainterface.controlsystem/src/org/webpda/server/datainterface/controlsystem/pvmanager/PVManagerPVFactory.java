@@ -7,8 +7,12 @@
  ******************************************************************************/
 package org.webpda.server.datainterface.controlsystem.pvmanager;
 
-import java.util.concurrent.Executor;
+import java.util.LinkedHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
 
+import org.webpda.server.core.LoggerUtil;
 import org.webpda.server.datainterface.AbstractPVFactory;
 import org.webpda.server.datainterface.ExceptionHandler;
 import org.webpda.server.datainterface.IPV;
@@ -17,17 +21,52 @@ import org.webpda.server.datainterface.IPV;
  * @author Xihui Chen
  *
  */
-public class PVManagerPVFactory extends AbstractPVFactory {
-
+public class PVManagerPVFactory extends AbstractPVFactory {	
+	
+	public static final String READ_ONLY = "readOnly";
+	public static final String UPDATE_PERIOD = "minUpdatePeriodInMs";
+	public static final String BUFFER_ALL_VALUES = "bufferAllValues";
+	
+	/**
+	 * The default background thread for PV change event notification. It will only be created 
+	 * on its first use.
+	 */
+	static ExecutorService SIMPLE_PV_THREAD = Executors.newSingleThreadExecutor();
+	
+	private static ExceptionHandler DEFAULT_EXCEPTION_HANDLER = new ExceptionHandler() {
+		
+		@Override
+		public void handleException(Exception exception) {
+			LoggerUtil.getLogger().log(Level.SEVERE, "Exception from PV", exception);
+		}
+	};
 	
 	
 	public PVManagerPVFactory() {
 	}
 	
 	@Override
-	public IPV createPV(String name, boolean readOnly, long minUpdatePeriod, boolean bufferAllValues,
-			Executor notificationThread, ExceptionHandler exceptionHandler) {
-		return new PVManagerPV(name, readOnly, minUpdatePeriod, bufferAllValues, notificationThread, exceptionHandler);
+	public IPV createPV(String name, LinkedHashMap<String , Object> parameters) {
+		boolean readOnly = true;
+		long minUpdatePeriodInMs = 10;
+		boolean bufferAllValues = false;
+		if(parameters !=null){
+			if (parameters.containsKey(READ_ONLY))
+				readOnly = (Boolean) parameters.get(READ_ONLY);
+			if (parameters.containsKey(UPDATE_PERIOD))
+				minUpdatePeriodInMs = (Integer) parameters.get(UPDATE_PERIOD);
+			if (parameters.containsKey(BUFFER_ALL_VALUES))
+				bufferAllValues = (Boolean) parameters.get(BUFFER_ALL_VALUES);
+		}
+		
+		return new PVManagerPV(name, readOnly, minUpdatePeriodInMs,
+				bufferAllValues, SIMPLE_PV_THREAD, DEFAULT_EXCEPTION_HANDLER);
+	}
+	
+	public static synchronized ExecutorService getDefaultPVNotificationThread() {
+		if (SIMPLE_PV_THREAD == null)
+			SIMPLE_PV_THREAD = Executors.newSingleThreadExecutor();
+		return SIMPLE_PV_THREAD;
 	}
 
 	

@@ -1,6 +1,6 @@
 package org.webpda.server.datainterface;
 
-import java.util.concurrent.Executor;
+import java.util.LinkedHashMap;
 
 import org.webpda.server.core.ConfigurePropertyConstants;
 
@@ -38,12 +38,9 @@ public class PVFactory extends AbstractPVFactory {
 	}
 
 	@Override
-	public IPV createPV(String name, boolean readOnly,
-			long minUpdatePeriodInMs, boolean bufferAllValues,
-			Executor notificationThread, ExceptionHandler exceptionHandler)
+	public IPV createPV(String name, LinkedHashMap<String, Object> parameters)
 			throws Exception {
-		return internalFactoy.createPV(name, readOnly, minUpdatePeriodInMs,
-				bufferAllValues, notificationThread, exceptionHandler);
+		return internalFactoy.createPV(name, parameters);
 
 	}
 

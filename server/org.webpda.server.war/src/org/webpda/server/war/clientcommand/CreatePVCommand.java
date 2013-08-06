@@ -7,6 +7,7 @@
  ******************************************************************************/
 package org.webpda.server.war.clientcommand;
 
+import java.util.LinkedHashMap;
 import java.util.logging.Level;
 
 import org.webpda.server.core.LoggerUtil;
@@ -22,42 +23,17 @@ import org.webpda.server.war.servermessage.PVEventType;
  */
 public class CreatePVCommand extends AbstractPVCommand {
 
-	private boolean readOnly = true;
-	private long minUpdatePeriodInMs = 10;
-	private boolean bufferAllValues=false;	
+	private LinkedHashMap<String, Object> parameters;	
 
-	public boolean isReadOnly() {
-		return readOnly;
-	}
-
-	public void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
-	}
-
-	public long getMinUpdatePeriodInMs() {
-		return minUpdatePeriodInMs;
-	}
-
-	public void setMinUpdatePeriodInMs(long minUpdatePeriodInMs) {
-		this.minUpdatePeriodInMs = minUpdatePeriodInMs;
-	}
-
-	public boolean isBufferAllValues() {
-		return bufferAllValues;
-	}
-
-	public void setBufferAllValues(boolean bufferAllValues) {
-		this.bufferAllValues = bufferAllValues;
-	}
-
+	private int id;
+	
 	@Override
 	public void run() {				
 		try {
-			IPV pv =getClientSession().getPV(this);
+			IPV pv =getClientSession().getPV(id);
 			if(pv==null){
-				pv= PVFactory.getInstance().createPV(getPvName(), isReadOnly(),
-					getMinUpdatePeriodInMs(), isBufferAllValues());
-				getClientSession().addPV(this, pv);
+				pv= PVFactory.getInstance().createPV(getPvName(), parameters);
+				getClientSession().addPV(id, pv);
 				pv.start();
 			}			
 			pv.addListener(new IPVListener(){
@@ -65,18 +41,18 @@ public class CreatePVCommand extends AbstractPVCommand {
 				@Override
 				public void connectionChanged(IPV pv) {
 					send(new PVEventMessage(
-							getPvName(), PVEventType.conn, pv.isConnected(), false));
+							getId(), PVEventType.conn, pv.isConnected(), false));
 				}
 
 				@Override
 				public void exceptionOccurred(IPV pv, Exception exception) {
 					send(new PVEventMessage(
-							getPvName(), PVEventType.error, exception.getMessage(), false));
+							getId(), PVEventType.error, exception.getMessage(), false));
 				}
 
 				@Override
 				public void valueChanged(IPV pv) {
-					send(new PVEventMessage(getPvName(),
+					send(new PVEventMessage(getId(),
 							pv.isBufferingValues() ? PVEventType.bufVal
 									: PVEventType.val, pv
 									.getDeltaJsonString(), true));				
@@ -84,12 +60,12 @@ public class CreatePVCommand extends AbstractPVCommand {
 
 				@Override
 				public void writeFinished(IPV pv, boolean isWriteSucceeded) {
-					send(new PVEventMessage(getPvName(), PVEventType.writeFinished, isWriteSucceeded, false));
+					send(new PVEventMessage(getId(), PVEventType.writeFinished, isWriteSucceeded, false));
 				}
 
 				@Override
 				public void writePermissionChanged(IPV pv) {
-					send(new PVEventMessage(getPvName(), PVEventType.writePermission, pv.isWriteAllowed(), false));
+					send(new PVEventMessage(getId(), PVEventType.writePermission, pv.isWriteAllowed(), false));
 				}
 				
 			});
@@ -98,15 +74,16 @@ public class CreatePVCommand extends AbstractPVCommand {
 		}	
 	}
 	
+	public void setParameters(LinkedHashMap<String, Object> parameters) {
+		this.parameters = parameters;
+	}
 	@Override
 	public boolean equals(Object obj) {		
 		if(!super.equals(obj))
 			return false;
 		if(obj instanceof CreatePVCommand){
 			CreatePVCommand target = (CreatePVCommand)obj;
-			if(bufferAllValues == target.bufferAllValues && 
-					readOnly == target.readOnly && 
-					minUpdatePeriodInMs == target.minUpdatePeriodInMs)
+			if(parameters.equals(target.parameters))
 				return true;
 		}
 		return false;
@@ -115,10 +92,17 @@ public class CreatePVCommand extends AbstractPVCommand {
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31*result+(readOnly?1:0);
-		result = 31*result+(bufferAllValues?1:0);
-		result = 31*result+(int)(minUpdatePeriodInMs^(minUpdatePeriodInMs>>>32));
+		result = 31*result + id;
+		result = 31*result+parameters.hashCode();
 		return result;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 }
