@@ -9,13 +9,21 @@
 	<h1>WebPDA Test</h1>
 	
 	<div >
-			PV Name: 
+			PV Name:
             <input id="pvName" class="text-field" type="text" value = "css:sine" placeholder="PV Name"/> 
-            <input type="submit" value="Create PV" onclick="WebPDATest.createPV();" />
-            <input type="submit" value="Stop PV" onclick="WebPDATest.closePV();" />
+            Minimum Update Period (ms):
+            <input id="updatePeriod" class="text-field" type="number" value = "1000" /> 
+            <input id="bufferAllValue" type="checkbox" value ="bufferAllValues" /> Buffering All Values<br>
+            <button type="button" autofocus="autofocus"  onclick="WebPDATest.createPV();">Create PV</button>
             <input type="submit" value="List All PVs" onclick="WebPDATest.listAllPVs();" />
+            <input type="submit" value="Debug On/Off" onclick="WebPDATest.debug();" />
     </div>
-
+    <br>
+	<table id="pvtable" border="1">
+	
+	
+	</table>
+	<br>
 
 	<div >
             <input type="submit" value="Close WebSocket" onclick="WebPDATest.closeWebSocket();" />

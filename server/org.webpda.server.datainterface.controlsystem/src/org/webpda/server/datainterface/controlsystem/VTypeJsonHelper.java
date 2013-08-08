@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import org.epics.util.array.CollectionNumbers;
 import org.epics.vtype.Alarm;
 import org.epics.vtype.Display;
+import org.epics.vtype.Enum;
 import org.epics.vtype.Time;
 import org.epics.vtype.VByte;
 import org.epics.vtype.VDouble;
@@ -29,6 +30,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 public class VTypeJsonHelper {
 	
+	
 	private static final String ARRAY = "arr"; //$NON-NLS-1$
 	private static final String LENGTH = "len"; //$NON-NLS-1$
 	private static final String TYPE = "type"; //$NON-NLS-1$
@@ -47,6 +49,7 @@ public class VTypeJsonHelper {
 	public final static String ALARM_HIGH = "ah"; //$NON-NLS-1$
 	public final static String PRECISION = "prec"; //$NON-NLS-1$
 	public final static String UNITS = "units"; //$NON-NLS-1$
+	private static final String LABELS = "labels";
 
 	public static String VTypeToJson(VType v, Object oldValue) {
 		if(v==null)
@@ -66,6 +69,8 @@ public class VTypeJsonHelper {
 				writeAlarmToJson((Alarm) v, oldValue, jg);
 			if(v instanceof Display)
 				writeDisplayToJson((Display) v, oldValue, jg);
+			if(v instanceof Enum)
+				writeEnumMetaToJson((Enum) v, oldValue, jg);
 			jg.writeEndObject();
 			jg.close();
 			ByteArrayOutputStream byteArrayOutputStream = (ByteArrayOutputStream) jg
@@ -194,8 +199,16 @@ public class VTypeJsonHelper {
 					.getMaximumFractionDigits());
 		if (!((Display) oldValue).getUnits().equals(d.getUnits()))
 			jg.writeStringField(UNITS, d.getUnits());	
-		
-		
+	}
+	
+	private static void writeEnumMetaToJson(Enum e, Object oldValue, JsonGenerator jg)throws JsonGenerationException, IOException{
+		if (oldValue == null || !(oldValue instanceof Enum)
+				|| !e.getLabels().equals(((Enum) oldValue).getLabels())) {
+			jg.writeArrayFieldStart(LABELS);
+			for (String s : e.getLabels())
+				jg.writeString(s);
+			jg.writeEndArray();
+		}
 	}
 
 }

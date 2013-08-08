@@ -1,9 +1,20 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Oak Ridge National Laboratory.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ ******************************************************************************/
+
 /**
  * A javascript library for accessing live process data in web browser using
  * WebSocket.
  * 
  * @author Xihui Chen
  */
+
+var WebPDA_Debug = false;
+
 var WebPDAUtil = {};
 
 /**The Process Variable definition.
@@ -16,12 +27,15 @@ function PV(name){
 	this.id = -1;
 	//The object that identifies the pv
 	this.createObj=null;
+	
+	this.connected = false;
+	
 	//if all values are buffered.
 	this.bufferAllValues = false;
 	
 	var listenerFuncs=[];
 	//latest value of the pv
-	this.value = {};
+	this.value = null;
 	//all buffered values if bufferAllValues is true
 	this.allBufferedValues=[];		
 	
@@ -88,6 +102,12 @@ function WebPDA(url) {
 		return null;
 	};
 	
+	this.closePVById = function(id){
+		if(pvArray[id] != null){
+			this.closePV(pvArray[id]);
+		}
+	};
+	
 	this.closePV = function(pv) {
 		var json = JSON.stringify({
 			"commandName" : "ClosePV",
@@ -103,6 +123,11 @@ function WebPDA(url) {
 		});
 		this.sendText(json);
 	};
+	
+	this.getAllPVs = function(){
+		return pvArray;
+	};
+	
 	
 	
 	/**
@@ -124,7 +149,8 @@ function WebPDA(url) {
 		}
 
 		websocket.onmessage = function(evt){
-			console.log("received: " + evt.data);
+			if(WebPDA_Debug)
+				console.log("received: " + evt.data);
 			var json=JSON.parse(evt.data);
 			dispatchMessage(json);
 		};
@@ -152,7 +178,8 @@ function WebPDA(url) {
 	};
 	
 	this.sendText = function(json){
-		console.log("sending");
+		if(WebPDA_Debug)
+			console.log("sending " + json);	
 		websocket.send(json);
 	};
 
@@ -163,15 +190,15 @@ function WebPDA(url) {
 (function(){
 	WebPDAUtil = {
 		extend : extend,
+		clone : clone,
 		binStringToDouble : binStringToDouble,
 		binStringToFloat : binStringToFloat,
 		binStringToInt : binStringToInt,
 		binStringToLong : binStringToLong,
 		binStringToShort : binStringToShort,
 		binStringToByte : binStringToByte,
-		binStringTo : binStringToBuf,
-		binStringTo : binStringToDoubleArray,
-		binStringTo : binStringToFloatArray,
+		binStringToDoubleArray: binStringToDoubleArray,
+		binStringToFloatArray : binStringToFloatArray,
 		binStringToLongArray : binStringToLongArray,
 		binStringToIntArray : binStringToIntArray,
 		binStringToShortArray : binStringToShortArray,
@@ -194,7 +221,20 @@ function WebPDA(url) {
 			a[i] = b[i];
 		}
 		return a;
-	};
+	}
+	/**
+	 * Deep clone an object.
+	 */
+	function clone(obj) {
+	    var r = {};
+	    for(var i in obj) {
+	        if(typeof(obj[i])=="object" && obj[i] != null)
+	            r[i] = clone(obj[i]);
+	        else
+	            r[i] = obj[i];
+	    }
+	    return r;
+	}
 
 	/**
 	 * convert binary represented string to double.
@@ -207,7 +247,7 @@ function WebPDA(url) {
 		var buf = binStringToBuf(s);
 		var bufView = new Float64Array(buf);
 		return bufView[0];
-	};
+	}
 
 	/**
 	 * convert binary represented string to float.
