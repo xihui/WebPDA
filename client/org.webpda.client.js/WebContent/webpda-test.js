@@ -62,7 +62,9 @@ var WebPDATest;
 				document.getElementById("pvconnected"+pv.id).innerHTML=pv.connected;
 				break;
 			case "val":
-				document.getElementById("pvvalue"+pv.id).innerHTML=pv.value;
+				var valueCell = document.getElementById("pvvalue"+pv.id);
+				valueCell.innerHTML=pv.value;
+				setCellColor(valueCell, pv.value.severity);
 				break;
 			case "bufVal":
 				var valueCell = document.getElementById("pvvalue"+pv.id);
@@ -70,12 +72,30 @@ var WebPDATest;
 				for(var i in pv.allBufferedValues){
 					valueCell.innerHTML += pv.allBufferedValues[i] + "<br>";				
 				}
+				setCellColor(valueCell, pv.value.severity);
 				break;
 			default:
 				break;
 			}			
 		});		
 		updateTable();
+	}
+	
+	function setCellColor(valueCell, severity){
+		switch (severity) {
+		case "MAJOR":
+			valueCell.style.backgroundColor ="red";
+			break;
+		case "MINOR":
+			valueCell.style.backgroundColor="yellow";
+			break;
+		case "NONE":
+			valueCell.style.backgroundColor="white";
+			break;
+		default:
+			valueCell.style.backgroundColor="fuchsia";
+			break;
+		}		
 	}
 	
 	function updateTable(){

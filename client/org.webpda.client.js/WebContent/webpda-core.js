@@ -161,8 +161,9 @@ function WebPDA(url) {
 		
 		if(json.msg != null)
 			handleServerMessage(json);
-		if(json.pv!=null){			
-			pvArray[json.pv].firePVEventFunc(json);		
+		if(json.pv!=null){	
+			if(pvArray[json.pv]!=null)
+				pvArray[json.pv].firePVEventFunc(json);		
 		}		
 	}
 	

@@ -93,10 +93,10 @@
 				currentValue.parseJsonValue(propValue);
 				break;
 			case "sev":
-				currentValue.alarm.severity = propValue;
+				currentValue.severity = propValue;
 				break;
 			case "an":
-				currentValue.alarm.alarmName = propValue;
+				currentValue.alarmName = propValue;
 				break;
 			case "dl":
 				currentValue.display.displayLow = propValue;
@@ -193,24 +193,17 @@
 		this.precision = null;
 		this.units = null;
 	}
-
-	function Alarm() {
-		this.severity = null;
-		this.alarmName = null;
-	}
-	Alarm.prototype.toString = function() {
-		return this.severity + " " + this.alarmName;
-	};
 	
 	function VBasicType(type){
 		this.timestamp = null;
 		this.value = null;
-		this.alarm = new Alarm();
+		this.severity = null;
+		this.alarmName = null;
 		this.type = type;
 	}
 	VBasicType.prototype.toString = function() {
 		return "[" + this.type + "] " + this.timestamp + " " + this.value + " "
-				+ this.alarm;
+				+ this.severity + " " + this.alarmName;
 	};
 	
 
