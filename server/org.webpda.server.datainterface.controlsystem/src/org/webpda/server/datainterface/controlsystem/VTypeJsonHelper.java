@@ -59,6 +59,7 @@ public class VTypeJsonHelper {
 			jg.writeStartObject();
 			if(oldValue == null || ValueUtil.typeOf(oldValue) != ValueUtil.typeOf(v)){
 				jg.writeStringField(TYPE, ValueUtil.typeOf(v).getSimpleName());
+				oldValue = null;
 			}
 			if(v instanceof Time)
 				writeTimeToJson((Time) v, jg);		

@@ -13,7 +13,8 @@ package org.webpda.server.war.clientcommand;
  */
 public abstract class AbstractPVCommand extends AbstractClientCommand{
 	
-	private String pvName;
+	protected String pvName;
+	protected int id;
 
 	public String getPvName() {
 		return pvName;
@@ -36,6 +37,14 @@ public abstract class AbstractPVCommand extends AbstractClientCommand{
 	@Override
 	public int hashCode() {
 		return pvName.hashCode();
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 }

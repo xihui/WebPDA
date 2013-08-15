@@ -25,16 +25,15 @@ public class CreatePVCommand extends AbstractPVCommand {
 
 	private LinkedHashMap<String, Object> parameters;	
 
-	private int id;
-	
 	@Override
 	public void run() {				
 		try {
 			IPV pv =getClientSession().getPV(id);
+			boolean newPV = false;
 			if(pv==null){
 				pv= PVFactory.getInstance().createPV(getPvName(), parameters);
 				getClientSession().addPV(id, pv);
-				pv.start();
+				newPV = true;
 			}			
 			pv.addListener(new IPVListener(){
 
@@ -46,8 +45,9 @@ public class CreatePVCommand extends AbstractPVCommand {
 
 				@Override
 				public void exceptionOccurred(IPV pv, Exception exception) {
-					send(new PVEventMessage(
-							getId(), PVEventType.error, exception.getMessage(), false));
+					if(exception!=null)
+						send(new PVEventMessage(
+								getId(), PVEventType.error, exception.getMessage(), false));
 				}
 
 				@Override
@@ -69,6 +69,9 @@ public class CreatePVCommand extends AbstractPVCommand {
 				}
 				
 			});
+			//pv should be started after all listeners have been added so it won't miss any event
+			if(newPV)
+				pv.start();
 		} catch (Exception e1) {
 			LoggerUtil.getLogger().log(Level.SEVERE, e1.getMessage(), e1);
 		}	
@@ -92,17 +95,8 @@ public class CreatePVCommand extends AbstractPVCommand {
 	@Override
 	public int hashCode() {
 		int result = super.hashCode();
-		result = 31*result + id;
 		result = 31*result+parameters.hashCode();
 		return result;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 }

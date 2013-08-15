@@ -7,7 +7,7 @@
  ******************************************************************************/
 
 /**
- * Extension of WebPDA for control system data protocol such as EPICS.
+ * Extension of WebPDA for control system data protocol such as the one in EPICS.
  * 
  * @author Xihui Chen
  */
@@ -15,9 +15,7 @@
 
 	WebPDA.prototype.createPV = function(name, minUpdatePeriodInMs,
 			bufferAllValues) {
-		var createPVCmd = {
-			commandName : "CreatePV"
-		};
+
 		var pvObj = {
 			pvName : name,
 			parameters : {
@@ -38,20 +36,11 @@
 			return true;
 		};
 
-		if (this.getPV(pvObj, compareFunc) == null) {
-			var pv = new PV(name);
-			pv.createObj = pvObj;
-			pv.bufferAllValues = bufferAllValues;
-			var id = this.registerPV(pv);
-			createPVCmd.id = id;
-			var json = JSON.stringify(WebPDAUtil.extend(createPVCmd, pvObj));
-			this.sendText(json);
-			return pv;
-		}
-		return this.getPV(pvObj, compareFunc);
+		
+		return this.internalCreatePV(name, pvObj, compareFunc, bufferAllValues);
 	};
 
-	PV.prototype.processJson = function(json) {
+	WebPDAInternalPV.prototype.processJson = function(json) {
 		switch (json.e) {
 		case "conn":
 			this.connected = json.d;
@@ -65,6 +54,9 @@
 				this.value = processSingleValueJson(json.d[i], this.value);
 				this.allBufferedValues.push(WebPDAUtil.clone(this.value));
 			}
+			break;
+		case "writePermission":
+			this.writeAllowed = json.d;
 			break;
 		default:
 			break;
@@ -271,7 +263,7 @@
 	VNumberArray.prototype.toString = function() {
 		return "[" + this.type + "] " + this.timestamp + 
 		" [" + this.value.length + " "+ this.value[0] + "..." + this.value[this.value.length-1] + "] "
-				+ this.alarm;
+				+ this.severity + " " + this.alarmName;
 	};
 	
 	function VString(type){
@@ -310,7 +302,7 @@
 	VEnumArray.prototype.toString = function() {
 		return "[" + this.type + "] " + this.timestamp + 
 		" [" + this.value.length + " " + (this.value) + this.value[0] + "..." + this.value[this.value.length-1] + "] "
-				+ this.alarm;
+				+ this.severity + " " + this.alarmName;
 	};
 
 

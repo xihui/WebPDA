@@ -7,15 +7,31 @@
  ******************************************************************************/
 package org.webpda.server.war.clientcommand;
 
-/**Client command to close a pv.
+/**Client command to pause/resume a pv.
  * @author Xihui Chen
  *
  */
-public class ClosePVCommand extends AbstractPVCommand {
+public class PausePVCommand extends AbstractPVCommand {
 
+	private boolean paused = false;
+	
 	@Override
 	public void run() {
-		getClientSession().removePV(getId());		
+		getClientSession().getPV(getId()).setPaused(paused);		
+	}
+
+	/**
+	 * @return true if the pv is paused.
+	 */
+	public boolean isPaused() {
+		return paused;
+	}
+
+	/**
+	 * @param paused the pause to set
+	 */
+	public void setPaused(boolean paused) {
+		this.paused = paused;
 	}
 
 }

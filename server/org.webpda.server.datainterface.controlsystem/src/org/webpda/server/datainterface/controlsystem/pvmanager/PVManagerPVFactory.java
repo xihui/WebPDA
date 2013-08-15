@@ -37,7 +37,8 @@ public class PVManagerPVFactory extends AbstractPVFactory {
 		
 		@Override
 		public void handleException(Exception exception) {
-			LoggerUtil.getLogger().log(Level.SEVERE, "Exception from PV", exception);
+			//TODO: Glassfish has a but that following line could make logging system fail.
+//			LoggerUtil.getLogger().log(Level.FINE, "Exception from PV", exception);
 		}
 	};
 	
@@ -47,7 +48,7 @@ public class PVManagerPVFactory extends AbstractPVFactory {
 	
 	@Override
 	public IPV createPV(String name, LinkedHashMap<String , Object> parameters) {
-		boolean readOnly = true;
+		boolean readOnly = false;
 		long minUpdatePeriodInMs = 10;
 		boolean bufferAllValues = false;
 		if(parameters !=null){

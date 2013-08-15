@@ -7,15 +7,31 @@
  ******************************************************************************/
 package org.webpda.server.war.clientcommand;
 
-/**Client command to close a pv.
+/**Client command to set pv value.
  * @author Xihui Chen
  *
  */
-public class ClosePVCommand extends AbstractPVCommand {
+public class SetPVValueCommand extends AbstractPVCommand {
 
+	private Object value;
+	
 	@Override
 	public void run() {
-		getClientSession().removePV(getId());		
+		getClientSession().getPV(getId()).setValue(value);		
+	}
+
+	/**
+	 * @return the value
+	 */
+	public Object getValue() {
+		return value;
+	}
+
+	/**
+	 * @param value the value to set
+	 */
+	public void setValue(Object value) {
+		this.value = value;
 	}
 
 }
