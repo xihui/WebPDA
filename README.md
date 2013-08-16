@@ -7,7 +7,7 @@ Process data is data related to a process, during which the value of a variable 
 
 The variable in a process is called [Process Variable (PV)](http://en.wikipedia.org/wiki/Process_variable). For example,
 the temperature of a furnace,  the price of a stock, the blood pressure of a person can all be considered as PV,
-so WebPDA can be widely used for process control or SCADA, financial, health, weather, environment systems etc,.
+so WebPDA can be widely used for SCADA, financial, health, weather, environment monitoring, measurement and control systems etc,.
 
 Goals & features:
 ----------------
