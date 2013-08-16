@@ -110,9 +110,11 @@ public class PVManagerPV implements IPV {
 		this.name = name;
 		this.valueBuffered = bufferAllValues;
 		this.minUpdatePeriod = (int) minUpdatePeriodInMs;
-	
-		
 		this.readOnly = readOnly;
+		
+		if(name.startsWith("sim://") || name.startsWith("sys://"))
+			this.readOnly=true;
+		
 		listeners = new CopyOnWriteArrayList<>();		
 
 		this.notificationThread = notificationThread;

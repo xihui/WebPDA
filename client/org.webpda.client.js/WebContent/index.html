@@ -9,12 +9,18 @@
 	<h1>WebPDA Test</h1>
 	
 	<div >
+			WebSocket URL:
+			<input id="wsurl" size="80" type="text" value = "ws://localhost/org.webpda.server.war/webpda"
+			placeholder="WebSocket URL"/> 
+			<button type="button" autofocus="autofocus"  onclick="WebPDATest.open();">Open</button>
+			<br>
+			<br>
 			PV Name:
             <input id="pvName" class="text-field" type="text" value = "css:sine" placeholder="PV Name"/> 
             Minimum Update Period (ms):
             <input id="updatePeriod" class="text-field" type="number" value = "1000" /> 
             <input id="bufferAllValue" type="checkbox" value ="bufferAllValues" /> Buffering All Values<br>
-            <button type="button" autofocus="autofocus"  onclick="WebPDATest.createPV();">Create PV</button>
+            <button type="button" onclick="WebPDATest.createPV();">Create PV</button>
             <input type="submit" value="List All PVs" onclick="WebPDATest.listAllPVs();" />
             <input type="submit" value="Debug On/Off" onclick="WebPDATest.debug();" />
     </div>
