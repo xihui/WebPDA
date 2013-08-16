@@ -1,13 +1,11 @@
-WebPDA
+WebSocket based Process Data Access
 =====
--Bring your process data to the web!
----------------------------------
 
 WebSocket based Process Data Access (WebPDA) is a protocol to access process data using standard WebSocket technology. 
 
-Process data is data related to a process, in which the value of a variable may change along with a process. 
+Process data is data related to a process, during which the value of a variable may change along with a process. 
 
-The variable in a process is called Process Variable (PV)[1]. For example,
+The variable in a process is called [Process Variable (PV)](http://en.wikipedia.org/wiki/Process_variable). For example,
 the temperature of a furnace,  the price of a stock, the blood pressure of a person can all be considered as PV,
 so WebPDA can be widely used for process control or SCADA, financial, health, weather, environment systems etc,.
 
@@ -19,10 +17,10 @@ WebPDA provided a simple and general way to push realtime changing process data 
 On server side, it provides an interface that allows easy extension of data sources. 
 Currently, it only has Java implementation using JSR356 with Glassfish. Potentially, it can 
 be implemented with any language that supports WebSocket. 
-Currently, it has a control system data source implemented on PVManager[2], so it can be used for control system 
-such as EPICS[3].
+Currently, it has a control system data source implemented on [PVManager](http://pvmanager.sourceforge.net/), so it can be used for control system 
+such as [EPICS](http://www.aps.anl.gov/epics/).
 
-On client side,  it also allows corresponding extension to parse the newly added data source on server side.
+On client side,  it allows corresponding extension to parse the newly added data source on server side.
 The client side can also be implemented with any language that supports WebSocket. Currently,
 it provides a JavaScript library for web browser.
 
@@ -95,7 +93,3 @@ function closePV(){
 }
 
 ```
-
-[1]http://en.wikipedia.org/wiki/Process_variable
-[2]http://pvmanager.sourceforge.net/
-[3]http://www.aps.anl.gov/epics/
