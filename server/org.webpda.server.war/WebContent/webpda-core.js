@@ -369,9 +369,9 @@ function WebPDA(url) {
 			throw new Error(
 					"Please close current websocket before opening a new one.");
 		if ('WebSocket' in window) {
-			websocket = new WebSocket(url);
+			websocket = new WebSocket(url, "org.webpda");
 		} else if ('MozWebSocket' in window) {
-			websocket = new MozWebSocket(url);
+			websocket = new MozWebSocket(url, "org.webpda");
 		} else {
 			throw new Error('WebSocket is not supported by this browser.');
 		}

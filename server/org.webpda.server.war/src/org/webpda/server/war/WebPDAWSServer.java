@@ -15,6 +15,7 @@ import java.util.logging.Level;
 
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
+import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
@@ -30,7 +31,7 @@ import org.webpda.server.war.servermessage.ServerMessageEncoder;
  * @author Xihui Chen
  *
  */
-@ServerEndpoint(value="/webpda", encoders={ServerMessageEncoder.class}, decoders={ClientCommandDecoder.class})
+@ServerEndpoint(value="/webpda", subprotocols={"org.webpda"}, encoders={ServerMessageEncoder.class}, decoders={ClientCommandDecoder.class})
 public class WebPDAWSServer {
 	
 	private static Map<Session, ClientSession> sessionRegistry = Collections.synchronizedMap(
@@ -56,6 +57,10 @@ public class WebPDAWSServer {
 		LoggerUtil.getLogger().log(Level.INFO,"Closing: " + peer);
 		sessionRegistry.get(peer).close();
 		sessionRegistry.remove(peer);
+	}
+	@OnError
+	public void onError(Session peer, Throwable error){
+		LoggerUtil.getLogger().log(Level.SEVERE, "Error on Websocket: " + error);
 	}
 
 }

@@ -11,7 +11,7 @@
  * @author Xihui Chen
  */
 
-var wsUri= "ws://localhost:8080/org.webpda.server.war/webpda";
+var wsUri= "ws://localhost/org.webpda.server.war/webpda";
 //	var wsUri= "ws://localhost:57321/org.webpda.server/webpda";
 //	var wsUri = "ws://"+document.location.host+document.location.pathname+"webpda";
 //WebPDA.openWebSocket(wsUri);
