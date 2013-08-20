@@ -35,7 +35,9 @@ var WebPDATest;
 
 	function open() {
 		var wsUri = document.getElementById("wsurl").value.trim();
-
+		if(wp!=null){
+			wp.close();
+		}
 		wp = new WebPDA(wsUri);
 		wp.addWebSocketOnErrorListenerFunc(function(evt) {
 					writeToScreen('<span style="color: red;">ERROR:</span> '

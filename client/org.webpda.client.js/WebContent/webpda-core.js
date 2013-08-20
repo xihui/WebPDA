@@ -204,6 +204,8 @@ function WebPDA(url) {
 	var pvArray = [];
 	var internalPVArray = [];
 	var websocket = null;
+	var wp = this;
+	this.isLive = false;
 	openWebSocket(url);
 
 	var webSocketOnOpenListeners = [];
@@ -224,7 +226,17 @@ function WebPDA(url) {
 			};
 			var json = JSON.stringify(WebPDAUtil.extend(createPVCmd,
 					parameterObj));
-			this.sendText(json);
+			if(this.isLive)
+				this.sendText(json);
+			else{
+				var wp = this;
+				var listener = null;
+				listener = function(evt){
+					wp.sendText(json);
+					wp.removeWebSocketOnOpenListenerFunc(listener);
+				};
+				this.addWebSocketOnOpenListenerFunc(listener);
+			}
 			internalPVID++;
 		}
 		var pv = new PV(name);
@@ -241,6 +253,10 @@ function WebPDA(url) {
 	this.addWebSocketOnOpenListenerFunc = function(listener) {
 		webSocketOnOpenListeners.push(listener);
 	};
+	
+	this.removeWebSocketOnOpenListenerFunc = function(listener){
+		webSocketOnOpenListeners.splice(webSocketOnOpenListeners.indexOf(listener), 1);
+	};
 
 	this.addWebSocketOnCloseListenerFunc = function(listener) {
 		webSocketOnCloseListeners.push(listener);
@@ -255,12 +271,19 @@ function WebPDA(url) {
 	};
 
 	function fireOnOpen(evt) {
+		wp.isLive = true;
 		for ( var i in webSocketOnOpenListeners) {
 			webSocketOnOpenListeners[i](evt);
 		}
 	}
 
 	function fireOnClose(evt) {
+		for(var i in internalPVArray){
+			internalPVArray[i].firePVEventFunc({
+				pv:internalPVArray[i].id,
+				"e": "conn",
+				"d": false});
+		}
 		for ( var i in webSocketOnCloseListeners) {
 			webSocketOnCloseListeners[i](evt);
 		}
@@ -376,7 +399,7 @@ function WebPDA(url) {
 			throw new Error('WebSocket is not supported by this browser.');
 		}
 
-		websocket.onopen = function(evt) {
+		websocket.onopen = function(evt) {			
 			fireOnOpen(evt);
 		};
 
@@ -388,6 +411,7 @@ function WebPDA(url) {
 			fireOnMessage(evt);
 		};
 		websocket.onclose = function(evt) {
+			this.isLive =false;
 			if (WebPDA_Debug)
 				console.log("websocket closed:" + url);
 			for ( var i in pvArray) {

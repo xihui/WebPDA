@@ -64,6 +64,7 @@ public class PVEventMessage implements IServerMessage{
 			jg.writeEndObject();
 			jg.close();
 			String s = outputStream.toString(Constants.CHARSET);
+//			System.out.println(s.length() + s);
 			outputStream.close();
 			return s;
 		} catch (Exception e) {
