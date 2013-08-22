@@ -36,36 +36,39 @@ public class CreatePVCommand extends AbstractPVCommand {
 				newPV = true;
 			}			
 			pv.addListener(new IPVListener(){
-
+				int count = 0;
 				@Override
 				public void connectionChanged(IPV pv) {
-					send(new PVEventMessage(
+					getClientSession().send(new PVEventMessage(
 							getId(), PVEventType.conn, pv.isConnected(), false));
 				}
 
 				@Override
 				public void exceptionOccurred(IPV pv, Exception exception) {
 					if(exception!=null)
-						send(new PVEventMessage(
+						getClientSession().send(new PVEventMessage(
 								getId(), PVEventType.error, exception.getMessage(), false));
 				}
 
 				@Override
 				public void valueChanged(IPV pv) {
-					send(new PVEventMessage(getId(),
+					count++;
+//					System.out.println(pv.getName() +  " " +count);
+					getClientSession().send(new PVEventMessage(getId(),
 							pv.isBufferingValues() ? PVEventType.bufVal
 									: PVEventType.val, pv
-									.getDeltaJsonString(), true));				
+									.getDeltaJsonString(), true));			
+//					System.out.println("Done:" + pv.getName() + " " + pv.getValue());
 				}				
 
 				@Override
 				public void writeFinished(IPV pv, boolean isWriteSucceeded) {
-					send(new PVEventMessage(getId(), PVEventType.writeFinished, isWriteSucceeded, false));
+					getClientSession().send(new PVEventMessage(getId(), PVEventType.writeFinished, isWriteSucceeded, false));
 				}
 
 				@Override
 				public void writePermissionChanged(IPV pv) {
-					send(new PVEventMessage(getId(), PVEventType.writePermission, pv.isWriteAllowed(), false));
+					getClientSession().send(new PVEventMessage(getId(), PVEventType.writePermission, pv.isWriteAllowed(), false));
 				}
 				
 			});

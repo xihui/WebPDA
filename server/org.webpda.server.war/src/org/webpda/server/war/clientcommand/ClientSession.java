@@ -7,12 +7,25 @@
  ******************************************************************************/
 package org.webpda.server.war.clientcommand;
 
+import java.io.IOException;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 
 import javax.websocket.Session;
 
+import org.webpda.server.core.LoggerUtil;
 import org.webpda.server.datainterface.IPV;
+import org.webpda.server.war.WebPDAWSServer;
+import org.webpda.server.war.servermessage.IServerMessage;
 
 /**A session on the client side.
  * 
@@ -21,14 +34,22 @@ import org.webpda.server.datainterface.IPV;
  */
 public class ClientSession {
 	
+	private static final int MAX_QUEUE_SIZE = 10240;
+	private static final ExecutorService SHARED_THREAD_POOL = Executors.newCachedThreadPool();
+	
 	private Session session;
 	
 	private Map<Integer, IPV> pvMap;
 	private volatile boolean isClosed = false;
-
+	private BlockingQueue<IServerMessage> messageQueue = new LinkedBlockingDeque<>(MAX_QUEUE_SIZE);
+	private AtomicBoolean polling = new AtomicBoolean(false);
+	private AtomicBoolean isOpen = new AtomicBoolean(false);
+	
 	public ClientSession(Session session) {
 		this.session = session;
 		pvMap = new HashMap<Integer, IPV>();		
+		isOpen.set(true);
+		System.out.println("create session: " + this);
 	}
 	
 	public synchronized void addPV(int id, IPV pv){
@@ -61,11 +82,69 @@ public class ClientSession {
 	}
 	
 	public synchronized void close(){
+		isOpen.set(false);
 		for(IPV pv: pvMap.values()){
 			pv.stop();
 		}
 		pvMap.clear();
 		isClosed = true;
+		try {
+			session.close();
+		} catch (IOException e) {			
+		}
+		messageQueue.clear();
+		WebPDAWSServer.unRegisterSession(session);
+	}
+
+	private synchronized void initWorkingThread() {
+		SHARED_THREAD_POOL.execute(new Runnable() {
+
+			@Override
+			public void run() {
+				System.out.println("execute new task");
+				IServerMessage message;
+				try {
+					polling.set(true);
+					while (isOpen() && 
+							(message = messageQueue.poll(10, TimeUnit.SECONDS)) != null
+							&& session.isOpen()) {
+						session.getAsyncRemote().sendObject(message);
+					}
+					if(!session.isOpen()){
+						close();
+					}
+				} catch (Exception e) {
+					LoggerUtil.getLogger().log(Level.SEVERE,
+							"Send server message error.", e);
+				}
+				polling.set(false);
+			}
+		});
+	}
+
+	public void send(final IServerMessage message){
+		if(isOpen()){
+			if(!polling.get())
+				initWorkingThread();			
+			try {
+//				System.out.println(this + " "+messageQueue.remainingCapacity());
+				boolean result = messageQueue.offer(message);
+				if(!result){
+					close();		
+					LoggerUtil.getLogger().log(Level.WARNING,
+							"The session is closed because the message queue is full: " +this);
+				}
+			} catch (Exception e) {
+				LoggerUtil.getLogger().log(Level.SEVERE,
+						"Send server message error.", e);
+			}
+		}
 	}
 	
+	/**
+	 * @return true if the client session is still open.
+	 */
+	public boolean isOpen() {
+		return isOpen.get();
+	}
 }

@@ -16,6 +16,10 @@
 // var wsUri =
 // "ws://"+document.location.host+document.location.pathname+"webpda";
 // WebPDA.openWebSocket(wsUri);
+
+var pathName = document.location.pathname.replace("index.html", "");
+
+document.getElementById("wsurl").value=	"ws://"+document.location.host+pathName+"webpda";
 var wp;
 
 var WebPDATest;
@@ -68,15 +72,18 @@ var WebPDATest;
 		var updatePeriod = +document.getElementById("updatePeriod").value;
 		var buffering = document.getElementById("bufferAllValue").checked;
 		var pv = wp.createPV(pvName, updatePeriod, buffering);
+		var count =0;
 		updateTable();
 		pv
-				.addListenerFunc(function(evt, thePV, data) {
+				.addListenerFunc(function(evt, thePV, data) {					
 					switch (evt) {
 					case "conn":
 						document.getElementById("pvconnected" + pv.id).innerHTML = pv
 								.isConnected();
 						break;
 					case "val":
+						count++;
+						console.log("" + count);
 						var valueCell = document.getElementById("pvvalue"
 								+ pv.id);
 						valueCell.innerHTML = pv.getValue();

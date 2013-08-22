@@ -18,7 +18,7 @@ public class ListAllPVsCommand extends AbstractClientCommand{
 
 	@Override
 	public void run() {
-		send(new ListAllPVsMessage(getClientSession().getAllPVs()));		
+		getClientSession().send(new ListAllPVsMessage(getClientSession().getAllPVs()));		
 	}
 
 	

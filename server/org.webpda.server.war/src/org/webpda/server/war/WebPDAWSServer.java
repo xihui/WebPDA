@@ -49,6 +49,8 @@ public class WebPDAWSServer {
 	@OnOpen
 	public void onOpen(Session peer){
 		LoggerUtil.getLogger().log(Level.INFO, "Joined: " + peer.toString());
+		peer.getContainer().setDefaultMaxTextMessageBufferSize(10240);
+		peer.getContainer().setAsyncSendTimeout(60000);
 		sessionRegistry.put(peer, new ClientSession(peer));	
 	}
 	
@@ -56,11 +58,17 @@ public class WebPDAWSServer {
 	public void onClose(Session peer){
 		LoggerUtil.getLogger().log(Level.INFO,"Closing: " + peer);
 		sessionRegistry.get(peer).close();
-		sessionRegistry.remove(peer);
 	}
 	@OnError
 	public void onError(Session peer, Throwable error){
 		LoggerUtil.getLogger().log(Level.SEVERE, "Error on Websocket: " + error);
+	}
+	
+	/**Remove session related information from session registry.
+	 * @param session
+	 */
+	public static void unRegisterSession(Session session){
+		sessionRegistry.remove(session);
 	}
 
 }

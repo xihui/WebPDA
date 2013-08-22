@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Start Page</title>
+</head>
+<body onunload="disconnect()">
+
+	<h1>WebPDA Test</h1>
+	WebSocket URL:
+	<input id="wsurl" size="80" type="text" placeholder="WebSocket URL" />
+	<button type="button" autofocus="autofocus"
+		onclick="WebPDATest.open();">Open</button>
+	<br>
+	<br>
+	<form>
+		PV Name: <input id="pvName" class="text-field" type="text"
+			name="pvname" value="sim://noise" placeholder="PV Name" /> Minimum
+		Update Period (ms): <input id="updatePeriod" class="text-field"
+			type="number" value="1000" /> <input id="bufferAllValue"
+			type="checkbox" value="bufferAllValues" /> Buffering All Values<br>
+	</form>
+
+	<button type="button" onclick="WebPDATest.createPV();">Create PV</button>
+	<button type="button" onclick="WebPDATest.listAllPVs();"> List All PVs </button>
+	<button type="button" onclick="WebPDATest.debug();"> Debug On/Off </button>
+	<br>
+	<table id="pvtable" border="1">
+
+
+	</table>
+	<br>
+
+	<div>
+		<input type="submit" value="Close WebSocket"
+			onclick="WebPDATest.closeWebSocket();" />
+	</div>
+	<div id="output">Output:</div>
+	<script type="text/javascript" src="webpda-core.js"></script>
+	<script type="text/javascript" src="webpda-cs.js"></script>
+	<script type="text/javascript" src="webpda-test.js"></script>
+
+
+</body>
+</html>
