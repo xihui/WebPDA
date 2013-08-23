@@ -83,7 +83,8 @@ var WebPDATest;
 						break;
 					case "val":
 						count++;
-						console.log("" + count);
+						if(WebPDA_Debug)
+							console.log("" + count);
 						var valueCell = document.getElementById("pvvalue"
 								+ pv.id);
 						valueCell.innerHTML = pv.getValue();

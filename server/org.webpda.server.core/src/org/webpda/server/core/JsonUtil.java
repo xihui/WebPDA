@@ -27,7 +27,18 @@ public class JsonUtil {
 		char[] sc = new char[4];
 		for(int i=0; i<4; i++){
 			sc[i] = (char) ((longBits >>i*16) & 0xFFFF);
-		}			
+		}
+		int zeroCount = 0;
+		for(int i=0; i<4; i++){
+			if(sc[i]!=0)
+				break;
+			zeroCount++;
+		}
+		if(zeroCount>0){
+			char[] tgt = new char[4-zeroCount];
+			System.arraycopy(sc, 0, tgt, 0, 4-zeroCount);
+			return String.valueOf(tgt);
+		}
 		return String.valueOf(sc);
 	}
 	

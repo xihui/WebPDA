@@ -49,7 +49,7 @@ public class ClientSession {
 		this.session = session;
 		pvMap = new HashMap<Integer, IPV>();		
 		isOpen.set(true);
-		System.out.println("create session: " + this);
+		System.out.println("create session: " + session.getRequestURI() + " " + session.getQueryString());
 	}
 	
 	public synchronized void addPV(int id, IPV pv){
@@ -82,6 +82,7 @@ public class ClientSession {
 	}
 	
 	public synchronized void close(){
+		System.out.println("close: " + this);
 		isOpen.set(false);
 		for(IPV pv: pvMap.values()){
 			pv.stop();
@@ -97,27 +98,34 @@ public class ClientSession {
 	}
 
 	private synchronized void initWorkingThread() {
+		polling.set(true);
 		SHARED_THREAD_POOL.execute(new Runnable() {
-
 			@Override
 			public void run() {
 				System.out.println("execute new task");
 				IServerMessage message;
 				try {
-					polling.set(true);
+					
 					while (isOpen() && 
 							(message = messageQueue.poll(10, TimeUnit.SECONDS)) != null
 							&& session.isOpen()) {
-						session.getAsyncRemote().sendObject(message);
+						//must use BasicRemote to guarantee ordered transmission
+						//AyncRemote has serious problem so far.
+						session.getBasicRemote().sendObject(message);
 					}
+					polling.set(false);
 					if(!session.isOpen()){
-						close();
+						if(isOpen()){
+							LoggerUtil.getLogger().log(Level.WARNING,
+								"The session has been closed unexpectly: " +this);					
+							close();
+						}
 					}
 				} catch (Exception e) {
 					LoggerUtil.getLogger().log(Level.SEVERE,
 							"Send server message error.", e);
 				}
-				polling.set(false);
+				
 			}
 		});
 	}
@@ -128,6 +136,9 @@ public class ClientSession {
 				initWorkingThread();			
 			try {
 //				System.out.println(this + " "+messageQueue.remainingCapacity());
+				if(messageQueue.remainingCapacity() < 10230){
+					System.out.println("Start using message queue " + messageQueue.remainingCapacity());
+				}
 				boolean result = messageQueue.offer(message);
 				if(!result){
 					close();		
