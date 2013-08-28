@@ -8,8 +8,6 @@
 package org.webpda.server.war.clientcommand;
 
 import java.io.IOException;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -27,71 +25,75 @@ import org.webpda.server.datainterface.IPV;
 import org.webpda.server.war.WebPDAWSServer;
 import org.webpda.server.war.servermessage.IServerMessage;
 
-/**A session on the client side.
+/**
+ * A session on the client side.
  * 
  * @author Xihui Chen
- *
+ * 
  */
 public class ClientSession {
-	
+
 	private static final int MAX_QUEUE_SIZE = 10240;
-	private static final ExecutorService SHARED_THREAD_POOL = Executors.newCachedThreadPool();
-	
+	private static final ExecutorService SHARED_THREAD_POOL = Executors
+			.newCachedThreadPool();
+
 	private Session session;
-	
+
 	private Map<Integer, IPV> pvMap;
 	private volatile boolean isClosed = false;
-	private BlockingQueue<IServerMessage> messageQueue = new LinkedBlockingDeque<>(MAX_QUEUE_SIZE);
+	private BlockingQueue<IServerMessage> messageQueue = new LinkedBlockingDeque<>(
+			MAX_QUEUE_SIZE);
 	private AtomicBoolean polling = new AtomicBoolean(false);
 	private AtomicBoolean isOpen = new AtomicBoolean(false);
-	
+
 	public ClientSession(Session session) {
 		this.session = session;
-		pvMap = new HashMap<Integer, IPV>();		
+		pvMap = new HashMap<Integer, IPV>();
 		isOpen.set(true);
-		System.out.println("create session: " + session.getRequestURI() + " " + session.getQueryString());
 	}
-	
-	public synchronized void addPV(int id, IPV pv){
-		if(!isClosed)
+
+	public synchronized void addPV(int id, IPV pv) {
+		if (!isClosed)
 			pvMap.put(id, pv);
 	}
-	
-	public synchronized IPV getPV(int id){
+
+	public synchronized IPV getPV(int id) {
 		return pvMap.get(id);
 	}
-	
-	public synchronized void removePV(int id){
+
+	public synchronized void removePV(int id) {
 		IPV pv = pvMap.get(id);
-		if(pv != null)
+		if (pv != null)
 			pv.stop();
 		pvMap.remove(id);
 	}
-	
-	public synchronized String[] getAllPVs(){
+
+	public synchronized String[] getAllPVs() {
 		String[] result = new String[pvMap.size()];
-		int i=0;
-		for(IPV pv : pvMap.values()){
+		int i = 0;
+		for (IPV pv : pvMap.values()) {
 			result[i++] = pv.getName();
-		};
+		}
+		;
 		return result;
 	}
-	
+
 	public Session getSession() {
 		return session;
 	}
-	
-	public synchronized void close(){
-		System.out.println("close: " + this);
+
+	public synchronized void close() {
+		if (!isOpen())
+			return;
 		isOpen.set(false);
-		for(IPV pv: pvMap.values()){
+		for (IPV pv : pvMap.values()) {
 			pv.stop();
 		}
 		pvMap.clear();
 		isClosed = true;
 		try {
 			session.close();
-		} catch (IOException e) {			
+		} catch (IOException e) {
 		}
 		messageQueue.clear();
 		WebPDAWSServer.unRegisterSession(session);
@@ -102,22 +104,24 @@ public class ClientSession {
 		SHARED_THREAD_POOL.execute(new Runnable() {
 			@Override
 			public void run() {
-				System.out.println("execute new task");
 				IServerMessage message;
 				try {
-					
-					while (isOpen() && 
-							(message = messageQueue.poll(10, TimeUnit.SECONDS)) != null
+
+					while (isOpen()
+							&& (message = messageQueue.poll(10,
+									TimeUnit.SECONDS)) != null
 							&& session.isOpen()) {
-						//must use BasicRemote to guarantee ordered transmission
-						//AyncRemote has serious problem so far.
+						// must use BasicRemote to guarantee ordered
+						// transmission. AsyncRemote has serious problem so far.
 						session.getBasicRemote().sendObject(message);
 					}
 					polling.set(false);
-					if(!session.isOpen()){
-						if(isOpen()){
-							LoggerUtil.getLogger().log(Level.WARNING,
-								"The session has been closed unexpectly: " +this);					
+					if (!session.isOpen()) {
+						if (isOpen()) {
+							LoggerUtil.getLogger().log(
+									Level.WARNING,
+									"The session has been closed unexpectly: "
+											+ this);
 							close();
 						}
 					}
@@ -125,25 +129,27 @@ public class ClientSession {
 					LoggerUtil.getLogger().log(Level.SEVERE,
 							"Send server message error.", e);
 				}
-				
+
 			}
 		});
 	}
 
-	public void send(final IServerMessage message){
-		if(isOpen()){
-			if(!polling.get())
-				initWorkingThread();			
+	public void send(final IServerMessage message) {
+		if (isOpen()) {
+			if (!polling.get())
+				initWorkingThread();
 			try {
-//				System.out.println(this + " "+messageQueue.remainingCapacity());
-				if(messageQueue.remainingCapacity() < 10230){
-					System.out.println("Start using message queue " + messageQueue.remainingCapacity());
+				if (messageQueue.remainingCapacity() < 10230) {
+					System.out.println("Start using message queue "
+							+ messageQueue.remainingCapacity());
 				}
 				boolean result = messageQueue.offer(message);
-				if(!result){
-					close();		
-					LoggerUtil.getLogger().log(Level.WARNING,
-							"The session is closed because the message queue is full: " +this);
+				if (!result) {
+					close();
+					LoggerUtil.getLogger().log(
+							Level.WARNING,
+							"The session is closed because the message queue is full: "
+									+ this);
 				}
 			} catch (Exception e) {
 				LoggerUtil.getLogger().log(Level.SEVERE,
@@ -151,7 +157,7 @@ public class ClientSession {
 			}
 		}
 	}
-	
+
 	/**
 	 * @return true if the client session is still open.
 	 */

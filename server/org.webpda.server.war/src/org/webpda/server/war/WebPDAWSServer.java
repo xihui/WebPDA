@@ -49,7 +49,7 @@ public class WebPDAWSServer {
 	@OnOpen
 	public void onOpen(Session peer){
 		LoggerUtil.getLogger().log(Level.INFO, "Joined: " + peer.toString());
-		peer.getContainer().setDefaultMaxTextMessageBufferSize(10240);
+		peer.getContainer().setDefaultMaxTextMessageBufferSize(10240*10240);
 		peer.getContainer().setAsyncSendTimeout(60000);
 		sessionRegistry.put(peer, new ClientSession(peer));	
 	}
