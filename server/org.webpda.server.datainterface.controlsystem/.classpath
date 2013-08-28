@@ -5,7 +5,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/antlr-runtime-3.5.jar"/>
 	<classpathentry kind="lib" path="lib/pvmanager-core-2.3-20130731.213506-20.jar"/>
 	<classpathentry kind="lib" path="lib/pvmanager-extra-2.3-20130731.213843-12.jar"/>
-	<classpathentry kind="lib" path="lib/pvmanager-jca-2.3-20130731.213712-20.jar"/>
+	<classpathentry kind="lib" path="lib/pvmanager-jca-2.3-20130731.213712-20.jar" sourcepath="lib/pvmanager-jca-2.3-20130731.213712-20-sources.jar"/>
 	<classpathentry kind="lib" path="lib/pvmanager-loc-2.3-20130731.213804-19.jar"/>
 	<classpathentry kind="lib" path="lib/pvmanager-sim-2.3-20130731.213736-19.jar"/>
 	<classpathentry kind="lib" path="lib/pvmanager-sys-2.3-20130731.213856-12.jar"/>
