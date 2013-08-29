@@ -20,10 +20,13 @@ import java.util.logging.Level;
 
 import javax.websocket.Session;
 
+import org.webpda.server.core.HeartBeatListener;
 import org.webpda.server.core.LoggerUtil;
+import org.webpda.server.core.ServerHeartBeatThread;
 import org.webpda.server.datainterface.IPV;
 import org.webpda.server.war.WebPDAWSServer;
 import org.webpda.server.war.servermessage.IServerMessage;
+import org.webpda.server.war.servermessage.PingMessage;
 
 /**
  * A session on the client side.
@@ -33,9 +36,18 @@ import org.webpda.server.war.servermessage.IServerMessage;
  */
 public class ClientSession {
 
+	private static final int MAX_PING_RETRY_COUNT = 60;
+	private static final int PING_FREQUNCY = 5;
+	/**
+	 * Max allowed number of messages in the queue. The session will close if queue is full.
+	 */
 	private static final int MAX_QUEUE_SIZE = 10240;
 	private static final ExecutorService SHARED_THREAD_POOL = Executors
 			.newCachedThreadPool();
+	
+	private long pingCount = 0;
+	private long pongCount = 0;
+	private int retryCount = MAX_PING_RETRY_COUNT;
 
 	private Session session;
 
@@ -44,12 +56,26 @@ public class ClientSession {
 	private BlockingQueue<IServerMessage> messageQueue = new LinkedBlockingDeque<>(
 			MAX_QUEUE_SIZE);
 	private AtomicBoolean polling = new AtomicBoolean(false);
-	private AtomicBoolean isOpen = new AtomicBoolean(false);
+	private boolean isOpen;
+	
+	private HeartBeatListener heartBeatListener = new HeartBeatListener() {
 
+		@Override
+		public int getNotifyInterval() {
+			return PING_FREQUNCY;
+		}
+
+		@Override
+		public void beat(long heartBeatCount) {
+			ping();
+		}
+	};
+		
 	public ClientSession(Session session) {
 		this.session = session;
 		pvMap = new HashMap<Integer, IPV>();
-		isOpen.set(true);
+		isOpen=true;		
+		ServerHeartBeatThread.getInstance().addHeartBeatListener(heartBeatListener);
 	}
 
 	public synchronized void addPV(int id, IPV pv) {
@@ -85,20 +111,55 @@ public class ClientSession {
 	public synchronized void close() {
 		if (!isOpen())
 			return;
-		isOpen.set(false);
+		isOpen=false;
 		for (IPV pv : pvMap.values()) {
 			pv.stop();
 		}
 		pvMap.clear();
-		isClosed = true;
+		isClosed = true;		
+		messageQueue.clear();
+		ServerHeartBeatThread.getInstance().removeHeartBeatListener(heartBeatListener);
+		WebPDAWSServer.unRegisterSession(session);
 		try {
 			session.close();
 		} catch (IOException e) {
 		}
-		messageQueue.clear();
-		WebPDAWSServer.unRegisterSession(session);
+		
+	}
+	
+	/**
+	 * Send ping message to server side.
+	 */
+	public synchronized void ping(){
+		try {
+			if(isOpen()){
+				if(session.isOpen()){
+					if(retryCount > 0){
+						if(pongCount < pingCount)
+							retryCount--;
+						session.getBasicRemote().sendObject(new PingMessage(pingCount++));
+					}else{
+						LoggerUtil.getLogger().log(	Level.INFO,
+								"Session is closed because of no pong message: "+ this);						
+						close();
+					}
+				}else{
+					LoggerUtil.getLogger().log(	Level.INFO,
+							"Session is closed with unknown reason: "+ this);		
+					close();
+				}
+			}
+		} catch (Exception e) {
+			LoggerUtil.getLogger().log(Level.SEVERE,
+					"Failed to send ping message to client " + this, e);
+		} 
 	}
 
+	public synchronized void setPongCount(long pongCount) {
+		retryCount=MAX_PING_RETRY_COUNT;
+		this.pongCount = pongCount;
+	}
+	
 	private synchronized void initWorkingThread() {
 		polling.set(true);
 		SHARED_THREAD_POOL.execute(new Runnable() {
@@ -118,10 +179,8 @@ public class ClientSession {
 					polling.set(false);
 					if (!session.isOpen()) {
 						if (isOpen()) {
-							LoggerUtil.getLogger().log(
-									Level.WARNING,
-									"The session has been closed unexpectly: "
-											+ this);
+							LoggerUtil.getLogger().log(	Level.INFO,
+									"Session is closed with unknown reason: "+ this);	
 							close();
 						}
 					}
@@ -134,6 +193,11 @@ public class ClientSession {
 		});
 	}
 
+	@Override
+	public String toString() {
+		return session.getId();
+	}
+	
 	public void send(final IServerMessage message) {
 		if (isOpen()) {
 			if (!polling.get())
@@ -161,7 +225,7 @@ public class ClientSession {
 	/**
 	 * @return true if the client session is still open.
 	 */
-	public boolean isOpen() {
-		return isOpen.get();
+	public synchronized boolean isOpen() {
+		return isOpen;
 	}
 }

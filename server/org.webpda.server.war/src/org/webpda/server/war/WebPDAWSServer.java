@@ -55,13 +55,16 @@ public class WebPDAWSServer {
 	}
 	
 	@OnClose
-	public void onClose(Session peer){
-		LoggerUtil.getLogger().log(Level.INFO,"Closing: " + peer);
-		sessionRegistry.get(peer).close();
+	public void onClose(Session peer){		
+		ClientSession clientSession = sessionRegistry.get(peer);
+		if(clientSession !=null){
+			LoggerUtil.getLogger().log(Level.INFO,"Closing: " + peer);
+			clientSession.close();
+		}
 	}
 	@OnError
 	public void onError(Session peer, Throwable error){
-		LoggerUtil.getLogger().log(Level.SEVERE, "Error on Websocket: " + error);
+		LoggerUtil.getLogger().log(Level.SEVERE, "Error on Websocket", error);
 	}
 	
 	/**Remove session related information from session registry.

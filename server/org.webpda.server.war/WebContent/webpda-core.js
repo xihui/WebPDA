@@ -440,8 +440,14 @@ function WebPDA(url) {
 	}
 
 	function handleServerMessage(json) {
-		console.log("handle message: " + json);
-		// TODO: not implemented yet.
+		
+		if(json.msg == "Ping"){
+			var pong = JSON.stringify({
+				"commandName" : "Pong",
+				"count": json.Count					
+			});
+			wp.sendText(pong);
+		}
 	}
 
 	this.close = function() {

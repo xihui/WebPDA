@@ -58,7 +58,6 @@ public class ClientCommandDecoder implements Decoder.Text<AbstractClientCommand>
 		try {
 			rootNode = JsonUtil.mapper.readValue(arg0, JsonNode.class);
 			String commandName = rootNode.get("commandName").asText();		
-			System.out.println(commandName);
 			Class<?> clazz = Class.forName(packageName + "." + commandName + "Command");
 			if(clazz != null)
 				return true;
