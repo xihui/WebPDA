@@ -22,7 +22,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  * @author Xihui Chen
  *
  */
-public class PVEventMessage implements IServerMessage{
+public class PVEventMessage extends AbstractTextMessage{
 
 	private static final String DATA = "d";
 

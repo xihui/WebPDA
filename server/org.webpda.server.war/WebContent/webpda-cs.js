@@ -46,7 +46,7 @@
 			this.connected = json.d;
 			break;
 		case "val":
-			this.value = processSingleValueJson(json.d, this.value);			
+			this.value = processSingleValueBinary(json.d, this.value);			
 			break;
 		case "bufVal":
 			this.allBufferedValues=[];
@@ -66,11 +66,20 @@
 	};
 	
 	/**Convert a json represented value to V... type value 
-	 * @param valueJson value in json
+	 * @param binData single value frame.
 	 * @param currentValue current value of the PV.
 	 * @returns the converted value.
 	 */
-	function processSingleValueJson(valueJson, currentValue) {
+	function processSingleValueBinary(binData, currentValue) {
+		var int16Array = new Int16Array(WebPDAUtil.sliceArrayBuffer(binData, 5, 7));
+		var jsonLength = int16Array[0];
+		var uint8Array = new Uint8Array(WebPDAUtil.sliceArrayBuffer(binData, 7, jsonLength+7));
+		var array=[];
+		for(var i=0; i<uint8Array.length; i++){
+			array[i] = uint8Array[i];
+		}
+		var jsonString = String.fromCharCode.apply(null,array);		
+		valueJson = JSON.parse(jsonString);
 		for ( var prop in valueJson) {
 			var propValue = valueJson[prop];
 			switch (prop) {

@@ -398,6 +398,8 @@ function WebPDA(url) {
 		} else {
 			throw new Error('WebSocket is not supported by this browser.');
 		}
+		
+		websocket.binaryType = "arraybuffer";
 
 		websocket.onopen = function(evt) {			
 			fireOnOpen(evt);
@@ -406,7 +408,12 @@ function WebPDA(url) {
 		websocket.onmessage = function(evt) {
 			if (WebPDA_Debug)
 				console.log("received: " + evt.data);
-			var json = JSON.parse(evt.data);
+			var json;
+			if(typeof evt.data == "string"){
+				json = JSON.parse(evt.data);
+			}else{
+				json = preprocessBytesArray(evt.data);
+			}
 			dispatchMessage(json);
 			fireOnMessage(evt);
 		};
@@ -427,6 +434,19 @@ function WebPDA(url) {
 			fireOnError(evt);
 		};
 
+	}
+	
+	function preprocessBytesArray(data){
+		var json={};
+		var int8Array = new Int8Array(data);
+		if(int8Array[0]==0){
+			json.e="val";
+		}else if(int8Array[0]==1)
+			json.e="bufVal";
+		var int32Array = new Int32Array(WebPDAUtil.sliceArrayBuffer(data, 1, 5));
+		json.pv = int32Array[0];
+		json.d = data;	
+		return json;
 	}
 
 	function dispatchMessage(json) {
@@ -468,6 +488,7 @@ function WebPDA(url) {
 	WebPDAUtil = {
 		extend : extend,
 		clone : clone,
+		sliceArrayBuffer : sliceArrayBuffer,
 		binStringToDouble : binStringToDouble,
 		binStringToFloat : binStringToFloat,
 		binStringToInt : binStringToInt,
@@ -512,6 +533,20 @@ function WebPDA(url) {
 		}
 		return r;
 	}
+	
+	/**
+	 * Slice an array buffer from start (inclusive) to end (exclusive)
+	 */
+	function sliceArrayBuffer(buf, start, end){
+		var copy = new ArrayBuffer(end-start);
+		var srcView = new Int8Array(buf);
+		var tgtView = new Int8Array(copy);
+		for(var i=start; i<end; i++){
+			tgtView[i-start] = srcView[i];
+		}
+		return  copy;			
+	}
+	
 
 	/**
 	 * convert binary represented string to double.

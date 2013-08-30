@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
  * @author Xihui Chen
  *
  */
-public abstract class NonPVEventMessage implements IServerMessage{
+public abstract class NonPVEventMessage extends AbstractTextMessage{
 
 
 
@@ -33,6 +33,8 @@ public abstract class NonPVEventMessage implements IServerMessage{
 		jg.writeStringField(MESSAGE, getClass().getSimpleName().replaceAll("Message", ""));
 		return jg;
 	}
+	
+	
 	
 	
 }

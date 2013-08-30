@@ -172,9 +172,13 @@ public class ClientSession {
 							&& (message = messageQueue.poll(10,
 									TimeUnit.SECONDS)) != null
 							&& session.isOpen()) {
+						
 						// must use BasicRemote to guarantee ordered
 						// transmission. AsyncRemote has serious problem so far.
-						session.getBasicRemote().sendObject(message);
+						if(message.isBinary())
+							session.getBasicRemote().sendBinary(message.toByteBuffer());
+						else
+							session.getBasicRemote().sendObject(message);
 					}
 					polling.set(false);
 					if (!session.isOpen()) {

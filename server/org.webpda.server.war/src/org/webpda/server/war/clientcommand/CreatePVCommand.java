@@ -16,6 +16,7 @@ import org.webpda.server.datainterface.IPVListener;
 import org.webpda.server.datainterface.PVFactory;
 import org.webpda.server.war.servermessage.PVEventMessage;
 import org.webpda.server.war.servermessage.PVEventType;
+import org.webpda.server.war.servermessage.PVValueMessage;
 
 /**A client command to create a pv.
  * @author Xihui Chen
@@ -54,10 +55,11 @@ public class CreatePVCommand extends AbstractPVCommand {
 				public void valueChanged(IPV pv) {
 					count++;
 //					System.out.println(pv.getName() +  " " +count);
-					getClientSession().send(new PVEventMessage(getId(),
-							pv.isBufferingValues() ? PVEventType.bufVal
-									: PVEventType.val, pv
-									.getDeltaJsonString(), true));			
+					getClientSession()
+							.send(new PVValueMessage(
+									pv.isBufferingValues() ? PVValueMessage.VALUE_TYPE_BUF
+											: PVValueMessage.VALUE_TYPE_SINGLE,
+									getId(), pv.getDeltaChangesValueFrame()));		
 //					System.out.println("Done:" + pv.getName() + " " + pv.getValue());
 				}				
 

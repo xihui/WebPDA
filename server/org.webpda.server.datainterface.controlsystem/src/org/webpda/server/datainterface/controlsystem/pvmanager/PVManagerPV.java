@@ -14,6 +14,7 @@ import static org.epics.pvmanager.formula.ExpressionLanguage.channelFromFormula;
 import static org.epics.pvmanager.formula.ExpressionLanguage.formula;
 import static org.epics.util.time.TimeDuration.ofMillis;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -43,6 +44,7 @@ import org.webpda.server.core.LoggerUtil;
 import org.webpda.server.datainterface.ExceptionHandler;
 import org.webpda.server.datainterface.IPV;
 import org.webpda.server.datainterface.IPVListener;
+import org.webpda.server.datainterface.ValueFrame;
 import org.webpda.server.datainterface.controlsystem.VTypeJsonHelper;
 
 /**
@@ -422,8 +424,8 @@ public class PVManagerPV implements IPV {
 	}
 
 	@Override
-	public String getDeltaJsonString() {
-		String r=null;
+	public ValueFrame getDeltaChangesValueFrame() {
+		ValueFrame r=null;
 		if(!isBufferingValues()){
 			VType newValue = getValue();
 			r = VTypeJsonHelper.VTypeToJson(newValue, value);
@@ -444,7 +446,7 @@ public class PVManagerPV implements IPV {
 				i++;
 			}
 			sb.append("]");
-			r=sb.toString();
+//			r=sb.toString();
 		}
 		return r;
 	}

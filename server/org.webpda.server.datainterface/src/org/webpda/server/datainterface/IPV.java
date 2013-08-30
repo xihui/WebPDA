@@ -55,11 +55,10 @@ public interface IPV {
 	public Object getValue();
 	
 	/**
-	 * @return the raw Json string representing the latest value, timestamp and other
-	 * delta changes if it has. If all values were buffered, it will be a raw Json string
-	 * that representing an array of delta changes.
+	 * @return the {@link ValueFrame} that contains the latest value, timestamp and other
+	 * delta changes if it has.
 	 */
-	public String getDeltaJsonString();
+	public ValueFrame getDeltaChangesValueFrame();
 
 	/**
 	 * Return true if all values during an update period should be buffered.
@@ -70,7 +69,7 @@ public interface IPV {
 
 	/**If the PV is connected. If the PV is an aggregate of multiple PVs,
 	 * the connection state should be determined by the aggregator. For example,
-	 * the aggregator countConnected(‘pv1’, ‘pv2’, ‘pv3’,…) should always return 
+	 * the aggregator countConnected(ï¿½pv1ï¿½, ï¿½pv2ï¿½, ï¿½pv3ï¿½,ï¿½) should always return 
 	 * connected. 
 	 * @return true if the PV is connected.
 	 */

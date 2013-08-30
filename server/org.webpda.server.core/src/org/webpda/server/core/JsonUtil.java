@@ -18,6 +18,12 @@ public class JsonUtil {
 	
 	public static JsonFactory jsonFactory = new JsonFactory();
 	
+	
+	
+	
+	
+	
+	
 	/**Convert double value to a String that has 4 chars which represents the binary value.
 	 * @param v the value to be converted.
 	 * @return the binary string.
