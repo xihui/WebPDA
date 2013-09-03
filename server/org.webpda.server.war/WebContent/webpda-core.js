@@ -406,13 +406,15 @@ function WebPDA(url) {
 		};
 
 		websocket.onmessage = function(evt) {
-			if (WebPDA_Debug)
-				console.log("received: " + evt.data);
 			var json;
 			if(typeof evt.data == "string"){
 				json = JSON.parse(evt.data);
+				if (WebPDA_Debug)
+					console.log("received: " + evt.data);
 			}else{
 				json = preprocessBytesArray(evt.data);
+				if (WebPDA_Debug)
+					console.log("received: " + evt.data + " "+evt.data.byteLength);
 			}
 			dispatchMessage(json);
 			fireOnMessage(evt);
@@ -489,18 +491,7 @@ function WebPDA(url) {
 		extend : extend,
 		clone : clone,
 		sliceArrayBuffer : sliceArrayBuffer,
-		binStringToDouble : binStringToDouble,
-		binStringToFloat : binStringToFloat,
-		binStringToInt : binStringToInt,
-		binStringToLong : binStringToLong,
-		binStringToShort : binStringToShort,
-		binStringToByte : binStringToByte,
-		binStringToDoubleArray : binStringToDoubleArray,
-		binStringToFloatArray : binStringToFloatArray,
-		binStringToLongArray : binStringToLongArray,
-		binStringToIntArray : binStringToIntArray,
-		binStringToShortArray : binStringToShortArray,
-		binStringToByteArray : binStringToByteArray
+		decodeUTF8Array : decodeUTF8Array		
 	};
 
 	/**
@@ -535,9 +526,13 @@ function WebPDA(url) {
 	}
 	
 	/**
-	 * Slice an array buffer from start (inclusive) to end (exclusive)
+	 * Slice an array buffer from start (inclusive) to end (exclusive). 
+	 * If end<0, it will slice all right part of the array from start. 
+	 * @returns a new array which has copy of the sliced part.
 	 */
 	function sliceArrayBuffer(buf, start, end){
+		if(end<0)
+			end = buf.byteLength;
 		var copy = new ArrayBuffer(end-start);
 		var srcView = new Int8Array(buf);
 		var tgtView = new Int8Array(copy);
@@ -549,169 +544,49 @@ function WebPDA(url) {
 	
 
 	/**
-	 * convert binary represented string to double.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number.
-	 */
-	function binStringToDouble(s) {
-		var buf = binStringToBuf(s);
-		var bufView = new Float64Array(buf);
-		return bufView[0];
-	}
-
-	/**
-	 * convert binary represented string to float.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number.
-	 */
-	function binStringToFloat(s) {
-		var buf = binStringToBuf(s);
-		var bufView = new Float32Array(buf);
-		return bufView[0];
-	}
-
-	/**
-	 * convert binary represented string to int.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number.
-	 */
-	function binStringToInt(s) {
-		var buf = binStringToBuf(s);
-		var bufView = new Int32Array(buf);
-		return bufView[0];
-	}
-
-	/**
-	 * convert binary represented string to long.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number.
-	 */
-	function binStringToLong(s) {
-		return binStringToDouble(s);
-	}
-
-	/**
-	 * convert binary represented string to short.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number.
-	 */
-	function binStringToShort(s) {
-		var buf = binStringToBuf(s);
-		var bufView = new Int16Array(buf);
-		return bufView[0];
-	}
-
-	/**
-	 * convert binary represented string to byte.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number.
-	 */
-	function binStringToByte(s) {
-		return binStringToShort(s);
-	}
-
-	/**
-	 * Fill binary represented string to char buffer.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the char buffer.
-	 */
-	function binStringToBuf(s) {
-		var buf = new ArrayBuffer(s.length * 2);
-		var uint16View = new Uint16Array(buf);
-		for ( var i = 0; i < s.length; i++) {
-			uint16View[i] = s.charCodeAt(i);
-		}
-		return buf;
-	}
-
-	/**
-	 * convert binary represented string to double array.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number array.
-	 */
-	function binStringToDoubleArray(s) {
-		var buf = binStringToBuf(s);
-		var bufView = new Float64Array(buf);
-		return bufView;
-	}
-
-	/**
-	 * convert binary represented string to float array.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number array.
-	 */
-	function binStringToFloatArray(s) {
-		var buf = binStringToBuf(s);
-		var bufView = new Float32Array(buf);
-		return bufView;
-	}
-
-	/**
-	 * convert binary represented string to long array.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number array.
-	 */
-	function binStringToLongArray(s) {
-		return binStringToDoubleArray(s);
-	}
-
-	/**
-	 * convert binary represented string to int array.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number array.
-	 */
-	function binStringToIntArray(s) {
-		var buf = binStringToBuf(s);
-		var bufView = new Int32Array(buf);
-		return bufView;
-	}
-
-	/**
-	 * convert binary represented string to short array.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number array.
-	 */
-	function binStringToShortArray(s) {
-		var buf = binStringToBuf(s);
-		var bufView = new Int16Array(buf);
-		return bufView;
-	}
-
-	/**
-	 * convert binary represented string to byte array.
-	 * 
-	 * @param s
-	 *            the string.
-	 * @returns the number array.
-	 */
-	function binStringToByteArray(s) {
-		var buf = binStringToBuf(s);
-		var bufView = new Int8Array(buf);
-		return bufView;
-	}
+     * Decode utf8 byte array to javascript string....
+     * This piece of code is copied from:
+     * http://ciaranj.blogspot.com/2007/11/utf8-characters-encoding-in-javascript.html
+     */
+    function decodeUTF8Array(dotNetBytes) {
+        var result= "";
+        var i= 0;
+        var c=c1=c2=0;
+      
+        // Perform byte-order check.
+        if( dotNetBytes.length >= 3 ) {
+            if(   (dotNetBytes[0] & 0xef) == 0xef
+                && (dotNetBytes[1] & 0xbb) == 0xbb
+                && (dotNetBytes[2] & 0xbf) == 0xbf ) {
+                // Hmm byte stream has a BOM at the start, we'll skip this.
+                i= 3;
+            }
+        }
+      
+        while( i < dotNetBytes.length ) {
+            c= dotNetBytes[i]&0xff;
+          
+            if( c < 128 ) {
+                result+= String.fromCharCode(c);
+                i++;
+            }
+            else if( (c > 191) && (c < 224) ) {
+                if( i+1 >= dotNetBytes.length )
+                    throw "Un-expected encoding error, UTF-8 stream truncated, or incorrect";
+                c2= dotNetBytes[i+1]&0xff;
+                result+= String.fromCharCode( ((c&31)<<6) | (c2&63) );
+                i+=2;
+            }
+            else {
+                if( i+2 >= dotNetBytes.length  || i+1 >= dotNetBytes.length )
+                    throw "Un-expected encoding error, UTF-8 stream truncated, or incorrect";
+                c2= dotNetBytes[i+1]&0xff;
+                c3= dotNetBytes[i+2]&0xff;
+                result+= String.fromCharCode( ((c&15)<<12) | ((c2&63)<<6) | (c3&63) );
+                i+=3;
+            }          
+        }                
+        return result;
+    }
 
 }());

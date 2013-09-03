@@ -59,7 +59,7 @@ public class PVManagerPVFactory extends AbstractPVFactory {
 			if (parameters.containsKey(BUFFER_ALL_VALUES))
 				bufferAllValues = (Boolean) parameters.get(BUFFER_ALL_VALUES);
 		}
-		
+		PVManagerPV.setDebug(true);
 		return new PVManagerPV(name, readOnly, minUpdatePeriodInMs,
 				bufferAllValues, SIMPLE_PV_THREAD, DEFAULT_EXCEPTION_HANDLER);
 	}

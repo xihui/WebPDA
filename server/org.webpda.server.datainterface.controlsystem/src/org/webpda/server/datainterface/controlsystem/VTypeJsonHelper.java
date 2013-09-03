@@ -2,9 +2,6 @@ package org.webpda.server.datainterface.controlsystem;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 
 import org.epics.util.array.CollectionNumbers;
@@ -18,7 +15,7 @@ import org.epics.vtype.VDouble;
 import org.epics.vtype.VEnum;
 import org.epics.vtype.VEnumArray;
 import org.epics.vtype.VFloat;
-import org.epics.vtype.VNumber;
+import org.epics.vtype.VInt;
 import org.epics.vtype.VNumberArray;
 import org.epics.vtype.VShort;
 import org.epics.vtype.VString;
@@ -37,7 +34,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 public class VTypeJsonHelper {
 	
 	
-	private static final String ARRAY = "arr"; //$NON-NLS-1$
 	private static final String LENGTH = "len"; //$NON-NLS-1$
 	private static final String TYPE = "type"; //$NON-NLS-1$
 	public final static String TIME = "t"; //$NON-NLS-1$
@@ -57,7 +53,7 @@ public class VTypeJsonHelper {
 	public final static String UNITS = "units"; //$NON-NLS-1$
 	private static final String LABELS = "labels";
 
-	public static ValueFrame VTypeToJson(VType v, Object oldValue) {
+	public static ValueFrame vTypeToValueFrame(VType v, Object oldValue) {
 		if(v==null)
 			return null;
 		try {
@@ -87,6 +83,7 @@ public class VTypeJsonHelper {
 			
 			byte[] valueBinaryPart = getValueBinary(v);
 			byteArrayOutputStream.close();
+			
 			ValueFrame r = new ValueFrame();
 			r.addValue(DataUtil.shortToBytes(
 					(short) jsonPart.length), jsonPart, valueBinaryPart);
@@ -101,72 +98,63 @@ public class VTypeJsonHelper {
 	private static void writeValueJsonInfo(VType v, JsonGenerator jg) throws JsonGenerationException, IOException{
 		if(v instanceof Array){
 			jg.writeNumberField(LENGTH, ((Array)v).getSizes().getInt(0));
+		}else if(v instanceof VString){
+			jg.writeStringField(VALUE, ((VString)v).getValue());
+		}else if(v instanceof VStringArray){
+			jg.writeFieldName(VALUE);
+			jg.writeStartArray();
+			for(String s: ((VStringArray)v).getData())
+				jg.writeString(s);
+			jg.writeEndArray();			
 		}
 		return;
 	}
 
-	private static byte[] getValueBinary(VType v){
+	private static byte[] getValueBinary(VType v) throws JsonGenerationException{
 		if(v instanceof VDouble){			
 			return DataUtil.doubleToBytes(((VDouble)v).getValue());
 		}else if(v instanceof VFloat){
-//			jg.writeStringField(VALUE, JsonUtil.floatToBinString(((VFloat)v).getValue()));
+			return DataUtil.floatToBytes(((VFloat)v).getValue());
 		}else if(v instanceof VShort){
-//			jg.writeStringField(VALUE, JsonUtil.shortToBinString(((VShort)v).getValue()));
+			return DataUtil.shortToBytes(((VShort)v).getValue());
 		}else if(v instanceof VByte){
-//			jg.writeStringField(VALUE, JsonUtil.byteToBinString(((VByte)v).getValue()));
-		}else if(v instanceof VNumber){
-//			jg.writeStringField(VALUE, JsonUtil.intToBinString(((VNumber)v).getValue().intValue()));
+			return DataUtil.byteToBytes(((VByte)v).getValue());
+		}else if(v instanceof VInt){
+			return DataUtil.intToBytes(((VInt)v).getValue());
 		}else if(v instanceof VEnum){
-//			jg.writeNumberField(VALUE, ((VEnum)v).getIndex());
-		}else if(v instanceof VString){
-//			jg.writeStringField(VALUE, ((VString)v).getValue());
+			return DataUtil.intToBytes(((VEnum)v).getIndex());
 		}else if(v instanceof VNumberArray){
-//			jg.writeFieldName(VALUE);
-//			jg.writeStartObject();
-//			jg.writeNumberField(LENGTH, ((VNumberArray)v).getData().size());
-//			Object wrappedArray = CollectionNumbers.wrappedArray(((VNumberArray) v).getData());
-//			if(wrappedArray instanceof double[])
-//				jg.writeStringField(ARRAY, JsonUtil.doubleArrayToBinString((double[]) wrappedArray));
-//			else if(wrappedArray instanceof float[])
-//				jg.writeStringField(ARRAY, JsonUtil.floatArrayToBinString((float[]) wrappedArray));
-//			else if(wrappedArray instanceof long[])
-//				jg.writeStringField(ARRAY, JsonUtil.longArrayToBinString((long[]) wrappedArray));
-//			else if(wrappedArray instanceof int[])
-//				jg.writeStringField(ARRAY, JsonUtil.intArrayToBinString((int[]) wrappedArray));
-//			else if(wrappedArray instanceof short[])
-//				jg.writeStringField(ARRAY, JsonUtil.shortArrayToBinString((short[]) wrappedArray));
-//			else if(wrappedArray instanceof byte[])
-//				jg.writeStringField(ARRAY, JsonUtil.byteArrayToBinString((byte[]) wrappedArray));			
-//			else
-//				throw new JsonGenerationException("The wrapped array is not primary array.");
-//			jg.writeEndObject();
+			Object wrappedArray = CollectionNumbers.wrappedArray(((VNumberArray) v).getData());
+			if(wrappedArray instanceof double[])
+				return DataUtil.doubleArrayToBytes((double[]) wrappedArray);
+			else if(wrappedArray instanceof float[])
+				return DataUtil.floatArrayToBytes((float[]) wrappedArray);
+			else if(wrappedArray instanceof long[])
+				return DataUtil.longArrayToBytes((long[]) wrappedArray);
+			else if(wrappedArray instanceof int[])
+				return DataUtil.intArrayToBytes((int[]) wrappedArray);
+			else if(wrappedArray instanceof short[])
+				return DataUtil.shortArrayToBytes((short[]) wrappedArray);
+			else if(wrappedArray instanceof byte[])
+				return (byte[])wrappedArray;
+			else
+				throw new JsonGenerationException("The wrapped array is not primary array.");
 		}else if(v instanceof VEnumArray){
-//			jg.writeFieldName(VALUE);
-//			jg.writeStartObject();
-//			jg.writeNumberField(LENGTH, ((VEnumArray)v).getIndexes().size());
-//			Object wrappedArray = CollectionNumbers.wrappedArray(((VNumberArray) v).getData());
-//			if(wrappedArray instanceof int[])
-//				jg.writeStringField(ARRAY, JsonUtil.intArrayToBinString((int[]) wrappedArray));
-//			else
-//				throw new JsonGenerationException("The wrapped array is not primary array.");
-//			jg.writeEndObject();
-		}else if(v instanceof VStringArray){
-//			jg.writeFieldName(VALUE);
-//			jg.writeStartArray();
-//			for(String s: ((VStringArray)v).getData())
-//				jg.writeString(s);
-//			jg.writeEndArray();			
+			Object wrappedArray = CollectionNumbers.wrappedArray(((VEnumArray) v).getIndexes());
+			if(wrappedArray instanceof int[])
+				return DataUtil.intArrayToBytes((int[]) wrappedArray);
+			else
+				throw new JsonGenerationException("The wrapped array is not primary array.");
 		}
-		return null;
+		return new byte[0];
 	}
 
 	
 	private static void writeTimeToJson(Time t, JsonGenerator jg) throws JsonGenerationException, IOException{
 		jg.writeFieldName(TIME);
 		jg.writeStartObject();
-		jg.writeStringField(SECOND, JsonUtil.longToBinString(t.getTimestamp().getSec()));
-		jg.writeStringField(NANOSECOND, JsonUtil.intToBinString(
-				t.getTimestamp().getNanoSec()));
+		jg.writeNumberField(SECOND, t.getTimestamp().getSec());
+		jg.writeNumberField(NANOSECOND, t.getTimestamp().getNanoSec());
 		jg.writeEndObject();
 	}
 	

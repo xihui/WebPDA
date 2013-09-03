@@ -14,7 +14,6 @@ import static org.epics.pvmanager.formula.ExpressionLanguage.channelFromFormula;
 import static org.epics.pvmanager.formula.ExpressionLanguage.formula;
 import static org.epics.util.time.TimeDuration.ofMillis;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -428,25 +427,22 @@ public class PVManagerPV implements IPV {
 		ValueFrame r=null;
 		if(!isBufferingValues()){
 			VType newValue = getValue();
-			r = VTypeJsonHelper.VTypeToJson(newValue, value);
+			r = VTypeJsonHelper.vTypeToValueFrame(newValue, value);
 			value = newValue;
 		}else{
 			List<VType> newValue = getAllBufferedValues();
 			if(newValue == null){
 				value=null;
 				return null;
-			}
-			StringBuilder sb = new StringBuilder("[");
-			int i=0;
+			}			
 			for(VType v : newValue){
-				sb.append(VTypeJsonHelper.VTypeToJson(v, value));
-				value = v;
-				if(i < newValue.size()-1)
-					sb.append(",");
-				i++;
+				ValueFrame valueFrame = VTypeJsonHelper.vTypeToValueFrame(v, value);
+				if(r ==null)
+					r = valueFrame;
+				else
+					r.addValue(valueFrame);
+				value = v;				
 			}
-			sb.append("]");
-//			r=sb.toString();
 		}
 		return r;
 	}

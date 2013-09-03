@@ -3,6 +3,7 @@ package org.webpda.server.war.servermessage;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import org.webpda.server.core.DataUtil;
 import org.webpda.server.datainterface.ValueFrame;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,7 +37,7 @@ public class PVValueMessage implements IServerMessage{
 	public ByteBuffer toByteBuffer() {
 		ByteBuffer byteBuffer = ByteBuffer.allocate(5+valueFrame.getTotalBytesLength());
 		byteBuffer.put(valueType);
-		byteBuffer.putInt(pvId);
+		byteBuffer.put(DataUtil.intToBytes(pvId));
 		List<byte[]> byteArrayList = valueFrame.getByteArrayList();
 		for(byte[] b : byteArrayList){
 			byteBuffer.put(b);

@@ -56,7 +56,7 @@ public interface IPV {
 	
 	/**
 	 * @return the {@link ValueFrame} that contains the latest value, timestamp and other
-	 * delta changes if it has.
+	 * delta changes if it has. It could be null if the PV has no value yet.
 	 */
 	public ValueFrame getDeltaChangesValueFrame();
 

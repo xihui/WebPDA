@@ -40,6 +40,11 @@ public class ValueFrame {
 		totalBytesLength += valueBinaryPart.length;
 	}	 
 	
+	public void addValue(ValueFrame valueFrame){
+		byteArrayList.addAll(valueFrame.getByteArrayList());
+		totalBytesLength +=valueFrame.totalBytesLength;
+	}
+	
 	public List<byte[]> getByteArrayList(){
 		return byteArrayList;
 	}	

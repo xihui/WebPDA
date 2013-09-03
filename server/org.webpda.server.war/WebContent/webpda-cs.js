@@ -7,7 +7,8 @@
  ******************************************************************************/
 
 /**
- * Extension of WebPDA for control system data protocol such as the one in EPICS.
+ * Extension of WebPDA for control system data protocol such as the one in
+ * EPICS.
  * 
  * @author Xihui Chen
  */
@@ -36,7 +37,6 @@
 			return true;
 		};
 
-		
 		return this.internalCreatePV(name, pvObj, compareFunc, bufferAllValues);
 	};
 
@@ -46,12 +46,19 @@
 			this.connected = json.d;
 			break;
 		case "val":
-			this.value = processSingleValueBinary(json.d, this.value);			
+			this.value = processSingleValueBinary({
+				binData : json.d,
+				startIndex : 5
+			}, this.value);
 			break;
 		case "bufVal":
-			this.allBufferedValues=[];
-			for(var i in json.d){
-				this.value = processSingleValueJson(json.d[i], this.value);
+			this.allBufferedValues = [];
+			var wrappedBinData = {
+					binData : json.d,
+					startIndex : 5
+			};
+			while (wrappedBinData.startIndex<json.d.byteLength-1) {
+				this.value = processSingleValueBinary(wrappedBinData, this.value);
 				this.allBufferedValues.push(WebPDAUtil.clone(this.value));
 			}
 			break;
@@ -60,26 +67,32 @@
 			break;
 		default:
 			break;
-		}		
+		}
 		if (WebPDA_Debug)
 			console.log(this);
 	};
-	
-	/**Convert a json represented value to V... type value 
-	 * @param binData single value frame.
-	 * @param currentValue current value of the PV.
+
+	/**
+	 * Convert a json represented value to V... type value
+	 * 
+	 * @param wrappedBinData
+	 *            single value frame and the start index of this frame. 
+	 *            The start index will move  to next frame after processing.
+	 * @param currentValue
+	 *            current value of the PV.
 	 * @returns the converted value.
 	 */
-	function processSingleValueBinary(binData, currentValue) {
-		var int16Array = new Int16Array(WebPDAUtil.sliceArrayBuffer(binData, 5, 7));
+	function processSingleValueBinary(wrappedBinData, currentValue) {
+		var binData = wrappedBinData.binData;
+		var start = wrappedBinData.startIndex;
+		var int16Array = new Int16Array(WebPDAUtil.sliceArrayBuffer(binData,
+				start, start + 2));
 		var jsonLength = int16Array[0];
-		var uint8Array = new Uint8Array(WebPDAUtil.sliceArrayBuffer(binData, 7, jsonLength+7));
-		var array=[];
-		for(var i=0; i<uint8Array.length; i++){
-			array[i] = uint8Array[i];
-		}
-		var jsonString = String.fromCharCode.apply(null,array);		
-		valueJson = JSON.parse(jsonString);
+
+		var uint8Array = new Uint8Array(WebPDAUtil.sliceArrayBuffer(binData,
+				start + 2, jsonLength + start + 2));
+		var jsonString = WebPDAUtil.decodeUTF8Array(uint8Array);// String.fromCharCode.apply(null,array);
+		var valueJson = JSON.parse(jsonString);
 		for ( var prop in valueJson) {
 			var propValue = valueJson[prop];
 			switch (prop) {
@@ -91,7 +104,7 @@
 				currentValue.timestamp = parseTimestamp(propValue);
 				break;
 			case "v":
-				currentValue.parseJsonValue(propValue);
+				currentValue.parseBinaryValue(propValue);
 				break;
 			case "sev":
 				currentValue.severity = propValue;
@@ -126,14 +139,23 @@
 			case "labels":
 				currentValue.labels = propValue;
 				break;
+			case "len":
+				currentValue.length = propValue;
+				break;
 			default:
 				throw new Error("Unkown Json Property: " + prop);
 				break;
-			}			
+			}
 		}
+		var nextStart = jsonLength + start + 2 + currentValue.getBinValueLength();
+		if(currentValue.getBinValueLength()>0){			
+			currentValue.parseBinaryValue(WebPDAUtil.sliceArrayBuffer(binData,
+				jsonLength + start + 2, nextStart));			
+		}
+		wrappedBinData.startIndex=nextStart;
 		return currentValue;
 	}
-	
+
 	function createValue(type) {
 		switch (type) {
 		case "VDouble":
@@ -153,7 +175,7 @@
 		case "VIntArray":
 		case "VShortArray":
 		case "VByteArray":
-			return new VNumberArray(type);		
+			return new VNumberArray(type);
 		case "VStringArray":
 			return new VStringArray(type);
 		case "VEnumArray":
@@ -171,16 +193,15 @@
 			return this.getDate().toISOString();
 		};
 	}
-	Timestamp.prototype.getDate = function(){
-		if(this.date ==null){
-			this.date = new Date(this.sec*1000 + this.nanoSec/1000000);
+	Timestamp.prototype.getDate = function() {
+		if (this.date == null) {
+			this.date = new Date(this.sec * 1000 + this.nanoSec / 1000000);
 		}
-		return this.date;		
+		return this.date;
 	};
 
 	function parseTimestamp(timeInJson) {
-		return new Timestamp(WebPDAUtil.binStringToLong(timeInJson.s),
-				WebPDAUtil.binStringToInt(timeInJson.ns));
+		return new Timestamp(timeInJson.s,timeInJson.ns);
 
 	}
 
@@ -194,8 +215,8 @@
 		this.precision = null;
 		this.units = null;
 	}
-	
-	function VBasicType(type){
+
+	function VBasicType(type) {
 		this.timestamp = null;
 		this.value = null;
 		this.severity = null;
@@ -206,115 +227,160 @@
 		return "[" + this.type + "] " + this.timestamp + " " + this.value + " "
 				+ this.severity + " " + this.alarmName;
 	};
-	
+	/**
+	 * Get length of the binary presentation of the value.
+	 */
+	VBasicType.prototype.getBinValueLength = function() {
+		throw new Error("This function must be overriden by subclass");
+	};
 
 	function VNumber(type) {
 		VBasicType.call(this, type);
-		this.display = new Display();		
+		this.display = new Display();
 	}
 	VNumber.prototype = new VBasicType;
-	VNumber.prototype.parseJsonValue = function(binString) {
+	VNumber.prototype.parseBinaryValue = function(binData) {
 		switch (this.type) {
 		case "VDouble":
-			this.value = WebPDAUtil.binStringToDouble(binString);
+		case "VLong":
+			this.value = new Float64Array(binData)[0];
 			break;
 		case "VFloat":
-			this.value = WebPDAUtil.binStringToFloat(binString);
-			break;
-		case "VLong":
-			this.value = WebPDAUtil.binStringToLong(binString);
+			this.value = new Float32Array(binData)[0];
 			break;
 		case "VInt":
-			this.value = WebPDAUtil.binStringToInt(binString);
+			this.value = new Int32Array(binData)[0];
 			break;
 		case "VShort":
-			this.value = WebPDAUtil.binStringToShort(binString);
+			this.value = new Int16Array(binData)[0];
 			break;
 		case "VByte":
-			this.value = WebPDAUtil.binStringToByte(binString);
+			this.value = new Int8Array(binData)[0];
 			break;
 		default:
 			throw new Error("This is not a VNumber type: " + type);
 			break;
 		}
 	};
-	
-	function VNumberArray(type) {
-		VNumber.call(this,type);
+
+	VNumber.prototype.getBinValueLength = function() {
+		switch (this.type) {
+		case "VDouble":
+		case "VLong":
+			return 8;
+		case "VFloat":
+		case "VInt":
+			return 4;
+		case "VShort":
+			return 2;
+		case "VByte":
+			return 1;
+		default:
+			throw new Error("This is not a VNumber type: " + type);
+			break;
+		}
+	};
+
+	function VNumberArray(type) {		
+		VNumber.call(this, type);
+		this.length=null;
 	}
 	VNumberArray.prototype = new VNumber;
-	VNumberArray.prototype.parseJsonValue = function(jsonValue) {
-		var binString = jsonValue.arr;
+	VNumberArray.prototype.parseBinaryValue = function(binData) {
 		switch (this.type) {
 		case "VDoubleArray":
-			this.value = WebPDAUtil.binStringToDoubleArray(binString);
+		case "VLongArray":
+			this.value = new Float64Array(binData);
 			break;
 		case "VFloatArray":
-			this.value = WebPDAUtil.binStringToFloatArray(binString);
-			break;
-		case "VLongArray":
-			this.value = WebPDAUtil.binStringToLongArray(binString);
+			this.value = new Float32Array(binData);
 			break;
 		case "VIntArray":
-			this.value = WebPDAUtil.binStringToIntArray(binString);
+			this.value = new Int32Array(binData);
 			break;
 		case "VShortArray":
-			this.value = WebPDAUtil.binStringToShortArray(binString);
+			this.value = new Int16Array(binData);
 			break;
 		case "VByteArray":
-			this.value = WebPDAUtil.binStringToByteArray(binString);
+			this.value = new Int8Array(binData);
 			break;
 		default:
 			throw new Error("This is not a VNumberArray type: " + type);
 			break;
 		}
 	};
-	VNumberArray.prototype.toString = function() {
-		return "[" + this.type + "] " + this.timestamp + 
-		" [" + this.value.length + " "+ this.value[0] + "..." + this.value[this.value.length-1] + "] "
-				+ this.severity + " " + this.alarmName;
-	};
 	
-	function VString(type){
+	VNumberArray.prototype.getBinValueLength = function() {
+		switch (this.type) {
+		case "VDoubleArray":
+		case "VLongArray":
+			return 8*this.length;
+		case "VIntArray":
+		case "VFloatArray":
+			return 4*this.length;
+		case "VShortArray":
+			return 2*this.length;
+		case "VByteArray":
+			return this.length;
+		default:
+			throw new Error("This is not a VNumberArray type: " + type);
+			break;
+		}
+	};
+	VNumberArray.prototype.toString = function() {
+		return "[" + this.type + "] " + this.timestamp + " ["
+				+ this.value.length + " " + this.value[0] + "..."
+				+ this.value[this.value.length - 1] + "] " + this.severity
+				+ " " + this.alarmName;
+	};
+
+	function VString(type) {
 		VBasicType.call(this, type);
 	}
 	VString.prototype = new VBasicType;
-	VString.prototype.parseJsonValue=function(jsonValue){
-		this.value=jsonValue;
-	};	
-	
-	function VStringArray(type){
+	VString.prototype.parseBinaryValue = function(jsonValue) {
+		this.value = jsonValue;
+	};
+	VString.prototype.getBinValueLength = function() {
+		return 0;
+	};
+
+	function VStringArray(type) {
 		VString.call(this, type);
 	}
 	VStringArray.prototype = new VString;
-	
-	function VEnum(type){
+
+	function VEnum(type) {
 		VBasicType.call(this, type);
-		this.labels=[];
+		this.labels = [];
 	}
 	VEnum.prototype = new VBasicType;
-	VEnum.prototype.parseJsonValue=function(jsonValue){
-		this.value = jsonValue;
+	VEnum.prototype.parseBinaryValue = function(binData) {
+		this.value = new Int32Array(binData)[0];
+	};
+	VEnum.prototype.getBinValueLength = function() {
+		return 4;
 	};
 	VEnum.prototype.toString = function() {
-		return "[" + this.type + "] " + this.timestamp + " " + this.labels[this.value] + " "
-				+ this.alarm;
+		return "[" + this.type + "] " + this.timestamp + " "
+				+ this.labels[this.value] + " " + this.alarmName;
 	};
-	
-	function VEnumArray(type){
-		VEnum.call(this, type);		
+
+	function VEnumArray(type) {
+		VEnum.call(this, type);
 	}
 	VEnumArray.prototype = new VEnum;
-	VEnumArray.prototype.parseJsonValue=function(jsonValue){
-		this.value = WebPDAUtil.binStringToIntArray(jsonValue.arr);
-	};	
+	VEnumArray.prototype.parseBinaryValue = function(jsonValue) {
+		this.value = new Int32Array(binData);
+	};
+	VEnumArray.prototype.getBinValueLength = function() {
+		return this.length*4;
+	};
 	VEnumArray.prototype.toString = function() {
-		return "[" + this.type + "] " + this.timestamp + 
-		" [" + this.value.length + " " + (this.value) + this.value[0] + "..." + this.value[this.value.length-1] + "] "
+		return "[" + this.type + "] " + this.timestamp + " ["
+				+ this.value.length + " " + (this.value) + this.value[0]
+				+ "..." + this.value[this.value.length - 1] + "] "
 				+ this.severity + " " + this.alarmName;
 	};
-
-
-	
 
 }());
