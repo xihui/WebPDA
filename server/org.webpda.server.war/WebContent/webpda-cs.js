@@ -48,14 +48,14 @@
 		case "val":
 			this.value = processSingleValueBinary({
 				binData : json.d,
-				startIndex : 5
+				startIndex : 8
 			}, this.value);
 			break;
 		case "bufVal":
 			this.allBufferedValues = [];
 			var wrappedBinData = {
 					binData : json.d,
-					startIndex : 5
+					startIndex : 8
 			};
 			while (wrappedBinData.startIndex<json.d.byteLength-1) {
 				this.value = processSingleValueBinary(wrappedBinData, this.value);
@@ -85,12 +85,9 @@
 	function processSingleValueBinary(wrappedBinData, currentValue) {
 		var binData = wrappedBinData.binData;
 		var start = wrappedBinData.startIndex;
-		var int16Array = new Int16Array(WebPDAUtil.sliceArrayBuffer(binData,
-				start, start + 2));
-		var jsonLength = int16Array[0];
+		var jsonLength = new Int16Array(binData,start, 1)[0];//new DataView(binData).getInt16(start, true);
 
-		var uint8Array = new Uint8Array(WebPDAUtil.sliceArrayBuffer(binData,
-				start + 2, jsonLength + start + 2));
+		var uint8Array = new Uint8Array(binData,start + 4, jsonLength);
 		var jsonString = WebPDAUtil.decodeUTF8Array(uint8Array);// String.fromCharCode.apply(null,array);
 		var valueJson = JSON.parse(jsonString);
 		for ( var prop in valueJson) {
@@ -147,10 +144,9 @@
 				break;
 			}
 		}
-		var nextStart = jsonLength + start + 2 + currentValue.getBinValueLength();
+		var nextStart = jsonLength + start + 4 + currentValue.getBinValueLength();
 		if(currentValue.getBinValueLength()>0){			
-			currentValue.parseBinaryValue(WebPDAUtil.sliceArrayBuffer(binData,
-				jsonLength + start + 2, nextStart));			
+			currentValue.parseBinaryValue(binData,jsonLength + start + 4);			
 		}
 		wrappedBinData.startIndex=nextStart;
 		return currentValue;
@@ -239,23 +235,23 @@
 		this.display = new Display();
 	}
 	VNumber.prototype = new VBasicType;
-	VNumber.prototype.parseBinaryValue = function(binData) {
+	VNumber.prototype.parseBinaryValue = function(binData, offset) {
 		switch (this.type) {
 		case "VDouble":
 		case "VLong":
-			this.value = new Float64Array(binData)[0];
+			this.value = new Float64Array(binData, offset, 1)[0];
 			break;
 		case "VFloat":
-			this.value = new Float32Array(binData)[0];
+			this.value = new Float32Array(binData, offset, 1)[0];
 			break;
 		case "VInt":
-			this.value = new Int32Array(binData)[0];
+			this.value = new Int32Array(binData, offset, 1)[0];
 			break;
 		case "VShort":
-			this.value = new Int16Array(binData)[0];
+			this.value = new Int16Array(binData, offset, 1)[0];
 			break;
 		case "VByte":
-			this.value = new Int8Array(binData)[0];
+			this.value = new Int8Array(binData, offset, 1)[0];
 			break;
 		default:
 			throw new Error("This is not a VNumber type: " + type);
@@ -286,23 +282,23 @@
 		this.length=null;
 	}
 	VNumberArray.prototype = new VNumber;
-	VNumberArray.prototype.parseBinaryValue = function(binData) {
+	VNumberArray.prototype.parseBinaryValue = function(binData, offset) {
 		switch (this.type) {
 		case "VDoubleArray":
 		case "VLongArray":
-			this.value = new Float64Array(binData);
+			this.value = new Float64Array(binData, offset, this.length);
 			break;
 		case "VFloatArray":
-			this.value = new Float32Array(binData);
+			this.value = new Float32Array(binData, offset, this.length);
 			break;
 		case "VIntArray":
-			this.value = new Int32Array(binData);
+			this.value = new Int32Array(binData, offset, this.length);
 			break;
 		case "VShortArray":
-			this.value = new Int16Array(binData);
+			this.value = new Int16Array(binData, offset, this.length);
 			break;
 		case "VByteArray":
-			this.value = new Int8Array(binData);
+			this.value = new Int8Array(binData, offset, this.length);
 			break;
 		default:
 			throw new Error("This is not a VNumberArray type: " + type);
@@ -355,8 +351,8 @@
 		this.labels = [];
 	}
 	VEnum.prototype = new VBasicType;
-	VEnum.prototype.parseBinaryValue = function(binData) {
-		this.value = new Int32Array(binData)[0];
+	VEnum.prototype.parseBinaryValue = function(binData, offset) {
+		this.value = new Int32Array(binData, offset,1)[0];
 	};
 	VEnum.prototype.getBinValueLength = function() {
 		return 4;
@@ -370,8 +366,8 @@
 		VEnum.call(this, type);
 	}
 	VEnumArray.prototype = new VEnum;
-	VEnumArray.prototype.parseBinaryValue = function(jsonValue) {
-		this.value = new Int32Array(binData);
+	VEnumArray.prototype.parseBinaryValue = function(binData, offset) {
+		this.value = new Int32Array(binData, offset, this.length);
 	};
 	VEnumArray.prototype.getBinValueLength = function() {
 		return this.length*4;

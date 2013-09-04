@@ -28,14 +28,14 @@ public class ValueFrame {
 	
 	private int totalBytesLength =0;
 
-	public void addValue(byte[] jsonPartLength, byte[] jsonPart,
+	public void addValue(byte[] jsonPartLength, List<byte[]> jsonPart,
 			byte[] valueBinaryPart) {
 		byteArrayList.add(jsonPartLength);
 		totalBytesLength +=jsonPartLength.length;
-		
-		byteArrayList.add(jsonPart);
-		totalBytesLength += jsonPart.length;
-		
+		for (byte[] b : jsonPart) {
+			byteArrayList.add(b);
+			totalBytesLength += b.length;
+		}
 		byteArrayList.add(valueBinaryPart);
 		totalBytesLength += valueBinaryPart.length;
 	}	 

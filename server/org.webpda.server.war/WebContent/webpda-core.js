@@ -440,13 +440,12 @@ function WebPDA(url) {
 	
 	function preprocessBytesArray(data){
 		var json={};
-		var int8Array = new Int8Array(data);
-		if(int8Array[0]==0){
+		var int32Array = new Int32Array(data);
+		if(int32Array[0]==0){
 			json.e="val";
-		}else if(int8Array[0]==1)
+		}else if(int32Array[0]==1)
 			json.e="bufVal";
-		var int32Array = new Int32Array(WebPDAUtil.sliceArrayBuffer(data, 1, 5));
-		json.pv = int32Array[0];
+		json.pv = int32Array[1];
 		json.d = data;	
 		return json;
 	}
@@ -588,5 +587,40 @@ function WebPDA(url) {
         }                
         return result;
     }
+    
+    function getUTF8CharLength(nChar) {
+    	  return nChar < 0x80 ? 1 : nChar < 0x800 ? 2 : nChar < 0x10000 ? 3 : nChar < 0x200000 ? 4 : nChar < 0x4000000 ? 5 : 6;
+    }
+    function loadUTF8CharCode(aChars, nIdx) {
+
+    	  var nLen = aChars.length, nPart = aChars[nIdx];
+
+    	  return nPart > 251 && nPart < 254 && nIdx + 5 < nLen ?
+    	      /* (nPart - 252 << 32) is not possible in ECMAScript! So...: */
+    	      /* six bytes */ (nPart - 252) * 1073741824 + (aChars[nIdx + 1] - 128 << 24) + (aChars[nIdx + 2] - 128 << 18) + (aChars[nIdx + 3] - 128 << 12) + (aChars[nIdx + 4] - 128 << 6) + aChars[nIdx + 5] - 128
+    	    : nPart > 247 && nPart < 252 && nIdx + 4 < nLen ?
+    	      /* five bytes */ (nPart - 248 << 24) + (aChars[nIdx + 1] - 128 << 18) + (aChars[nIdx + 2] - 128 << 12) + (aChars[nIdx + 3] - 128 << 6) + aChars[nIdx + 4] - 128
+    	    : nPart > 239 && nPart < 248 && nIdx + 3 < nLen ?
+    	      /* four bytes */(nPart - 240 << 18) + (aChars[nIdx + 1] - 128 << 12) + (aChars[nIdx + 2] - 128 << 6) + aChars[nIdx + 3] - 128
+    	    : nPart > 223 && nPart < 240 && nIdx + 2 < nLen ?
+    	      /* three bytes */ (nPart - 224 << 12) + (aChars[nIdx + 1] - 128 << 6) + aChars[nIdx + 2] - 128
+    	    : nPart > 191 && nPart < 224 && nIdx + 1 < nLen ?
+    	      /* two bytes */ (nPart - 192 << 6) + aChars[nIdx + 1] - 128
+    	    :
+    	      /* one byte */ nPart;
+
+    }
+    /**This code is learned from:
+     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays/StringView
+     */
+	function decodeUTF8ArrayMozilla(rawData) {
+		var sView = "";
+		for ( var nChr, nLen = rawData.length, nIdx = 0; nIdx < nLen; nIdx += getUTF8CharLength(nChr)) {
+			nChr = loadUTF8CharCode(rawData, nIdx);
+			sView += String.fromCharCode(nChr);
+		}
+		return sView;
+	}
+    
 
 }());

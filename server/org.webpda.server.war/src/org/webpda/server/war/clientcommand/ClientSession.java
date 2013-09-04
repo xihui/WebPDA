@@ -36,12 +36,12 @@ import org.webpda.server.war.servermessage.PingMessage;
  */
 public class ClientSession {
 
-	private static final int MAX_PING_RETRY_COUNT = 60;
+	private static final int MAX_PING_RETRY_COUNT = 12;
 	private static final int PING_FREQUNCY = 5;
 	/**
 	 * Max allowed number of messages in the queue. The session will close if queue is full.
 	 */
-	private static final int MAX_QUEUE_SIZE = 10240;
+	private static final int MAX_QUEUE_SIZE = 1024;
 	private static final ExecutorService SHARED_THREAD_POOL = Executors
 			.newCachedThreadPool();
 	
@@ -207,7 +207,7 @@ public class ClientSession {
 			if (!polling.get())
 				initWorkingThread();
 			try {
-				if (messageQueue.remainingCapacity() < 10230) {
+				if (messageQueue.remainingCapacity() < 1000) {
 					System.out.println("Start using message queue "
 							+ messageQueue.remainingCapacity());
 				}

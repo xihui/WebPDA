@@ -35,8 +35,8 @@ public class PVValueMessage implements IServerMessage{
 	}
 	@Override
 	public ByteBuffer toByteBuffer() {
-		ByteBuffer byteBuffer = ByteBuffer.allocate(5+valueFrame.getTotalBytesLength());
-		byteBuffer.put(valueType);
+		ByteBuffer byteBuffer = ByteBuffer.allocate(8+valueFrame.getTotalBytesLength());
+		byteBuffer.put(DataUtil.intToBytes(valueType));
 		byteBuffer.put(DataUtil.intToBytes(pvId));
 		List<byte[]> byteArrayList = valueFrame.getByteArrayList();
 		for(byte[] b : byteArrayList){

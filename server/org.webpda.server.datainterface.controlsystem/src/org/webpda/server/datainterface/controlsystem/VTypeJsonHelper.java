@@ -2,6 +2,7 @@ package org.webpda.server.datainterface.controlsystem;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Level;
 
 import org.epics.util.array.CollectionNumbers;
@@ -83,10 +84,15 @@ public class VTypeJsonHelper {
 			
 			byte[] valueBinaryPart = getValueBinary(v);
 			byteArrayOutputStream.close();
-			
+			byte[] paddings = new byte[0];
+			if((jsonPart.length+4)%8 !=0){
+				paddings = new byte[8-(jsonPart.length+4)%8];
+				Arrays.fill(paddings, (byte)32);				
+			}
 			ValueFrame r = new ValueFrame();
-			r.addValue(DataUtil.shortToBytes(
-					(short) jsonPart.length), jsonPart, valueBinaryPart);
+			r.addValue(DataUtil.intToBytes(
+					(int) (jsonPart.length + paddings.length)), 
+					Arrays.asList(jsonPart, paddings), valueBinaryPart);
 			return r;
 		} catch (Exception e) {
 			LoggerUtil.getLogger().log(Level.SEVERE, "Failed to create Json String", e);
