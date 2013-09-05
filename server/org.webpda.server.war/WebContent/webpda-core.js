@@ -369,6 +369,15 @@ function WebPDA(url) {
 		});
 		this.sendText(json);
 	};
+	
+	this.login = function(username, password){
+		var json = JSON.stringify({
+			"commandName" : "Login",
+			"username":	username,
+			"password": password
+		});
+		this.sendText(json);
+	};
 
 	this.getAllPVs = function() {
 		return pvArray;
@@ -468,7 +477,10 @@ function WebPDA(url) {
 				"count": json.Count					
 			});
 			wp.sendText(pong);
-		}
+		}else if(json.msg == "Error"){
+			console.log("Error: " + json.title + " - " + json.details);
+		}else if(WebPDA_Debug)			
+			console.log(json);
 	}
 
 	this.close = function() {

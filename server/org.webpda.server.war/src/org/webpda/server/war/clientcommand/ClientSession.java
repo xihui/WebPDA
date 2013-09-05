@@ -23,9 +23,13 @@ import javax.websocket.Session;
 import org.webpda.server.core.HeartBeatListener;
 import org.webpda.server.core.LoggerUtil;
 import org.webpda.server.core.ServerHeartBeatThread;
+import org.webpda.server.core.security.SecurityManager;
+import org.webpda.server.core.security.UserSecurityContext;
 import org.webpda.server.datainterface.IPV;
 import org.webpda.server.war.WebPDAWSServer;
+import org.webpda.server.war.servermessage.ErrorMessage;
 import org.webpda.server.war.servermessage.IServerMessage;
+import org.webpda.server.war.servermessage.InfoMessage;
 import org.webpda.server.war.servermessage.PingMessage;
 
 /**
@@ -58,6 +62,8 @@ public class ClientSession {
 	private AtomicBoolean polling = new AtomicBoolean(false);
 	private boolean isOpen;
 	
+	private UserSecurityContext userSecurityContext;
+	
 	private HeartBeatListener heartBeatListener = new HeartBeatListener() {
 
 		@Override
@@ -76,6 +82,22 @@ public class ClientSession {
 		pvMap = new HashMap<Integer, IPV>();
 		isOpen=true;		
 		ServerHeartBeatThread.getInstance().addHeartBeatListener(heartBeatListener);
+	}
+	
+	public void login(String username, String password){
+		try {
+			userSecurityContext = SecurityManager.login(username, password);
+			send(new InfoMessage("Login", "Login Succeeded!"));
+		} catch (Exception e) {
+			send(new ErrorMessage("Login Failed", e.getMessage()));
+		}
+	}
+	
+	public boolean hasPermission(String authorizationKey){
+		if(userSecurityContext != null){
+			return userSecurityContext.hasPermission(authorizationKey);
+		}
+		return false;
 	}
 
 	public synchronized void addPV(int id, IPV pv) {
@@ -124,7 +146,9 @@ public class ClientSession {
 			session.close();
 		} catch (IOException e) {
 		}
-		
+		if(userSecurityContext != null)
+			userSecurityContext.logout();
+		userSecurityContext = null;
 	}
 	
 	/**
@@ -202,6 +226,9 @@ public class ClientSession {
 		return session.getId();
 	}
 	
+	/**Add a message to the sending queue.
+	 * @param message the message to be sent to client.
+	 */
 	public void send(final IServerMessage message) {
 		if (isOpen()) {
 			if (!polling.get())

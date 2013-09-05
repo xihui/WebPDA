@@ -107,4 +107,8 @@ public class CreatePVCommand extends AbstractPVCommand {
 		return result;
 	}
 
+	@Override
+	public String getAuthorizationKey() {
+		return "CreatePV";
+	}
 }

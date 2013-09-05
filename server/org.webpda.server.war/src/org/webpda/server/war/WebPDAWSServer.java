@@ -25,6 +25,7 @@ import org.webpda.server.core.LoggerUtil;
 import org.webpda.server.war.clientcommand.AbstractClientCommand;
 import org.webpda.server.war.clientcommand.ClientCommandDecoder;
 import org.webpda.server.war.clientcommand.ClientSession;
+import org.webpda.server.war.servermessage.ErrorMessage;
 import org.webpda.server.war.servermessage.ServerMessageEncoder;
 
 /**The WebSocket server of WebPDA.
@@ -42,14 +43,18 @@ public class WebPDAWSServer {
 	public void executeCommand(AbstractClientCommand command, Session session) throws IOException, EncodeException{
 		LoggerUtil.getLogger().log(Level.INFO, "executeCommand: " + command);
 		command.setClientSession(sessionRegistry.get(session));
-		command.run();
+		if(command.isPermitted())
+			command.run();		
+		else{
+			command.getClientSession().send(new ErrorMessage("Faild", "No permission to execute command: " + command));
+		}
 	}	
 	
 	
 	@OnOpen
 	public void onOpen(Session peer){
 		LoggerUtil.getLogger().log(Level.INFO, "Joined: " + peer.toString());
-		peer.getContainer().setDefaultMaxTextMessageBufferSize(10240*10240);
+		peer.getContainer().setDefaultMaxTextMessageBufferSize(10240*1024);
 		peer.getContainer().setAsyncSendTimeout(60000);
 		sessionRegistry.put(peer, new ClientSession(peer));	
 	}

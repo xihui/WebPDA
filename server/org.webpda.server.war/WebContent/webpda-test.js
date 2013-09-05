@@ -59,12 +59,16 @@ var WebPDATest;
 		}
 
 		function onOpen() {
+			var username = document.getElementById("username").value.trim();
+			var password = document.getElementById("password").value;
+			wp.login(username, password);
 			writeToScreen("Connected to " + wsUri);
 		}
 
 		wp.addWebSocketOnCloseListenerFunc(function(evt) {
 			writeToScreen("Websocket closed.");
 		});
+		
 	}
 
 	function createPV() {

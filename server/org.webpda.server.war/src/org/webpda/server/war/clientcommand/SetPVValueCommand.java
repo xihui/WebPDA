@@ -33,5 +33,10 @@ public class SetPVValueCommand extends AbstractPVCommand {
 	public void setValue(Object value) {
 		this.value = value;
 	}
+	
+	@Override
+	public String getAuthorizationKey() {
+		return "SetPVValue";		
+	}
 
 }

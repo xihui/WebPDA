@@ -21,6 +21,22 @@ public abstract class AbstractClientCommand {
 	private ClientSession clientSession;
 
 	public abstract void run();
+	
+	public boolean isPermitted(){
+		if(getAuthorizationKey() !=null){
+			return clientSession.hasPermission(getAuthorizationKey());
+		}
+		return true;
+	}
+	
+	/**Get the authorization key.If it is null, it means this 
+	 * command doesn't need authorization. In convention, the key should
+	 * be same as the commandName.
+	 * @return authorization key of the this command. 
+	 */
+	public String getAuthorizationKey(){
+		return null;
+	}
 
 	public ClientSession getClientSession() {
 		return clientSession;

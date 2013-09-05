@@ -10,10 +10,9 @@ public class PVFactory extends AbstractPVFactory {
 	private AbstractPVFactory internalFactoy;
 
 	private PVFactory() throws Exception {
-		System.out.println(System.getProperty("java.class.path"));
 
 		String pvFactoryName = System
-				.getProperty(ConfigurePropertyConstants.PV_FACTORY_PROPERTY);
+				.getProperty(ConfigurePropertyConstants.PV_FACTORY_CLASS);
 		
 		ClassLoader classLoader = getClass().getClassLoader();
 		Class<?> clazz=classLoader.loadClass(pvFactoryName);
