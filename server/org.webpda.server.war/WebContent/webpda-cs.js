@@ -40,30 +40,30 @@
 		return this.internalCreatePV(name, pvObj, compareFunc, bufferAllValues);
 	};
 
-	WebPDAInternalPV.prototype.processJson = function(json) {
+	WebPDA.prototype.processJsonForPV = function(internalPV, json) {
 		switch (json.e) {
 		case "conn":
-			this.connected = json.d;
+			internalPV.connected = json.d;
 			break;
 		case "val":
-			this.value = processSingleValueBinary({
+			internalPV.value = processSingleValueBinary({
 				binData : json.d,
 				startIndex : 8
-			}, this.value);
+			}, internalPV.value);
 			break;
 		case "bufVal":
-			this.allBufferedValues = [];
+			internalPV.allBufferedValues = [];
 			var wrappedBinData = {
 					binData : json.d,
 					startIndex : 8
 			};
 			while (wrappedBinData.startIndex<json.d.byteLength-1) {
-				this.value = processSingleValueBinary(wrappedBinData, this.value);
-				this.allBufferedValues.push(WebPDAUtil.clone(this.value));
+				internalPV.value = processSingleValueBinary(wrappedBinData, internalPV.value);
+				internalPV.allBufferedValues.push(WebPDAUtil.clone(internalPV.value));
 			}
 			break;
 		case "writePermission":
-			this.writeAllowed = json.d;
+			internalPV.writeAllowed = json.d;
 			break;
 		default:
 			break;

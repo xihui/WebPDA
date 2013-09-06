@@ -11,9 +11,9 @@
  * @author Xihui Chen
  */
 
-var wsUri = "ws://localhost/org.webpda.server.war/webpda";
+var wsUri = "ws://localhost:8080/org.webpda.server.jsr356.war/webpda";
 
-var wp = new WebPDA(wsUri);
+var wp = new WebPDA(wsUri, "webpda", "123456");
 
 var output = document.getElementById("output");
 function writeToScreen(message) {

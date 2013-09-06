@@ -13,84 +13,405 @@
  * @author Xihui Chen
  */
 
+/**
+ * Global debug flag.
+ */
 var WebPDA_Debug = false;
-
+/**
+ * Utility Class to provide general utility functions.
+ */
 var WebPDAUtil = {};
 
 /**
- * The internal pv that actually maps to the connection one on one.
- * This Object is exposed for inheritance purpose. End user is not supposed to access it. 
+ * The WebPDA Object.
+ * @param url url of the webpda server.
+ * @returns a new WebPDA object.
  */
-function WebPDAInternalPV(id, webPDA) {
-	this.myPVs = [];
-	//the WebPDA session
-	this.webPDA=webPDA;
-	this.id = id;
-	// latest value of the pv
-	this.value = null;	
-	// if all values are buffered.
-	this.bufferAllValues = false;
-	// all buffered values if bufferAllValues is true
-	this.allBufferedValues = [];
 
-	this.connected = false;
-	this.writeAllowed = false;
-	this.isPaused = false;
+function WebPDA(url, username, password) {
 	
-	// The object that identifies the pv
-	this.parameterObj = null;
-}
-
-
-//fire a pv event
-WebPDAInternalPV.prototype.firePVEventFunc = function(json) {
-	// update the internal properties of the pv
-	// processJson should be implemented in specific protocol library
-	this.processJson(json);
-	for ( var i in this.myPVs) {
-		this.myPVs[i].firePVEventFunc(json);
-	}
-//	console.log("fire pv event" + json.e + " " + json.d);
-};
-
-
-WebPDAInternalPV.prototype.addPV = function(pv) {
-	this.myPVs.push(pv);
-};
-
-WebPDAInternalPV.prototype.closePV = function(pv) {
+	var pvID = 0;
+	var internalPVID = 0;
+	var pvArray = [];
+	var internalPVArray = [];
+	var websocket = null;
+	var webpdaSelf = this;
+	var webSocketOnOpenListeners = [];
+	var webSocketOnCloseListeners = [];
+	var webSocketOnErrorListeners = [];
+	var onServerMessageListeners = [];
 	
-	delete this.webPDA.getAllPVs()[pv.id];
+	this.isLive = false;
 	
-	for ( var i in this.myPVs) {
-		if (this.myPVs[i].id == pv.id) {
-			delete this.myPVs[i];
-			break;
+	openWebSocket(url);
+	
+	// add a listener function
+	this.addWebSocketOnOpenListenerFunc = function(listener) {
+		webSocketOnOpenListeners.push(listener);
+	};
+	
+	this.removeWebSocketOnOpenListenerFunc = function(listener){
+		webSocketOnOpenListeners.splice(webSocketOnOpenListeners.indexOf(listener), 1);
+	};
+
+	this.addWebSocketOnCloseListenerFunc = function(listener) {
+		webSocketOnCloseListeners.push(listener);
+	};
+
+	this.addWebSocketOnErrorListenerFunc = function(listener) {
+		webSocketOnErrorListeners.push(listener);
+	};
+
+	this.addOnServerMessageListenerFunc = function(listener) {
+		onServerMessageListeners.push(listener);
+	};
+	
+	this.setPVValueById = function(id, value) {
+		if (pvArray[id] != null) {
+			this.setPVValue(pvArray[id], value);
+		}
+	};
+
+	/**
+	 * Set PV Value.
+	 * 
+	 * @param pv
+	 *            the PV
+	 * @param value
+	 *            the value to be set. It can be number, String, Boolean, number
+	 *            array or String array.
+	 */
+	this.setPVValue = function(pv, value) {
+		var json = JSON.stringify({
+			"commandName" : "SetPVValue",
+			"id" : pv.internalPV.id,
+			"value" : value
+		});
+		this.sendText(json);
+	};
+	
+	/**
+	 * Close Websocket.
+	 */
+	this.close = function() {
+		if (websocket != null)
+			websocket.close();
+		websocket = null;
+	};
+
+	this.login = function(username, password){
+		var json = JSON.stringify({
+			"commandName" : "Login",
+			"username":	username,
+			"password": password
+		});
+		this.sendText(json);
+	};
+	
+	this.logout = function() {
+		var json = JSON.stringify({
+			"commandName" : "Logout"
+		});
+		this.sendText(json);
+	};
+
+	this.getAllPVs = function() {
+		return pvArray;
+	};
+
+	
+	this.getPV = function(id){
+		return pvArray[id];
+	};
+	
+	/**
+	 * Send text to server.
+	 */
+	this.sendText =function(text) {
+		if (WebPDA_Debug)
+			console.log("sending " + text);
+		websocket.send(text);
+	};
+	
+	/**
+	 * Create PV internally. This function should only be called by 
+	 * subclass. Client should not call this function. 
+	 */
+	this.internalCreatePV = function(name, parameterObj, compareFunc,
+			bufferAllValues) {
+		var internalPV = getInternalPV(parameterObj, compareFunc);
+		if (internalPV == null) {
+			internalPV = new WebPDAInternalPV(internalPVID, this);
+			internalPV.parameterObj = parameterObj;
+			internalPVArray[internalPVID] = internalPV;
+			var createPVCmd = {
+				commandName : "CreatePV",
+				id : internalPVID
+			};
+			var json = JSON.stringify(WebPDAUtil.extend(createPVCmd,
+					parameterObj));
+			if(this.isLive)
+				this.sendText(json);
+			else{
+				var webpdaSelf = this;
+				var listener = null;
+				listener = function(evt){
+					webpdaSelf.sendText(json);
+					webpdaSelf.removeWebSocketOnOpenListenerFunc(listener);
+				};
+				this.addWebSocketOnOpenListenerFunc(listener);
+			}
+			internalPVID++;
+		}
+		var pv = new PV(name);
+		pv.internalPV = internalPV;
+		internalPV.addPV(pv);
+		pv.bufferAllValues = bufferAllValues;
+		pvArray[pvID] = pv;
+		pv.id = pvID;
+		pvID++;
+		return pv;
+	};
+	
+	function fireOnOpen(evt) {
+		webpdaSelf.isLive = true;
+		for ( var i in webSocketOnOpenListeners) {
+			webSocketOnOpenListeners[i](evt);
 		}
 	}
-	// if it is not empty, return.
-	for ( var i in this.myPVs) {
-		i;
-		return;
-	}
-	this.webPDA.closeInternalPV(this.id);
-};
 
-WebPDAInternalPV.prototype.pausePV = function(pv) {	
-	
-	var allPVsPaused = true;
-	for ( var i in this.myPVs) {
-		if (!this.myPVs[i].isPaused()) {
-			allPVsPaused = false;
-			break;
+	function fireOnClose(evt) {
+		for(var i in internalPVArray){
+			internalPVArray[i].firePVEventFunc({
+				pv:internalPVArray[i].id,
+				"e": "conn",
+				"d": false});
+		}
+		for ( var i in webSocketOnCloseListeners) {
+			webSocketOnCloseListeners[i](evt);
 		}
 	}
-	if(allPVsPaused != this.isPaused)
-		this.webPDA.pauseInternalPV(this.id, allPVsPaused);
-	this.isPaused = allPVsPaused;	
-};
 
-function WebPDA(url) {
+	function fireOnError(evt) {
+		for ( var i in webSocketOnErrorListeners) {
+			webSocketOnErrorListeners[i](evt);
+		}
+	}
+
+	function fireOnServerMessage(json) {
+		for ( var i in onServerMessageListeners) {
+			onServerMessageListeners[i](json);
+		}
+	}
+
+	/**
+	 * Get internal pv from registered pvs.
+	 * 
+	 * @param parameterObj
+	 *            the object that contains parameters to create the pv.
+	 * @param compareFunc
+	 *            the compare function to determine if two PVs are considered
+	 *            the same pv.
+	 * @returns
+	 */
+	 function getInternalPV(parameterObj, compareFunc) {
+		for ( var i in internalPVArray) {
+			if (internalPVArray[i] != null && internalPVArray[i] != undefined) {
+				if (compareFunc(parameterObj, internalPVArray[i].parameterObj))
+					return internalPVArray[i];
+			}
+		}
+		return null;
+	}
+
+	
+	function closeInternalPV(internalPVId) {
+		var json = JSON.stringify({
+			"commandName" : "ClosePV",
+			"id" : internalPVId
+		});
+		webpdaSelf.sendText(json);
+		delete internalPVArray[internalPVId];
+	}
+	
+	function pauseInternalPV(internalPVId, paused){
+		var json = JSON.stringify({
+			"commandName" : "PausePV",
+			"id" : internalPVId,
+			"paused": paused			
+		});
+		webpdaSelf.sendText(json);
+	}
+	
+
+	/**
+	 * Set WebSocket URL.
+	 * 
+	 * @param {String}
+	 *            url The WebSocket URL.
+	 * @returns the websocket.
+	 */
+	function openWebSocket(url) {
+		if (websocket != null)
+			throw new Error(
+					"Please close current websocket before opening a new one.");
+		if ('WebSocket' in window) {
+			websocket = new WebSocket(url, "org.webpda");
+		} else if ('MozWebSocket' in window) {
+			websocket = new MozWebSocket(url, "org.webpda");
+		} else {
+			throw new Error('WebSocket is not supported by this browser.');
+		}
+		
+		websocket.binaryType = "arraybuffer";
+
+		websocket.onopen = function(evt) {		
+			webpdaSelf.login(username, password);
+			fireOnOpen(evt);			
+		};
+
+		websocket.onmessage = function(evt) {
+			var json;
+			if(typeof evt.data == "string"){
+				json = JSON.parse(evt.data);
+				if (WebPDA_Debug)
+					console.log("received: " + evt.data);
+			}else{
+				json = preprocessBytesArray(evt.data);
+				if (WebPDA_Debug)
+					console.log("received: " + evt.data + " "+evt.data.byteLength);
+			}
+			dispatchMessage(json);			
+		};
+		websocket.onclose = function(evt) {
+			this.isLive =false;
+			if (WebPDA_Debug)
+				console.log("websocket closed:" + url);
+			for ( var i in pvArray) {
+				pvArray[i].firePVEventFunc({
+					pv : i,
+					e : "conn",
+					d : false
+				});
+			}
+			fireOnClose(evt);
+		};
+		websocket.onerror = function(evt) {
+			fireOnError(evt);
+		};
+
+	}
+	
+	function preprocessBytesArray(data){
+		var json= new Object();
+		var int32Array = new Int32Array(data);
+		if(int32Array[0]==0){
+			json.e="val";
+		}else if(int32Array[0]==1)
+			json.e="bufVal";
+		json.pv = int32Array[1];
+		json.d = data;	
+		return json;
+	}
+
+	function dispatchMessage(json) {
+
+		if (json.msg != null)
+			handleServerMessage(json);
+		if (json.pv != null) {
+			if (internalPVArray[json.pv] != null)
+				internalPVArray[json.pv].firePVEventFunc(json);
+		}
+	}
+
+	function handleServerMessage(json) {		
+		if(json.msg == "Ping"){
+			var pong = JSON.stringify({
+				"commandName" : "Pong",
+				"count": json.Count					
+			});
+			webpdaSelf.sendText(pong);
+		}else if(json.msg == "Error"){
+			console.log("Error: " + json.title + " - " + json.details);
+		}else if(WebPDA_Debug)			
+			console.log(json);
+		fireOnServerMessage(json);
+	}
+
+	
+	/**
+	 * The internal pv that actually maps to the connection one on one.
+	 * This Object is exposed for inheritance purpose. End user is not supposed to access it. 
+	 */
+	function WebPDAInternalPV(id, webPDA) {
+		this.myPVs = [];
+		//the WebPDA session
+		this.webPDA=webPDA;
+		this.id = id;
+		// latest value of the pv
+		this.value = null;	
+		// if all values are buffered.
+		this.bufferAllValues = false;
+		// all buffered values if bufferAllValues is true
+		this.allBufferedValues = [];
+
+		this.connected = false;
+		this.writeAllowed = false;
+		this.isPaused = false;
+		
+		// The object that identifies the pv
+		this.parameterObj = null;
+	}
+
+
+	//fire a pv event
+	WebPDAInternalPV.prototype.firePVEventFunc = function(json) {
+		// update the internal properties of the pv
+		// processJson should be implemented in specific protocol library
+		this.webPDA.processJsonForPV(this, json);
+		for ( var i in this.myPVs) {
+			this.myPVs[i].firePVEventFunc(json);
+		}
+//		console.log("fire pv event" + json.e + " " + json.d);
+	};
+
+
+	WebPDAInternalPV.prototype.addPV = function(pv) {
+		this.myPVs.push(pv);
+	};
+
+	WebPDAInternalPV.prototype.closePV = function(pv) {
+		
+		delete this.webPDA.getAllPVs()[pv.id];
+		
+		for ( var i in this.myPVs) {
+			if (this.myPVs[i].id == pv.id) {
+				delete this.myPVs[i];
+				break;
+			}
+		}
+		// if it is not empty, return.
+		for ( var i in this.myPVs) {
+			i;
+			return;
+		}
+		closeInternalPV(this.id);
+	};
+
+	WebPDAInternalPV.prototype.pausePV = function(pv) {	
+		
+		var allPVsPaused = true;
+		for ( var i in this.myPVs) {
+			if (!this.myPVs[i].isPaused()) {
+				allPVsPaused = false;
+				break;
+			}
+		}
+		if(allPVsPaused != this.isPaused)
+			pauseInternalPV(this.id, allPVsPaused);
+		this.isPaused = allPVsPaused;	
+	};
+	
 	/**
 	 * The Process Variable that is actually exposed to end user.
 	 * 
@@ -161,7 +482,7 @@ function WebPDA(url) {
 	/** 
 	 * Add a listener function. The listener function has three inputs(event, PV, data).
 	 * event is a string that indicates event type.
-	 * PV is the PV itself.
+	 * PV is the PV itwebpdaSelf.
 	 * data is the data object associated with this event.
 	 */
 	PV.prototype.addListenerFunc = function(listener) {
@@ -197,301 +518,6 @@ function WebPDA(url) {
 	 */
 	PV.prototype.close = function() {
 		this.internalPV.closePV(this);
-	};
-	
-	var pvID = 0;
-	var internalPVID = 0;
-	var pvArray = [];
-	var internalPVArray = [];
-	var websocket = null;
-	var wp = this;
-	this.isLive = false;
-	openWebSocket(url);
-
-	var webSocketOnOpenListeners = [];
-	var webSocketOnCloseListeners = [];
-	var webSocketOnErrorListeners = [];
-	var onServerMessageListeners = [];
-
-	this.internalCreatePV = function(name, parameterObj, compareFunc,
-			bufferAllValues) {
-		var internalPV = this.getInternalPV(parameterObj, compareFunc);
-		if (internalPV == null) {
-			internalPV = new WebPDAInternalPV(internalPVID, this);
-			internalPV.parameterObj = parameterObj;
-			internalPVArray[internalPVID] = internalPV;
-			var createPVCmd = {
-				commandName : "CreatePV",
-				id : internalPVID
-			};
-			var json = JSON.stringify(WebPDAUtil.extend(createPVCmd,
-					parameterObj));
-			if(this.isLive)
-				this.sendText(json);
-			else{
-				var wp = this;
-				var listener = null;
-				listener = function(evt){
-					wp.sendText(json);
-					wp.removeWebSocketOnOpenListenerFunc(listener);
-				};
-				this.addWebSocketOnOpenListenerFunc(listener);
-			}
-			internalPVID++;
-		}
-		var pv = new PV(name);
-		pv.internalPV = internalPV;
-		internalPV.addPV(pv);
-		pv.bufferAllValues = bufferAllValues;
-		pvArray[pvID] = pv;
-		pv.id = pvID;
-		pvID++;
-		return pv;
-	};
-
-	// add a listener function
-	this.addWebSocketOnOpenListenerFunc = function(listener) {
-		webSocketOnOpenListeners.push(listener);
-	};
-	
-	this.removeWebSocketOnOpenListenerFunc = function(listener){
-		webSocketOnOpenListeners.splice(webSocketOnOpenListeners.indexOf(listener), 1);
-	};
-
-	this.addWebSocketOnCloseListenerFunc = function(listener) {
-		webSocketOnCloseListeners.push(listener);
-	};
-
-	this.addWebSocketOnErrorListenerFunc = function(listener) {
-		webSocketOnErrorListeners.push(listener);
-	};
-
-	this.addOnServerMessageListenerFunc = function(listener) {
-		onServerMessageListeners.push(listener);
-	};
-
-	function fireOnOpen(evt) {
-		wp.isLive = true;
-		for ( var i in webSocketOnOpenListeners) {
-			webSocketOnOpenListeners[i](evt);
-		}
-	}
-
-	function fireOnClose(evt) {
-		for(var i in internalPVArray){
-			internalPVArray[i].firePVEventFunc({
-				pv:internalPVArray[i].id,
-				"e": "conn",
-				"d": false});
-		}
-		for ( var i in webSocketOnCloseListeners) {
-			webSocketOnCloseListeners[i](evt);
-		}
-	}
-
-	function fireOnError(evt) {
-		for ( var i in webSocketOnErrorListeners) {
-			webSocketOnErrorListeners[i](evt);
-		}
-	}
-
-	function fireOnMessage(json) {
-		for ( var i in onServerMessageListeners) {
-			onServerMessageListeners[i](json);
-		}
-	}
-
-	/**
-	 * Get internal pv from registered pvs.
-	 * 
-	 * @param parameterObj
-	 *            the object that contains parameters to create the pv.
-	 * @param compareFunc
-	 *            the compare function to determine if two PVs are considered
-	 *            the same pv.
-	 * @returns
-	 */
-	this.getInternalPV = function(parameterObj, compareFunc) {
-		for ( var i in internalPVArray) {
-			if (internalPVArray[i] != null && internalPVArray[i] != undefined) {
-				if (compareFunc(parameterObj, internalPVArray[i].parameterObj))
-					return internalPVArray[i];
-			}
-		}
-		return null;
-	};
-
-	this.setPVValueById = function(id, value) {
-		if (pvArray[id] != null) {
-			this.setPVValue(pvArray[id], value);
-		}
-	};
-
-	/**
-	 * Set PV Value.
-	 * 
-	 * @param pv
-	 *            the PV
-	 * @param value
-	 *            the value to be set. It can be number, String, Boolean, number
-	 *            array or String array.
-	 */
-	this.setPVValue = function(pv, value) {
-		var json = JSON.stringify({
-			"commandName" : "SetPVValue",
-			"id" : pv.internalPV.id,
-			"value" : value
-		});
-		this.sendText(json);
-	};
-
-	this.closeInternalPV = function(internalPVId) {
-		var json = JSON.stringify({
-			"commandName" : "ClosePV",
-			"id" : internalPVId
-		});
-		this.sendText(json);
-		delete internalPVArray[internalPVId];
-	};
-	
-	this.pauseInternalPV = function(internalPVId, paused){
-		var json = JSON.stringify({
-			"commandName" : "PausePV",
-			"id" : internalPVId,
-			"paused": paused			
-		});
-		this.sendText(json);
-	};
-	
-	this.login = function(username, password){
-		var json = JSON.stringify({
-			"commandName" : "Login",
-			"username":	username,
-			"password": password
-		});
-		this.sendText(json);
-	};
-	
-	this.logout = function() {
-		var json = JSON.stringify({
-			"commandName" : "Logout"
-		});
-		this.sendText(json);
-	};
-
-	this.getAllPVs = function() {
-		return pvArray;
-	};
-
-	
-	this.getPV = function(id){
-		return pvArray[id];
-	};
-	
-
-	/**
-	 * Set WebSocket URL.
-	 * 
-	 * @param {String}
-	 *            url The WebSocket URL.
-	 * @returns the websocket.
-	 */
-	function openWebSocket(url) {
-		if (websocket != null)
-			throw new Error(
-					"Please close current websocket before opening a new one.");
-		if ('WebSocket' in window) {
-			websocket = new WebSocket(url, "org.webpda");
-		} else if ('MozWebSocket' in window) {
-			websocket = new MozWebSocket(url, "org.webpda");
-		} else {
-			throw new Error('WebSocket is not supported by this browser.');
-		}
-		
-		websocket.binaryType = "arraybuffer";
-
-		websocket.onopen = function(evt) {			
-			fireOnOpen(evt);
-		};
-
-		websocket.onmessage = function(evt) {
-			var json;
-			if(typeof evt.data == "string"){
-				json = JSON.parse(evt.data);
-				if (WebPDA_Debug)
-					console.log("received: " + evt.data);
-			}else{
-				json = preprocessBytesArray(evt.data);
-				if (WebPDA_Debug)
-					console.log("received: " + evt.data + " "+evt.data.byteLength);
-			}
-			dispatchMessage(json);			
-		};
-		websocket.onclose = function(evt) {
-			this.isLive =false;
-			if (WebPDA_Debug)
-				console.log("websocket closed:" + url);
-			for ( var i in pvArray) {
-				pvArray[i].firePVEventFunc({
-					pv : i,
-					e : "conn",
-					d : false
-				});
-			}
-			fireOnClose(evt);
-		};
-		websocket.onerror = function(evt) {
-			fireOnError(evt);
-		};
-
-	}
-	
-	function preprocessBytesArray(data){
-		var json= new Object();
-		var int32Array = new Int32Array(data);
-		if(int32Array[0]==0){
-			json.e="val";
-		}else if(int32Array[0]==1)
-			json.e="bufVal";
-		json.pv = int32Array[1];
-		json.d = data;	
-		return json;
-	}
-
-	function dispatchMessage(json) {
-
-		if (json.msg != null)
-			handleServerMessage(json);
-		if (json.pv != null) {
-			if (internalPVArray[json.pv] != null)
-				internalPVArray[json.pv].firePVEventFunc(json);
-		}
-	}
-
-	function handleServerMessage(json) {		
-		if(json.msg == "Ping"){
-			var pong = JSON.stringify({
-				"commandName" : "Pong",
-				"count": json.Count					
-			});
-			wp.sendText(pong);
-		}else if(json.msg == "Error"){
-			console.log("Error: " + json.title + " - " + json.details);
-		}else if(WebPDA_Debug)			
-			console.log(json);
-		fireOnMessage(json);
-	}
-
-	this.close = function() {
-		if (websocket != null)
-			websocket.close();
-		websocket = null;
-	};
-
-	this.sendText = function(json) {
-		if (WebPDA_Debug)
-			console.log("sending " + json);
-		websocket.send(json);
 	};
 
 }

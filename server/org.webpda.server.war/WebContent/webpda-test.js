@@ -48,12 +48,14 @@ var WebPDATest;
 		wp.logout();
 	}
 	
-	function open() {
+	function open() {		
 		var wsUri = document.getElementById("wsurl").value.trim();
+		var username = document.getElementById("username").value.trim();
+		var password = document.getElementById("password").value;
 		if(wp!=null){
 			wp.close();
 		}
-		wp = new WebPDA(wsUri);
+		wp = new WebPDA(wsUri, username, password);
 		wp.addWebSocketOnErrorListenerFunc(function(evt) {
 					writeToScreen('<span style="color: red;">ERROR:</span> '
 							+ evt.data);
