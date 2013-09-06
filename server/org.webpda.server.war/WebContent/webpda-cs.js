@@ -186,7 +186,7 @@
 		this.sec = sec;
 		this.nanoSec = nanoSec;
 		this.toString = function() {
-			return this.getDate().toISOString();
+			return WebPDAUtil.formatDate(this.getDate());
 		};
 	}
 	Timestamp.prototype.getDate = function() {

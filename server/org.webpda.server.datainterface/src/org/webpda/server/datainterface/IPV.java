@@ -24,6 +24,12 @@ public interface IPV {
 	 * @param listener the listener
 	 */
 	public void addListener(IPVListener listener);
+	
+	/**Set write permission on this PV. 
+	 * @param permission If it is false, the pv is not write allowed. 
+	 * If it is true, the write permission is determined by the PV itself. 
+	 */
+	public void setWritePermission(boolean permission);
 
 	/**
 	 * Get all values that were buffered in last update cycle that has values. If value is

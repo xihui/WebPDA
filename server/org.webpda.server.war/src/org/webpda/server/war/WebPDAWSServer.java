@@ -41,7 +41,7 @@ public class WebPDAWSServer {
 
 	@OnMessage
 	public void executeCommand(AbstractClientCommand command, Session session) throws IOException, EncodeException{
-		LoggerUtil.getLogger().log(Level.INFO, "executeCommand: " + command);
+//		LoggerUtil.getLogger().log(Level.INFO, "executeCommand: " + command);
 		command.setClientSession(sessionRegistry.get(session));
 		if(command.isPermitted())
 			command.run();		

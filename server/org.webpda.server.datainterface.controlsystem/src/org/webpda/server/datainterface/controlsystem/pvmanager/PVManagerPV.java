@@ -73,6 +73,11 @@ public class PVManagerPV implements IPV {
 	
 	private VType value;
 	
+	/**
+	 * The write permission set from outside.
+	 */
+	private boolean writePermission = true;
+	
 	//init PVManager
 	static {
 		final CompositeDataSource sources = new CompositeDataSource();
@@ -338,7 +343,7 @@ public class PVManagerPV implements IPV {
 	public boolean isWriteAllowed() {
 		if (pvWriter == null)
 			return false;
-		return pvWriter.isWriteConnected();
+		return pvWriter.isWriteConnected() && writePermission;
 	}
 
 	@Override
@@ -377,6 +382,16 @@ public class PVManagerPV implements IPV {
 	public void fireExceptionOccured(Exception e){
 		for(IPVListener l : listeners)
 			l.exceptionOccurred(this, e);
+	}
+	
+	@Override
+	public void setWritePermission(boolean permission) {
+		boolean oldPermission = isWriteAllowed();
+		this.writePermission = permission;
+		if(oldPermission != isWriteAllowed()){
+			for(IPVListener l : listeners)
+				l.writePermissionChanged(this);
+		}
 	}
 
 	@Override

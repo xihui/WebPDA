@@ -211,7 +211,7 @@ function WebPDA(url) {
 	var webSocketOnOpenListeners = [];
 	var webSocketOnCloseListeners = [];
 	var webSocketOnErrorListeners = [];
-	var webSocketOnMessageListeners = [];
+	var onServerMessageListeners = [];
 
 	this.internalCreatePV = function(name, parameterObj, compareFunc,
 			bufferAllValues) {
@@ -266,8 +266,8 @@ function WebPDA(url) {
 		webSocketOnErrorListeners.push(listener);
 	};
 
-	this.addWebSocketOnMessageListenerFunc = function(listener) {
-		webSocketOnMessageListeners.push(listener);
+	this.addOnServerMessageListenerFunc = function(listener) {
+		onServerMessageListeners.push(listener);
 	};
 
 	function fireOnOpen(evt) {
@@ -295,9 +295,9 @@ function WebPDA(url) {
 		}
 	}
 
-	function fireOnMessage(evt) {
-		for ( var i in webSocketOnMessageListeners) {
-			webSocketOnMessageListeners[i](evt);
+	function fireOnMessage(json) {
+		for ( var i in onServerMessageListeners) {
+			onServerMessageListeners[i](json);
 		}
 	}
 
@@ -378,6 +378,13 @@ function WebPDA(url) {
 		});
 		this.sendText(json);
 	};
+	
+	this.logout = function() {
+		var json = JSON.stringify({
+			"commandName" : "Logout"
+		});
+		this.sendText(json);
+	};
 
 	this.getAllPVs = function() {
 		return pvArray;
@@ -425,8 +432,7 @@ function WebPDA(url) {
 				if (WebPDA_Debug)
 					console.log("received: " + evt.data + " "+evt.data.byteLength);
 			}
-			dispatchMessage(json);
-			fireOnMessage(evt);
+			dispatchMessage(json);			
 		};
 		websocket.onclose = function(evt) {
 			this.isLive =false;
@@ -448,7 +454,7 @@ function WebPDA(url) {
 	}
 	
 	function preprocessBytesArray(data){
-		var json={};
+		var json= new Object();
 		var int32Array = new Int32Array(data);
 		if(int32Array[0]==0){
 			json.e="val";
@@ -469,8 +475,7 @@ function WebPDA(url) {
 		}
 	}
 
-	function handleServerMessage(json) {
-		
+	function handleServerMessage(json) {		
 		if(json.msg == "Ping"){
 			var pong = JSON.stringify({
 				"commandName" : "Pong",
@@ -481,6 +486,7 @@ function WebPDA(url) {
 			console.log("Error: " + json.title + " - " + json.details);
 		}else if(WebPDA_Debug)			
 			console.log(json);
+		fireOnMessage(json);
 	}
 
 	this.close = function() {
@@ -501,6 +507,7 @@ function WebPDA(url) {
 	WebPDAUtil = {
 		extend : extend,
 		clone : clone,
+		formatDate : formatDate,
 		sliceArrayBuffer : sliceArrayBuffer,
 		decodeUTF8Array : decodeUTF8Array		
 	};
@@ -551,6 +558,16 @@ function WebPDA(url) {
 			tgtView[i-start] = srcView[i];
 		}
 		return  copy;			
+	}
+	
+	function formatDate(d){
+		  function pad(n){return n<10 ? '0'+n : n;}
+		  return d.getFullYear()+'-'
+		      + pad(d.getMonth()+1)+'-'
+		      + pad(d.getDate())+' '
+		      + pad(d.getHours())+':'
+		      + pad(d.getMinutes())+':'
+		      + pad(d.getSeconds());
 	}
 	
 

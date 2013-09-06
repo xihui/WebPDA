@@ -27,6 +27,8 @@ var WebPDATest;
 (function() {
 	WebPDATest = {
 		open : open,
+		login: login,
+		logout:logout,
 		createPV : createPV,
 		closePV : closePV,
 		pausePV : pausePV,
@@ -36,7 +38,17 @@ var WebPDATest;
 		closeWebSocket : closeWebSocket,
 		debug : debug
 	};
-
+	
+	function login(){
+		var username = document.getElementById("username").value.trim();
+		var password = document.getElementById("password").value;
+		wp.login(username, password);
+	}
+	
+	function logout(){
+		wp.logout();
+	}
+	
 	function open() {
 		var wsUri = document.getElementById("wsurl").value.trim();
 		if(wp!=null){
@@ -58,17 +70,21 @@ var WebPDATest;
 			output.innerHTML += message + "<br>";
 		}
 
-		function onOpen() {
-			var username = document.getElementById("username").value.trim();
-			var password = document.getElementById("password").value;
-			wp.login(username, password);
+		function onOpen() {			
 			writeToScreen("Connected to " + wsUri);
 		}
 
 		wp.addWebSocketOnCloseListenerFunc(function(evt) {
 			writeToScreen("Websocket closed.");
 		});
-		
+		wp.addOnServerMessageListenerFunc(function(json) {
+			if (json.msg == "Error") {
+				writeToScreen('<span style="color: red;">ERROR: '
+						+  json.title + " - " + json.details +'</span>');
+			} else if (json.msg == "Info") {
+				writeToScreen("Info: " + json.title + " - " + json.details);
+			}
+		});
 	}
 
 	function createPV() {

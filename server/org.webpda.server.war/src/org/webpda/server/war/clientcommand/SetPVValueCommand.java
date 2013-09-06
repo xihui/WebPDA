@@ -13,6 +13,7 @@ package org.webpda.server.war.clientcommand;
  */
 public class SetPVValueCommand extends AbstractPVCommand {
 
+	public static final String AUTHORIZATION_KEY = "SetPVValue";
 	private Object value;
 	
 	@Override
@@ -36,7 +37,7 @@ public class SetPVValueCommand extends AbstractPVCommand {
 	
 	@Override
 	public String getAuthorizationKey() {
-		return "SetPVValue";		
+		return AUTHORIZATION_KEY;		
 	}
 
 }

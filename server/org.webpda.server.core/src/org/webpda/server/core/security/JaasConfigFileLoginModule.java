@@ -14,7 +14,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 
@@ -28,8 +27,6 @@ import com.sun.security.auth.UserPrincipal;
  */
 public class JaasConfigFileLoginModule implements LoginModule {
 
-	private static final String PASSWORD = "password";
-	private static final String USERNAME = "username";
 	private CallbackHandler callbackHandler;
 	private boolean loggedIn;
 	private Subject subject;
@@ -48,25 +45,14 @@ public class JaasConfigFileLoginModule implements LoginModule {
 		this.options = options;
 	}
 
-	public boolean login() throws LoginException {
+	public boolean login() throws LoginException {		
 
-		String requiredUserName = (String) options.get(USERNAME);
-		if (requiredUserName == null)
-			throw new LoginException(
-					"No user name is defined for default login module.");
 
-		String requiredPassword = (String) options.get(PASSWORD);
-		if (requiredPassword == null)
-			throw new LoginException(
-					"No password is defined for default login module.");
-
-		Callback label = new TextOutputCallback(TextOutputCallback.INFORMATION,
-				"Please login!");
 		NameCallback nameCallback = new NameCallback("Username:");
 		PasswordCallback passwordCallback = new PasswordCallback("Password:",
 				false);
 		try {
-			callbackHandler.handle(new Callback[] { label, nameCallback,
+			callbackHandler.handle(new Callback[] { nameCallback,
 					passwordCallback });
 		} catch (ThreadDeath death) {
 			LoginException loginException = new LoginException();
@@ -82,8 +68,12 @@ public class JaasConfigFileLoginModule implements LoginModule {
 		if (passwordCallback.getPassword() != null) {
 			password = String.valueOf(passwordCallback.getPassword());
 		}
-		loggedIn = requiredUserName.equals(username)
-				&& requiredPassword.equals(password);
+		if(options.containsKey(username)){
+			if(options.get(username).equals(password))
+				loggedIn = true;
+		}
+		loggedIn = options.containsKey(username) 
+				&& options.get(username).equals(password);
 		if (!loggedIn)
 			throw new LoginException("Wrong user name or password.");
 		this.username = username;

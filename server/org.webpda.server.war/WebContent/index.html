@@ -8,11 +8,15 @@
 
 	<h1>WebPDA Test</h1>
 	WebSocket URL:
-	<input id="wsurl" size="80" type="text" placeholder="WebSocket URL" /><br>
+	<input id="wsurl" size="60" type="text" placeholder="WebSocket URL" /><button type="button" autofocus="autofocus"
+		onclick="WebPDATest.open();">Open</button><br>
+	User Name:
 	<input id="username" size="20" type="text" placeholder="User Name" />
-	<input id="password" size="20" type="password" placeholder="password" /><br>	
-	<button type="button" autofocus="autofocus"
-		onclick="WebPDATest.open();">Open</button>
+	Password:
+	<input id="password" size="20" type="password" placeholder="password" />	
+	<button type="button" onclick="WebPDATest.login();">login</button>
+	<button type="button" onclick="WebPDATest.logout();">logout</button>
+	<br>Tip: The user name could be webpda, webpda-admin, jane or fred. The password is 123456. User webpda has no write permission.
 	<br>
 	<br>
 	<form>

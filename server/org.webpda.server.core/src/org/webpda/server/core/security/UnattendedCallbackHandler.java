@@ -18,6 +18,8 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.TextOutputCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
+import org.webpda.server.core.LoggerUtil;
+
 /** JAAS {@link CallbackHandler} for unattended/automatic login.
  * 
  *  <p>Passes a provided name, password to JAAS.
@@ -85,7 +87,7 @@ public class UnattendedCallbackHandler implements CallbackHandler
      */
     public void handleText(final TextOutputCallback text)
     {
-        Logger logger = Logger.getLogger(getClass().getName());
+        Logger logger = LoggerUtil.getLogger();
         if (text.getMessageType() == TextOutputCallback.ERROR)
             logger.log(Level.SEVERE, text.getMessage());
         else if (text.getMessageType() == TextOutputCallback.WARNING)

@@ -86,11 +86,25 @@ public class ClientSession {
 	
 	public void login(String username, String password){
 		try {
+			if(userSecurityContext != null)
+				userSecurityContext.logout();
 			userSecurityContext = SecurityManager.login(username, password);
 			send(new InfoMessage("Login", "Login Succeeded!"));
+			for(IPV pv : pvMap.values()){
+				pv.setWritePermission(hasPermission(SetPVValueCommand.AUTHORIZATION_KEY));
+			}			
 		} catch (Exception e) {
 			send(new ErrorMessage("Login Failed", e.getMessage()));
 		}
+	}
+	
+	public void logout(){
+		if(userSecurityContext != null)
+			userSecurityContext.logout();
+		userSecurityContext = null;
+		for(IPV pv : pvMap.values()){
+			pv.setWritePermission(false);
+		}	
 	}
 	
 	public boolean hasPermission(String authorizationKey){

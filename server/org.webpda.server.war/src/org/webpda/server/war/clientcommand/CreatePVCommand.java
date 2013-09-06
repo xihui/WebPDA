@@ -38,7 +38,6 @@ public class CreatePVCommand extends AbstractPVCommand {
 				newPV = true;
 			}			
 			pv.addListener(new IPVListener(){
-				int count = 0;
 				@Override
 				public void connectionChanged(IPV pv) {
 					getClientSession().send(new PVEventMessage(
@@ -54,8 +53,6 @@ public class CreatePVCommand extends AbstractPVCommand {
 
 				@Override
 				public void valueChanged(IPV pv) {
-					count++;
-//					System.out.println(pv.getName() +  " " +count);
 					ValueFrame valueFrame = pv.getDeltaChangesValueFrame();
 					if (valueFrame != null)
 						getClientSession()
@@ -63,7 +60,6 @@ public class CreatePVCommand extends AbstractPVCommand {
 										pv.isBufferingValues() ? PVValueMessage.VALUE_TYPE_BUF
 												: PVValueMessage.VALUE_TYPE_SINGLE,
 										getId(), valueFrame));		
-//					System.out.println("Done:" + pv.getName() + " " + pv.getValue());
 				}				
 
 				@Override
@@ -73,7 +69,8 @@ public class CreatePVCommand extends AbstractPVCommand {
 
 				@Override
 				public void writePermissionChanged(IPV pv) {
-					getClientSession().send(new PVEventMessage(getId(), PVEventType.writePermission, pv.isWriteAllowed(), false));
+					getClientSession().send(new PVEventMessage(getId(), PVEventType.writePermission, 
+							pv.isWriteAllowed() && getClientSession().hasPermission(SetPVValueCommand.AUTHORIZATION_KEY), false));
 				}
 				
 			});
