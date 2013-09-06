@@ -59,7 +59,7 @@
 			};
 			while (wrappedBinData.startIndex<json.d.byteLength-1) {
 				internalPV.value = processSingleValueBinary(wrappedBinData, internalPV.value);
-				internalPV.allBufferedValues.push(WebPDAUtil.clone(internalPV.value));
+				internalPV.allBufferedValues.push(internalPV.value.clone());
 			}
 			break;
 		case "writePermission":
@@ -223,6 +223,22 @@
 		return "[" + this.type + "] " + this.timestamp + " " + this.value + " "
 				+ this.severity + " " + this.alarmName;
 	};
+	/**
+	 * Clone this value object.
+	 * @param obj
+	 * @returns {Object}
+	 */
+	VBasicType.prototype.clone = function(){
+			var r = new Object();
+			for ( var i in this) {				
+				if (i!="value" && typeof (this[i]) == "object" && this[i] != null)
+					r[i] = WebPDAUtil.clone(this[i]);
+				else
+					r[i] = this[i];
+			}
+			return r;		
+	};
+	
 	/**
 	 * Get length of the binary presentation of the value.
 	 */

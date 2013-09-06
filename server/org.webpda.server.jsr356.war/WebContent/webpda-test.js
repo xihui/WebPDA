@@ -20,6 +20,8 @@
 var pathName = document.location.pathname.replace("index.html", "");
 
 document.getElementById("wsurl").value=	"ws://"+document.location.host+pathName+"webpda";
+document.getElementById("username").value="webpda";
+document.getElementById("password").value="123456";
 var wp;
 
 var WebPDATest;

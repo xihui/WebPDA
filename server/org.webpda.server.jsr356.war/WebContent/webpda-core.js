@@ -552,7 +552,7 @@ function WebPDA(url, username, password) {
 	 * Deep clone an object.
 	 */
 	function clone(obj) {
-		var r = {};
+		var r = new Object();
 		for ( var i in obj) {
 			if (typeof (obj[i]) == "object" && obj[i] != null)
 				r[i] = clone(obj[i]);
