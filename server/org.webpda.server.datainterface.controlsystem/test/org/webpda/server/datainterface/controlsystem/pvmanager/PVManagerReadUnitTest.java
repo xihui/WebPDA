@@ -11,7 +11,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.webpda.server.core.HamcrestMatchers.greaterThanOrEqualTo;
+import static org.webpda.server.core.util.HamcrestMatchers.greaterThanOrEqualTo;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,9 +22,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.epics.vtype.VType;
 import org.junit.Test;
-import org.webpda.server.datainterface.AbstractPVFactory;
-import org.webpda.server.datainterface.IPV;
-import org.webpda.server.datainterface.IPVListener;
+import org.webpda.server.core.datainterface.AbstractPVFactory;
+import org.webpda.server.core.datainterface.IPV;
+import org.webpda.server.core.datainterface.IPVListener;
 
 /** JUnit test for reading with PVManagerPVFactory
  * 

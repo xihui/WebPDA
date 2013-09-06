@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.webpda.server.core.LoggerUtil;
+import org.webpda.server.core.util.LoggerUtil;
 
 /**Security context about a user.
  * @author Xihui Chen
@@ -22,11 +22,13 @@ public class UserSecurityContext {
 	
 	private LoginContext loginContext;
 	private Authorizations authorizations;
+	private String username;
 	
-	public UserSecurityContext(LoginContext loginContext,
+	public UserSecurityContext(String userName, LoginContext loginContext,
 			Authorizations authorizations) {
 		this.loginContext = loginContext;
 		this.authorizations = authorizations;
+		this.username = userName;
 	}	
 	
 	public LoginContext getLoginContext() {
@@ -52,4 +54,7 @@ public class UserSecurityContext {
 			return authorizations.haveAuthorization(authorization);
 	}
 	
+	public String getUsername() {
+		return username;
+	}
 }

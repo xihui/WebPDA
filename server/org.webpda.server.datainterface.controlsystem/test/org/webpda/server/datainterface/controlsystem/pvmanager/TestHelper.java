@@ -14,9 +14,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.webpda.server.core.ConfigurePropertyConstants;
-import org.webpda.server.datainterface.AbstractPVFactory;
-import org.webpda.server.datainterface.IPV;
-import org.webpda.server.datainterface.PVFactory;
+import org.webpda.server.core.datainterface.AbstractPVFactory;
+import org.webpda.server.core.datainterface.IPV;
+import org.webpda.server.core.datainterface.PVFactory;
 
 /** Helper for IPV tests
  *  @author Kay Kasemir

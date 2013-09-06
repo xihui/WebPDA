@@ -24,10 +24,10 @@ import org.epics.vtype.VStringArray;
 import org.epics.vtype.VType;
 import org.epics.vtype.ValueUtil;
 import org.webpda.server.core.Constants;
-import org.webpda.server.core.DataUtil;
-import org.webpda.server.core.JsonUtil;
-import org.webpda.server.core.LoggerUtil;
-import org.webpda.server.datainterface.ValueFrame;
+import org.webpda.server.core.datainterface.ValueFrame;
+import org.webpda.server.core.util.DataUtil;
+import org.webpda.server.core.util.JsonUtil;
+import org.webpda.server.core.util.LoggerUtil;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;

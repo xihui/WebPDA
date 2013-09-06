@@ -17,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 import org.epics.vtype.VType;
 import org.epics.vtype.ValueUtil;
 import org.junit.Test;
-import org.webpda.server.datainterface.IPV;
-import org.webpda.server.datainterface.IPVListener;
+import org.webpda.server.core.datainterface.IPV;
+import org.webpda.server.core.datainterface.IPVListener;
 
 /** JUnit test for writing with PVManagerPVFactory
  * 

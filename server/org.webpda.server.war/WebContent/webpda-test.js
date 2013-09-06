@@ -33,7 +33,6 @@ var WebPDATest;
 		closePV : closePV,
 		pausePV : pausePV,
 		setPVValue : setPVValue,
-		listAllPVs : listAllPVs,
 		clearInfo : clearInfo,
 		closeWebSocket : closeWebSocket,
 		debug : debug
@@ -234,9 +233,6 @@ var WebPDATest;
 		wp.setPVValueById(id, value);
 	}
 
-	function listAllPVs() {
-		wp.listAllPVs();
-	}
 	function closeWebSocket() {
 		wp.close();
 	}

@@ -15,7 +15,7 @@ import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
 
 import org.webpda.server.core.ConfigurePropertyConstants;
-import org.webpda.server.core.LoggerUtil;
+import org.webpda.server.core.util.LoggerUtil;
 
 import com.sun.security.auth.NTUserPrincipal;
 import com.sun.security.auth.UnixPrincipal;
@@ -71,7 +71,7 @@ public class SecurityManager {
 		if(authorizationProvider != null){
 			authorizations = authorizationProvider.getAuthorizations(lc.getSubject());
 		}
-		return new UserSecurityContext(lc, authorizations);
+		return new UserSecurityContext(userName, lc, authorizations);
 	}	
 
 	/** A Subject can have multiple Principals.

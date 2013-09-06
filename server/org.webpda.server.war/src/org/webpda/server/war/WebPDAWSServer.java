@@ -21,28 +21,25 @@ import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.webpda.server.core.LoggerUtil;
-import org.webpda.server.war.clientcommand.AbstractClientCommand;
-import org.webpda.server.war.clientcommand.ClientCommandDecoder;
-import org.webpda.server.war.clientcommand.ClientSession;
-import org.webpda.server.war.servermessage.ErrorMessage;
-import org.webpda.server.war.servermessage.ServerMessageEncoder;
+import org.webpda.server.core.ClientSessionManager;
+import org.webpda.server.core.IPeer;
+import org.webpda.server.core.clientcommand.AbstractClientCommand;
+import org.webpda.server.core.clientcommand.ClientSession;
+import org.webpda.server.core.servermessage.ErrorMessage;
+import org.webpda.server.core.util.LoggerUtil;
 
 /**The WebSocket server of WebPDA.
  * @author Xihui Chen
  *
  */
 @ServerEndpoint(value="/webpda", subprotocols={"org.webpda"}, encoders={ServerMessageEncoder.class}, decoders={ClientCommandDecoder.class})
-public class WebPDAWSServer {
+public class WebPDAWSServer {	
 	
-	private static Map<Session, ClientSession> sessionRegistry = Collections.synchronizedMap(
-			new HashMap<Session, ClientSession>());
-	
-
+	private static Map<Session, IPeer> sessionRegistry = Collections.synchronizedMap(
+			new HashMap<Session, IPeer>());
 	@OnMessage
 	public void executeCommand(AbstractClientCommand command, Session session) throws IOException, EncodeException{
-//		LoggerUtil.getLogger().log(Level.INFO, "executeCommand: " + command);
-		command.setClientSession(sessionRegistry.get(session));
+		command.setClientSession(ClientSessionManager.getClientSession(sessionRegistry.get(session)));
 		if(command.isPermitted())
 			command.run();		
 		else{
@@ -52,31 +49,29 @@ public class WebPDAWSServer {
 	
 	
 	@OnOpen
-	public void onOpen(Session peer){
-		LoggerUtil.getLogger().log(Level.INFO, "Joined: " + peer.toString());
-		peer.getContainer().setDefaultMaxTextMessageBufferSize(10240*1024);
-		peer.getContainer().setAsyncSendTimeout(60000);
-		sessionRegistry.put(peer, new ClientSession(peer));	
+	public void onOpen(Session session){
+		LoggerUtil.getLogger().log(Level.INFO, "Joined: " + session.toString());
+		session.getContainer().setDefaultMaxTextMessageBufferSize(10240*1024);
+		session.getContainer().setAsyncSendTimeout(60000);
+		JSR356Peer peer = new JSR356Peer(session);
+		sessionRegistry.put(session, peer);
+		ClientSessionManager.registerPeer(peer);	
 	}
 	
 	@OnClose
-	public void onClose(Session peer){		
-		ClientSession clientSession = sessionRegistry.get(peer);
+	public void onClose(Session session){		
+		ClientSession clientSession = ClientSessionManager.getClientSession(
+				sessionRegistry.get(session));
 		if(clientSession !=null){
-			LoggerUtil.getLogger().log(Level.INFO,"Closing: " + peer);
+			LoggerUtil.getLogger().log(Level.INFO,"Closing: " + session);
 			clientSession.close();
 		}
+		sessionRegistry.remove(session);
 	}
 	@OnError
 	public void onError(Session peer, Throwable error){
 		LoggerUtil.getLogger().log(Level.SEVERE, "Error on Websocket", error);
-	}
-	
-	/**Remove session related information from session registry.
-	 * @param session
-	 */
-	public static void unRegisterSession(Session session){
-		sessionRegistry.remove(session);
-	}
+	}	
+
 
 }

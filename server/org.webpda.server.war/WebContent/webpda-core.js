@@ -362,13 +362,6 @@ function WebPDA(url) {
 		});
 		this.sendText(json);
 	};
-
-	this.listAllPVs = function() {
-		var json = JSON.stringify({
-			"commandName" : "ListAllPVs"
-		});
-		this.sendText(json);
-	};
 	
 	this.login = function(username, password){
 		var json = JSON.stringify({

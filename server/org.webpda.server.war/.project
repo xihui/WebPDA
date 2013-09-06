@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.webpda.server.war</name>
+	<name>org.webpda.server.jsr356.war</name>
 	<comment></comment>
 	<projects>
 		<project>org.webpda.server.datainterface.controlsystem</project>
-		<project>org.webpda.server.datainterface</project>
 		<project>org.webpda.server.core</project>
 	</projects>
 	<buildSpec>

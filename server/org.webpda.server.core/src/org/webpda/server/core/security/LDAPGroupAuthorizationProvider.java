@@ -23,7 +23,7 @@ import javax.naming.directory.SearchResult;
 import javax.security.auth.Subject;
 
 import org.webpda.server.core.ConfigurePropertyConstants;
-import org.webpda.server.core.LoggerUtil;
+import org.webpda.server.core.util.LoggerUtil;
 
 import com.sun.security.auth.module.LdapLoginModule;
 

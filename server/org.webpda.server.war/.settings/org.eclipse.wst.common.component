@@ -1,11 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="org.webpda.server.war">
+    <wb-module deploy-name="org.webpda.server.jsr356.war">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
         <dependent-module archiveName="org.webpda.server.datainterface.controlsystem.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.webpda.server.datainterface.controlsystem/org.webpda.server.datainterface.controlsystem">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="org.webpda.server.datainterface.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.webpda.server.datainterface/org.webpda.server.datainterface">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="org.webpda.server.core.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.webpda.server.core/org.webpda.server.core">
@@ -65,7 +62,7 @@
         <dependent-module archiveName="caj-1.1.12.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/caj-1.1.12.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <property name="java-output-path" value="/org.webpda.server.war/build/classes"/>
-        <property name="context-root" value="org.webpda.server.war"/>
+        <property name="java-output-path" value="/org.webpda.server.jsr356.war/build/classes"/>
+        <property name="context-root" value="org.webpda.server.jsr356.war"/>
     </wb-module>
 </project-modules>
