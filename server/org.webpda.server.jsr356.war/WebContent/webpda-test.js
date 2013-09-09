@@ -37,6 +37,7 @@ var WebPDATest;
 		setPVValue : setPVValue,
 		clearInfo : clearInfo,
 		closeWebSocket : closeWebSocket,
+		setServerBufferSize:setServerBufferSize,
 		debug : debug
 	};
 	
@@ -236,6 +237,12 @@ var WebPDATest;
 		var value = document.getElementById("setvalue" + id).value.trim();
 		wp.setPVValueById(id, value);
 	}
+	
+	function setServerBufferSize(id){
+		var value = document.getElementById("buffersize").value.trim();
+		wp.setServerBufferSize(value);
+	}
+	
 
 	function closeWebSocket() {
 		wp.close();

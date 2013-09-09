@@ -9,12 +9,32 @@ package org.webpda.server.core.servermessage;
 
 import java.nio.ByteBuffer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 /**Abstract server message in text format.
  * @author Xihui Chen
  *
  */
 public abstract class AbstractTextMessage implements IServerMessage{
 
+	protected String json;
+	
+	@Override
+	public String toJson() throws JsonProcessingException {
+		if(json == null)
+			this.json = createJson();
+		return json;
+	}
+	
+	@Override
+	public int getMessageSizeInBytes() throws JsonProcessingException {
+		if(json == null)
+			this.json = createJson();
+		return json.length()*2;
+	}
+	
+	protected abstract String createJson() throws JsonProcessingException;
+	
 	@Override
 	public boolean isBinary() {
 		return false;

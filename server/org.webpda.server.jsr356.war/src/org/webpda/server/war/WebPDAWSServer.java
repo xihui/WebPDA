@@ -35,6 +35,7 @@ import org.webpda.server.core.util.LoggerUtil;
 @ServerEndpoint(value="/webpda", subprotocols={"org.webpda"}, encoders={ServerMessageEncoder.class}, decoders={ClientCommandDecoder.class})
 public class WebPDAWSServer {	
 	
+	private static final int DEFAULT_BUFFER_SIZE = 10240;
 	private static Map<Session, IPeer> sessionRegistry = Collections.synchronizedMap(
 			new HashMap<Session, IPeer>());
 	@OnMessage
@@ -51,7 +52,7 @@ public class WebPDAWSServer {
 	@OnOpen
 	public void onOpen(Session session){
 		LoggerUtil.getLogger().log(Level.INFO, "Joined: " + session.toString());
-		session.getContainer().setDefaultMaxTextMessageBufferSize(10240*1024);
+		session.getContainer().setDefaultMaxTextMessageBufferSize(DEFAULT_BUFFER_SIZE);
 		session.getContainer().setAsyncSendTimeout(60000);
 		JSR356Peer peer = new JSR356Peer(session);
 		sessionRegistry.put(session, peer);

@@ -40,17 +40,24 @@ import org.webpda.server.core.util.LoggerUtil;
 public class ClientSession {
 
 	private static final int MAX_PING_RETRY_COUNT = 12;
-	private static final int PING_FREQUNCY = 5;
+	private static final int PING_FREQUNCY = 10;
 	/**
 	 * Max allowed number of messages in the queue. The session will close if queue is full.
 	 */
-	private static final int MAX_QUEUE_SIZE = 1024;
+	private static final int MAX_QUEUE_SIZE = 10240;
+	public static final int MAX_BUFFER_SIZE = 1024*1024;
+	/**
+	 * Max allowed number of bytes in the queue.
+	 */
+	private int bufferSize = 100*1024;
+	
 	private static final ExecutorService SHARED_THREAD_POOL = Executors
 			.newCachedThreadPool();
 	
 	private long pingCount = 0;
 	private long pongCount = 0;
 	private int retryCount = MAX_PING_RETRY_COUNT;
+	private int currentQueueBytes = 0;
 
 	private IPeer session;
 
@@ -59,7 +66,7 @@ public class ClientSession {
 	private BlockingQueue<IServerMessage> messageQueue = new LinkedBlockingDeque<IServerMessage>(
 			MAX_QUEUE_SIZE);
 	private AtomicBoolean polling = new AtomicBoolean(false);
-	private boolean isOpen;
+	private AtomicBoolean isOpen = new AtomicBoolean(false);
 	
 	private UserSecurityContext userSecurityContext;
 	
@@ -79,7 +86,7 @@ public class ClientSession {
 	public ClientSession(IPeer session) {
 		this.session = session;
 		pvMap = new HashMap<Integer, IPV>();
-		isOpen=true;		
+		isOpen.set(true);		
 		ServerHeartBeatThread.getInstance().addHeartBeatListener(heartBeatListener);
 	}
 	
@@ -151,7 +158,7 @@ public class ClientSession {
 	public synchronized void close() {
 		if (!isOpen())
 			return;
-		isOpen=false;
+		isOpen.set(false);
 		for (IPV pv : pvMap.values()) {
 			pv.stop();
 		}
@@ -196,6 +203,10 @@ public class ClientSession {
 					"Failed to send ping message to client " + this, e);
 		} 
 	}
+	
+	public void setMaxQueueBytes(int maxQueueBytes) {
+		this.bufferSize = maxQueueBytes;
+	}
 
 	public synchronized void setPongCount(long pongCount) {
 		retryCount=MAX_PING_RETRY_COUNT;
@@ -217,10 +228,13 @@ public class ClientSession {
 						
 						// must use BasicRemote to guarantee ordered
 						// transmission. AsyncRemote has serious problem so far.
+						System.out.println("sending");
 						if(message.isBinary())
 							session.sendBinary(message.toByteBuffer());
 						else
 							session.sendObject(message);
+						currentQueueBytes -= message.getMessageSizeInBytes();
+						System.out.println("sending done");
 					}
 					polling.set(false);
 					if (!session.isOpen()) {
@@ -252,11 +266,16 @@ public class ClientSession {
 			if (!polling.get())
 				initWorkingThread();
 			try {
-				if (messageQueue.remainingCapacity() < 1000) {
+				if (messageQueue.remainingCapacity() < 1000 || currentQueueBytes > 100000) {
 					System.out.println("Start using message queue "
-							+ messageQueue.remainingCapacity());
+							+ messageQueue.remainingCapacity() + "  " + currentQueueBytes);
 				}
-				boolean result = messageQueue.offer(message);
+				
+				boolean result =false;
+				currentQueueBytes += message.getMessageSizeInBytes();
+				result = messageQueue.size() < 5 || currentQueueBytes < bufferSize;
+				if(result)
+					result= messageQueue.offer(message);
 				if (!result) {
 					close();
 					LoggerUtil.getLogger().log(
@@ -274,7 +293,7 @@ public class ClientSession {
 	/**
 	 * @return true if the client session is still open.
 	 */
-	public synchronized boolean isOpen() {
-		return isOpen;
+	public boolean isOpen() {
+		return isOpen.get();
 	}
 }

@@ -49,4 +49,8 @@ public class PVValueMessage implements IServerMessage{
 	public String toJson() throws JsonProcessingException {
 		return null;
 	}
+	@Override
+	public int getMessageSizeInBytes() throws JsonProcessingException {
+		return 8+valueFrame.getTotalBytesLength();
+	}
 }

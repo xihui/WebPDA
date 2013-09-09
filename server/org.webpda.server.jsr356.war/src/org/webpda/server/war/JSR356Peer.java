@@ -52,6 +52,10 @@ public class JSR356Peer implements IPeer{
 	public String getId() {
 		return session.getId();
 	}
+
+	@Override
+	public void setMaxBufferSize(int bytes) {
+	}
 	
 	
 }

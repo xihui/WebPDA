@@ -25,6 +25,7 @@ import org.webpda.server.core.util.LoggerUtil;
  */
 public class CreatePVCommand extends AbstractPVCommand {
 
+	public static final String AUTHORIZATION_KEY = "CreatePV";
 	private LinkedHashMap<String, Object> parameters;	
 
 	@Override
@@ -38,6 +39,7 @@ public class CreatePVCommand extends AbstractPVCommand {
 				newPV = true;
 			}			
 			pv.addListener(new IPVListener(){
+//				private int count;
 				@Override
 				public void connectionChanged(IPV pv) {
 					getClientSession().send(new PVEventMessage(
@@ -53,6 +55,7 @@ public class CreatePVCommand extends AbstractPVCommand {
 
 				@Override
 				public void valueChanged(IPV pv) {
+//					System.out.println(count++);
 					ValueFrame valueFrame = pv.getDeltaChangesValueFrame();
 					if (valueFrame != null)
 						getClientSession()
@@ -106,6 +109,6 @@ public class CreatePVCommand extends AbstractPVCommand {
 
 	@Override
 	public String getAuthorizationKey() {
-		return "CreatePV";
+		return AUTHORIZATION_KEY;
 	}
 }

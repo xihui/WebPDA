@@ -32,7 +32,7 @@ public class InfoMessage extends NonPVEventMessage {
 	}
 
 	@Override
-	public String toJson() throws JsonProcessingException {
+	public String createJson() throws JsonProcessingException {
 		try {
 			JsonGenerator jg = createJsonGenerator();
 			jg.writeStringField("title",title);

@@ -31,7 +31,7 @@ public class PingMessage extends NonPVEventMessage {
 	}
 
 	@Override
-	public String toJson() throws JsonProcessingException {
+	public String createJson() throws JsonProcessingException {
 		try {
 			JsonGenerator jg = createJsonGenerator();
 			jg.writeNumberField("Count", count);

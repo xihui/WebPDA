@@ -21,6 +21,10 @@
 	<button type="button" onclick="WebPDATest.logout();">logout</button>
 	<br>Tip: The user name could be webpda, webpda-admin, jane or fred. The password is 123456. User webpda has no write permission.
 	<br>
+	Server side buffer size (bytes):
+	<input id="buffersize" size="10" type="number" value="10000" placeholder="10000" />
+	<button type="button" onclick="WebPDATest.setServerBufferSize();">Set</button>
+	<br>	
 	<br>
 	<form>
 		PV Name: <input id="pvName" class="text-field" type="text"

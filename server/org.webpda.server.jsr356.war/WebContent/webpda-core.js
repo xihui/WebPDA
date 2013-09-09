@@ -91,6 +91,25 @@ function WebPDA(url, username, password) {
 	};
 	
 	/**
+	 * Set server side buffer size. The server side buffer
+	 * is used to temporarily buffer the data to be sent to client when there is temporary disconnection,
+	 * so the client won't lose any data for temporary disconnection. The connection will be
+	 * closed by server when the buffer is full. 
+	 * The default buffer size is 100K. The max allowed size is 1M.
+	 * 
+	 * @param size
+	 *            buffer size in byte.If the buffer size is larger than 1M, it will be coerced
+	 *            to 1M.
+	 */
+	this.setServerBufferSize = function(size) {
+		var json = JSON.stringify({
+			"commandName" : "SetServerBufferSize",
+			"size" : size
+		});
+		this.sendText(json);
+	};
+	
+	/**
 	 * Close Websocket.
 	 */
 	this.close = function() {

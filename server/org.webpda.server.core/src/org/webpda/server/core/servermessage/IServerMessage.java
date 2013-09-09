@@ -22,4 +22,6 @@ public interface IServerMessage {
 	public boolean isBinary();
 	
 	public ByteBuffer toByteBuffer();
+	
+	public int getMessageSizeInBytes() throws JsonProcessingException;
 }

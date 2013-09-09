@@ -49,7 +49,7 @@ public class PVEventMessage extends AbstractTextMessage{
 
 	
 	@Override
-	public String toJson() throws JsonProcessingException {
+	public String createJson() throws JsonProcessingException {
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			JsonGenerator jg = JsonUtil.jsonFactory.createGenerator(outputStream);

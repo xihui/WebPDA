@@ -18,14 +18,19 @@ import org.webpda.server.core.servermessage.IServerMessage;
  */
 public interface IPeer {
 
-	void close() throws IOException;
+	public void close() throws IOException;
 
-	boolean isOpen();
+	public boolean isOpen();
 
-	void sendBinary(ByteBuffer byteBuffer) throws Exception;
+	public void sendBinary(ByteBuffer byteBuffer) throws Exception;
 
-	void sendObject(IServerMessage message) throws Exception;
+	public void sendObject(IServerMessage message) throws Exception;
 
-	String getId();
+	public String getId();
+	
+	/**
+	 * Set max buffer size in bytes.
+	 */
+	public void setMaxBufferSize(int bytes);
 
 }
