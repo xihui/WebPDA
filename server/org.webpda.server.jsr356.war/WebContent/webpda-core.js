@@ -176,7 +176,6 @@ function WebPDA(url, username, password) {
 				var listener = null;
 				listener = function(evt){
 					webpdaSelf.sendText(json);
-					webpdaSelf.removeWebSocketOnOpenListenerFunc(listener);
 				};
 				this.addWebSocketOnOpenListenerFunc(listener);
 			}

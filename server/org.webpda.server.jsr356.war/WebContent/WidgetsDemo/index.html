@@ -1,0 +1,44 @@
+<!DOCTYPE html >
+<html>
+<head>
+  <style type="text/css">
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+      #chart {
+        width : 600px;
+        height: 384px;
+      }
+    </style>
+    
+    <link rel="stylesheet" href="RGraph/demos/demos.css" type="text/css" media="screen" />
+    <script src="../webpda-core.js"></script>
+	<script src="../webpda-cs.js"></script>
+    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="RGraph/libraries/RGraph.gauge.js" ></script>
+    <script src="WidgetsDemo.js" ></script>
+    <script type="text/javascript" src="flotr2.min.js"></script>
+    <!--[if lt IE 9]><script src="../excanvas/excanvas.js"></script><![endif]-->
+    
+    <title>Using WebPDA with Widgets Demo</title>
+    
+    <meta name="keywords" content="demo webpda rgraph defaults" />
+    <meta name="description" content="Use RGraph with WebPDA Demo" />
+    <meta name="robots" content="noindex,nofollow" />
+</head>
+<body>
+
+    <h1>Using WebPDA with Widgets Demo</h1>
+	<p>sim://noise</p>
+    <canvas id="gauge" width="250" height="250">[No canvas support]</canvas>
+    <p>sim://noise(0,100,0.001)</p>
+    <div id="chart"></div>
+	<div id="output">Output:</div>
+    <p>
+       The gauge is from <a href="http://www.rgraph.net/">RGraph</a>.<br>
+       The chart is from <a href="http://www.humblesoftware.com/flotr2/documentation">Flotr2</a>.
+    </p>
+
+</body>
+</html>
