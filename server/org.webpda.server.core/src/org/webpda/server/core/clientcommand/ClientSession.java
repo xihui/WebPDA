@@ -228,13 +228,11 @@ public class ClientSession {
 						
 						// must use BasicRemote to guarantee ordered
 						// transmission. AsyncRemote has serious problem so far.
-						System.out.println("sending");
 						if(message.isBinary())
 							session.sendBinary(message.toByteBuffer());
 						else
 							session.sendObject(message);
 						currentQueueBytes -= message.getMessageSizeInBytes();
-						System.out.println("sending done");
 					}
 					polling.set(false);
 					if (!session.isOpen()) {

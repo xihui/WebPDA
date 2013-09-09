@@ -10,9 +10,9 @@
  * 
  * @author Xihui Chen
  */
-
-var wsUri = "ws://localhost:8080/org.webpda.server.jsr356.war/webpda";
-WebPDA_Debug=true;
+var pathName = document.location.pathname.replace("index.html", "").replace("WidgetsDemo/", "");
+var wsUri = "ws://"+document.location.host+pathName+"webpda";
+WebPDA_Debug=false;
 var wp = new WebPDA(wsUri, "webpda", "123456");
 
 window.onload = function() {

@@ -10,8 +10,8 @@
  * 
  * @author Xihui Chen
  */
-
-var wsUri = "ws://localhost:8080/org.webpda.server.jsr356.war/webpda";
+var pathName = document.location.pathname.replace("simpleDemo.html", "");
+var wsUri = "ws://"+document.location.host+pathName+"webpda";
 
 var wp = new WebPDA(wsUri, "webpda", "123456");
 
