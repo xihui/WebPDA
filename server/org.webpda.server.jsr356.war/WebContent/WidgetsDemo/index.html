@@ -6,18 +6,25 @@
         margin: 0px;
         padding: 0px;
       }
+      #gauge1 {
+        width : 250px;
+        height: 250px;
+      }
       #chart {
         width : 600px;
         height: 384px;
       }
+      
     </style>
     
     <link rel="stylesheet" href="RGraph/demos/demos.css" type="text/css" media="screen" />
     <script src="../webpda-core.js"></script>
 	<script src="../webpda-cs.js"></script>
+	<script src="jquery-2.0.3.min.js"></script>
     <script src="RGraph/libraries/RGraph.common.core.js" ></script>
     <script src="RGraph/libraries/RGraph.gauge.js" ></script>
     <script src="WidgetsDemo.js" ></script>
+    <script src="webpda-widgets.js" ></script>    
     <script type="text/javascript" src="flotr2.min.js"></script>
     <!--[if lt IE 9]><script src="../excanvas/excanvas.js"></script><![endif]-->
     
@@ -30,11 +37,15 @@
 <body>
 
     <h1>Using WebPDA with Widgets Demo</h1>
-	<p>sim://noise</p>
-    <canvas id="gauge" width="250" height="250">[No canvas support]</canvas>
-    <p>sim://noise(0,100,0.001)</p>
+    <p>WebPDA aware RGraph Gauge</p>
+    <div id = "gauge1" class="webpda-widgets" data-widget="rgraph-gauge" data-pvname="sim://sine(0,100,50,0.1)"></div>
+    
+	<p>Directly use RGraph Gauge with WebPDA</p>
+    <canvas id="gauge2" width="250" height="250">[No canvas support]</canvas>
+    
+    <p>Directly use Flotr2 Chart with WebPDA</p>
     <div id="chart"></div>
-	<div id="output">Output:</div>
+	<div id="output">Output:</div>	
     <p>
        The gauge is from <a href="http://www.rgraph.net/">RGraph</a>.<br>
        The chart is from <a href="http://www.humblesoftware.com/flotr2/documentation">Flotr2</a>.

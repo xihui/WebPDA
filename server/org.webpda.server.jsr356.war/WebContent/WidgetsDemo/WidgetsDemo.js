@@ -15,8 +15,8 @@ var wsUri = "ws://"+document.location.host+pathName+"webpda";
 WebPDA_Debug=false;
 var wp = new WebPDA(wsUri, "webpda", "123456");
 
-window.onload = function() {
-	var gauge = new RGraph.Gauge('gauge', -5, 5, 3).Set('chart.title',
+$(document).ready(function() {
+	var gauge = new RGraph.Gauge('gauge2', -5, 5, 3).Set('chart.title',
 			'sim://noise').Set('colors.ranges', []).Draw();
 	
 	var  chart = document.getElementById('chart');
@@ -87,7 +87,7 @@ window.onload = function() {
 	
 	
 
-};
+});
 
 window.onbeforeunload = function() {
 	wp.close();
