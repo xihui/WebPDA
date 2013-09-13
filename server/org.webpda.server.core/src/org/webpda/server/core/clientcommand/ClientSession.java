@@ -167,9 +167,11 @@ public class ClientSession {
 		messageQueue.clear();
 		ServerHeartBeatThread.getInstance().removeHeartBeatListener(heartBeatListener);
 		ClientSessionManager.unRegisterSession(session);
-		try {
-			session.close();
-		} catch (IOException e) {
+		if (session.isOpen()) {
+			try {
+				session.close();
+			} catch (IOException e) {
+			}
 		}
 		if(userSecurityContext != null)
 			userSecurityContext.logout();
