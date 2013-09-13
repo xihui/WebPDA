@@ -13,7 +13,13 @@
  * @author Xihui Chen
  */
 (function() {
-
+	/**
+	 * Create a control system PV.
+	 * @param {string} name name of the PV.
+	 * @param {number} minUpdatePeriodInMs the minimum update period in millisecond.
+	 * @param {boolean} bufferAllValues if all values should be buffered during the update period.
+	 * @returns the pv.
+	 */
 	WebPDA.prototype.createPV = function(name, minUpdatePeriodInMs,
 			bufferAllValues) {
 
@@ -39,7 +45,7 @@
 
 		return this.internalCreatePV(name, pvObj, compareFunc, bufferAllValues);
 	};
-
+	
 	WebPDA.prototype.processJsonForPV = function(internalPV, json) {
 		switch (json.e) {
 		case "conn":
@@ -181,7 +187,13 @@
 			break;
 		}
 	}
-
+	/**
+	 * Timestamp that represents the time stamp of the pv value.
+	 * @class Timestamp
+	 * @constructor
+	 * @param {number} sec seconds since Unix Epoch (1 January 1970 00:00:00 UTC) .
+	 * @param {number} nanoSec nano second part.
+	 */
 	function Timestamp(sec, nanoSec) {
 		this.sec = sec;
 		this.nanoSec = nanoSec;
@@ -189,6 +201,12 @@
 			return WebPDAUtil.formatDate(this.getDate());
 		};
 	}
+	
+	/**
+	 * Get {@link Date} representation of the timestamp.
+	 * @method getDate
+	 * @returns {Date} the date object.
+	 */
 	Timestamp.prototype.getDate = function() {
 		if (this.date == null) {
 			this.date = new Date(this.sec * 1000 + this.nanoSec / 1000000);
@@ -200,7 +218,11 @@
 		return new Timestamp(timeInJson.s,timeInJson.ns);
 
 	}
-
+	/**
+	 * Display related information on a PV value.
+	 * @class Display
+	 * @constructor
+	 */
 	function Display() {
 		this.displayLow = null;
 		this.displayHigh = null;

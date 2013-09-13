@@ -17,7 +17,7 @@
 // "ws://"+document.location.host+document.location.pathname+"webpda";
 // WebPDA.openWebSocket(wsUri);
 
-var pathName = document.location.pathname.replace("index.html", "");
+var pathName = document.location.pathname.replace("index.html", "").replace("demo/", "");
 
 document.getElementById("wsurl").value=	"ws://"+document.location.host+pathName+"webpda";
 document.getElementById("username").value="webpda";

@@ -23,7 +23,9 @@ var WebPDA_Debug = false;
 var WebPDAUtil = {};
 
 /**
- * The WebPDA Object.
+ * The WebPDA Object constructor.
+ * @class WebPDA
+ * @constructor
  * @param url url of the webpda server.
  * @returns a new WebPDA object.
  */
@@ -45,27 +47,52 @@ function WebPDA(url, username, password) {
 	
 	openWebSocket(url);
 	
-	// add a listener function
+	/**
+	 * Add a listener to WebSocket onOpen event. The listener is a function 
+	 * with WebSocket event as parameter.
+	 */
 	this.addWebSocketOnOpenListenerFunc = function(listener) {
 		webSocketOnOpenListeners.push(listener);
 	};
 	
+	/**
+	 * Remove a WebSocket onOpen listener.
+	 */
 	this.removeWebSocketOnOpenListenerFunc = function(listener){
 		webSocketOnOpenListeners.splice(webSocketOnOpenListeners.indexOf(listener), 1);
 	};
-
+	/**
+	 * Add a listener to WebSocket onClose event. The listener is a function 
+	 * with WebSocket event as parameter.
+	 */
 	this.addWebSocketOnCloseListenerFunc = function(listener) {
 		webSocketOnCloseListeners.push(listener);
 	};
 
+	/**
+	 * Add a listener to WebSocket onError event. The listener is a function 
+	 * with WebSocket event as parameter.
+	 */
 	this.addWebSocketOnErrorListenerFunc = function(listener) {
 		webSocketOnErrorListeners.push(listener);
 	};
 
+	/**
+	 * Add a listener to that will be notified when there is a message from server.
+	 * The listener is a function with a object parameter parsed from JSON message.
+	 * It is usually error or info message in following format:
+	 * <code>
+	 * {"msg":"Info","title":"the title","details":"The details"}	 * 
+	 * </code>	 *  
+	 */
 	this.addOnServerMessageListenerFunc = function(listener) {
 		onServerMessageListeners.push(listener);
 	};
-	
+	/**
+	 * Set PV's value by the PV's id.
+	 * @param {number} id id of the PV
+	 * @param {object} value to be written. Type of the value should be acceptable by the PV.
+	 */
 	this.setPVValueById = function(id, value) {
 		if (pvArray[id] != null) {
 			this.setPVValue(pvArray[id], value);
@@ -108,6 +135,7 @@ function WebPDA(url, username, password) {
 		});
 		this.sendText(json);
 	};
+
 	
 	/**
 	 * Close Websocket.
@@ -134,17 +162,24 @@ function WebPDA(url, username, password) {
 		this.sendText(json);
 	};
 
+	/**
+	 * @returns All pvs in an array.
+	 */
 	this.getAllPVs = function() {
 		return pvArray;
 	};
 
-	
+	/**
+	 * Get the PV from its id.
+	 * @param id id of the PV.
+	 * @returns the PV.
+	 */
 	this.getPV = function(id){
 		return pvArray[id];
 	};
 	
 	/**
-	 * Send text to server.
+	 * Send text to server using WebSocket. This function should be used internally.
 	 */
 	this.sendText =function(text) {
 		if (WebPDA_Debug)
@@ -230,7 +265,7 @@ function WebPDA(url, username, password) {
 	 * @param compareFunc
 	 *            the compare function to determine if two PVs are considered
 	 *            the same pv.
-	 * @returns
+	 * @returns the internal pv.
 	 */
 	 function getInternalPV(parameterObj, compareFunc) {
 		for ( var i in internalPVArray) {
@@ -432,7 +467,7 @@ function WebPDA(url, username, password) {
 	
 	/**
 	 * The Process Variable that is actually exposed to end user.
-	 * 
+	 * @constructor
 	 * @param name
 	 *            name of the PV.
 	 * @returns the pv object.
@@ -448,7 +483,7 @@ function WebPDA(url, username, password) {
 		this.paused = false;	
 	}
 	/**
-	 * If the pv is connected.
+	 * @returns {boolean} true if the pv is connected.
 	 */
 	PV.prototype.isConnected = function(){
 		return this.internalPV.connected;
