@@ -10,7 +10,7 @@
  * 
  * @author Xihui Chen
  */
-var pathName = document.location.pathname.replace("index.html", "").replace("WidgetsDemo/", "");
+var pathName = document.location.pathname.replace("index.html", "").replace("demo/WidgetsDemo/", "");
 var wsUri = "ws://"+document.location.host+pathName+"webpda";
 WebPDA_Debug=false;
 var wp = new WebPDA(wsUri, "webpda", "123456");
@@ -33,7 +33,7 @@ $(document).ready(function() {
 	var pv1 = wp.createPV("sim://noise", 1000, false);
 
 	// add listener to the pv.
-	pv1.addListenerFunc(function(evt, pv, data) {
+	pv1.addCallback(function(evt, pv, data) {
 		switch (evt) {
 		case "conn":
 			writeToScreen(pv.name + " connected.");
@@ -58,7 +58,7 @@ $(document).ready(function() {
 	});
 	
 	var pv2 = wp.createPV("sim://noise(0,100,0.001)", 100, true);
-	pv2.addListenerFunc(function(evt, pv, data) {
+	pv2.addCallback(function(evt, pv, data) {
 		switch (evt) {
 		case "conn":
 			writeToScreen(pv.name + " connected.");

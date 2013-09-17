@@ -59,14 +59,14 @@ var WebPDATest;
 			wp.close();
 		}
 		wp = new WebPDA(wsUri, username, password);
-		wp.addWebSocketOnErrorListenerFunc(function(evt) {
+		wp.addWebSocketOnErrorCallback(function(evt) {
 					writeToScreen('<span style="color: red;">ERROR:</span> '
 							+ evt.data);
 				});
 
 		// For testing purposes
 		var output = document.getElementById("output");
-		wp.addWebSocketOnOpenListenerFunc(function(evt) {
+		wp.addWebSocketOnOpenCallback(function(evt) {
 			onOpen(evt);
 		});
 
@@ -78,10 +78,10 @@ var WebPDATest;
 			writeToScreen("Connected to " + wsUri);
 		}
 
-		wp.addWebSocketOnCloseListenerFunc(function(evt) {
+		wp.addWebSocketOnCloseCallback(function(evt) {
 			writeToScreen("Websocket closed.");
 		});
-		wp.addOnServerMessageListenerFunc(function(json) {
+		wp.addOnServerMessageCallback(function(json) {
 			if (json.msg == "Error") {
 				writeToScreen('<span style="color: red;">ERROR: '
 						+  json.title + " - " + json.details +'</span>');
@@ -98,8 +98,7 @@ var WebPDATest;
 		var pv = wp.createPV(pvName, updatePeriod, buffering);
 		var count =0;
 		updateTable();
-		pv
-				.addListenerFunc(function(evt, thePV, data) {					
+		pv.addCallback(function(evt, thePV, data) {					
 					switch (evt) {
 					case "conn":
 						document.getElementById("pvconnected" + pv.id).innerHTML = pv

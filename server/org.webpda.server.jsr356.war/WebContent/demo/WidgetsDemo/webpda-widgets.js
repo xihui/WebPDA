@@ -11,7 +11,7 @@
  * @author Xihui Chen
  */
 var pathName = document.location.pathname.replace("index.html", "").replace(
-		"WidgetsDemo/", "");
+		"demo/WidgetsDemo/", "");
 var wsUri = "ws://" + document.location.host + pathName + "webpda";
 WebPDA_Debug = false;
 var wp = new WebPDA(wsUri, "webpda", "123456");
@@ -29,8 +29,7 @@ $(document).ready(function() {
 			if (pvname != null && pvname.trim().length > 0) {
 				var pv = wp.createPV(pvname, 100, false);
 				var gauge, displayLow=0, displayHigh=100;
-				pv
-						.addListenerFunc(function(evt, pv, data) {
+				pv.addCallback(function(evt, pv, data) {
 							switch (evt) {
 							case "conn":
 								gauge = new RGraph.Gauge(id,

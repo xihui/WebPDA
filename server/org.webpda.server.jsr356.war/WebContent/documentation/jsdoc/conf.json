@@ -1,0 +1,25 @@
+{
+        "tags"      : {
+                "allowUnknownTags" : true
+        },
+        "plugins"   : ["plugins/markdown"],
+        "templates" : {
+                "cleverLinks"     : false,
+                "monospaceLinks"  : false,
+                "default"         : {
+                        "outputSourceFiles" : true
+                },
+                "systemName"      : "WebPDA",
+                "footer"          : "<a href=http://webpda.org>webpda.org</a>",
+                "copyright"       : "WebPDA Copyright © 2013-2014 ORNL and the contributors.",
+                "navType"         : "vertical",
+                "theme"           : "united",
+                "linenums"        : true,
+                "collapseSymbols" : false,
+                "inverseNav"      : false
+        },
+        "markdown"  : {
+                "parser"   : "gfm",
+                "hardwrap" : true
+        }
+}
