@@ -1,0 +1,7 @@
+#Ignore all bin folders
+bin/
+target/
+#Ignore all .settings folders
+*/*/.settings/
+#Ignore all class file
+*.class

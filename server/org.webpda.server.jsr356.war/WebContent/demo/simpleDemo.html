@@ -26,23 +26,22 @@ var pv = wp.createPV("sim://noise", 1000, false);
 // add listener to the pv.
 pv.addCallback(function(evt, pv, data) {
 	switch (evt) {
-	case "conn":
+	case "conn": //connection state changed
 		writeToScreen(pv.isConnected()?"Connected":"Disconnected.");
 		break;
-	case "val":
+	case "val": //value changed
 		writeToScreen(pv.getValue());
 		break;
-	case "bufVal":
+	case "bufVal": //buffered values changed.
 		// if value is buffered, it will receive an array of buffered values.
+		writeToScreen(pv.getAllBufferedValues());
 		break;
-	case "error":
+	case "error": //error happened
 		writeToScreen("Error: " + data);
 		break;
-	case "writePermission":
-		// write permission changed.
+	case "writePermission":	// write permission changed.
 		break;
-	case "writeFinished":
-		// write operation finished.
+	case "writeFinished": // write finished.
 		break;
 	default:
 		break;
