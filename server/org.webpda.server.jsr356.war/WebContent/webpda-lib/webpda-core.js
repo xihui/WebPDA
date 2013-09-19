@@ -466,15 +466,13 @@ function WebPDA(url, username, password) {
 		
 		for ( var i in this.myPVs) {
 			if (this.myPVs[i].id == pv.id) {
-				delete this.myPVs[i];
+				this.myPVs.splice(i, 1);
 				break;
 			}
 		}
-		// if it is not empty, return.
-		for ( var i in this.myPVs) {
-			i;
+		if(this.myPVs.length>0)
 			return;
-		}
+		
 		closeInternalPV(this.id);
 	};
 
