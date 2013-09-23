@@ -3,8 +3,8 @@
 	<name>org.webpda.server.jsr356.war</name>
 	<comment></comment>
 	<projects>
-		<project>org.webpda.server.datainterface.controlsystem</project>
 		<project>org.webpda.server.core</project>
+		<project>org.webpda.server.datainterface.cs</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
