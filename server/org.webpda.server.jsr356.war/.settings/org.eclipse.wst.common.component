@@ -2,64 +2,55 @@
     <wb-module deploy-name="org.webpda.server.jsr356.war">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-        <dependent-module archiveName="org.webpda.server.datainterface.controlsystem.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.webpda.server.datainterface.controlsystem/org.webpda.server.datainterface.controlsystem">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module archiveName="org.webpda.server.core.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/org.webpda.server.core/org.webpda.server.core">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="jackson-annotations-2.1.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.core/lib/jackson-annotations-2.1.1.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="pvmanager-loc-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/pvmanager-loc-2.2.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="pvmanager-sys-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/pvmanager-sys-2.2.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="pvmanager-jca-2.2-sources.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/pvmanager-jca-2.2-sources.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="pvmanager-extra-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/pvmanager-extra-2.2.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="pvmanager-sim-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/pvmanager-sim-2.2.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="jca-2.3.6.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/jca-2.3.6.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="antlr-runtime-3.5.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/antlr-runtime-3.5.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="pvmanager-core-2.2-sources.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/pvmanager-core-2.2-sources.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="epics-vtype-2.2-sources.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/epics-vtype-2.2-sources.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="epics-vtype-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/epics-vtype-2.2.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <dependent-module archiveName="jackson-databind-2.1.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.core/lib/jackson-databind-2.1.1.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="pvmanager-core-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/pvmanager-core-2.2.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="pvmanager-jca-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/pvmanager-jca-2.2.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="pvmanager-vtype-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/pvmanager-vtype-2.2.jar">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="epics-util-0.2.3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/epics-util-0.2.3.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="jackson-core-2.1.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.core/lib/jackson-core-2.1.1.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="caj-1.1.12.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.controlsystem/lib/caj-1.1.12.jar">
+        <dependent-module deploy-path="/WEB-INF/lib" handle="module:/resource/org.webpda.server.datainterface.cs/org.webpda.server.datainterface.cs">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="pvmanager-jca-2.3-20130731.213712-20.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/pvmanager-jca-2.3-20130731.213712-20.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="pvmanager-loc-2.3-20130731.213804-19.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/pvmanager-loc-2.3-20130731.213804-19.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="epics-vtype-2.3-20130731.213624-20.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/epics-vtype-2.3-20130731.213624-20.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="pvmanager-extra-2.3-20130731.213843-12.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/pvmanager-extra-2.3-20130731.213843-12.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="pvmanager-core-2.3-20130731.213506-20.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/pvmanager-core-2.3-20130731.213506-20.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="epics-util-0.3-20130212.195934-9.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/epics-util-0.3-20130212.195934-9.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="pvmanager-vtype-2.3-20130731.213646-20.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/pvmanager-vtype-2.3-20130731.213646-20.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jca-2.3.7-20130613.130830-10.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/jca-2.3.7-20130613.130830-10.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="pvmanager-sys-2.3-20130731.213856-12.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/pvmanager-sys-2.3-20130731.213856-12.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="pvmanager-sim-2.3-20130731.213736-19.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/pvmanager-sim-2.3-20130731.213736-19.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="caj-1.1.12.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/caj-1.1.12.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="antlr-runtime-3.5.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/org.webpda.server.datainterface.cs/lib/antlr-runtime-3.5.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="java-output-path" value="/org.webpda.server.jsr356.war/build/classes"/>

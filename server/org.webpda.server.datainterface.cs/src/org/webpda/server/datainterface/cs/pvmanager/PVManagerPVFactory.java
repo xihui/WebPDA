@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
-package org.webpda.server.datainterface.controlsystem.pvmanager;
+package org.webpda.server.datainterface.cs.pvmanager;
 
 import java.util.LinkedHashMap;
 import java.util.concurrent.ExecutorService;

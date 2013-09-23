@@ -1,4 +1,4 @@
-package org.webpda.server.datainterface.controlsystem;
+package org.webpda.server.datainterface.cs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

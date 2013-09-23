@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.webpda.server.core.datainterface.AbstractPVFactory;
 import org.webpda.server.core.datainterface.IPV;
 import org.webpda.server.core.datainterface.IPVListener;
+import org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory;
 
 /** JUnit test for reading with PVManagerPVFactory
  * 

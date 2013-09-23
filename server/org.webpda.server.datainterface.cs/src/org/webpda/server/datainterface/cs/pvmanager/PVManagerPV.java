@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
 
-package org.webpda.server.datainterface.controlsystem.pvmanager;
+package org.webpda.server.datainterface.cs.pvmanager;
 
 import static org.epics.pvmanager.ExpressionLanguage.channel;
 import static org.epics.pvmanager.ExpressionLanguage.newValuesOf;
@@ -44,7 +44,7 @@ import org.webpda.server.core.datainterface.IPV;
 import org.webpda.server.core.datainterface.IPVListener;
 import org.webpda.server.core.datainterface.ValueFrame;
 import org.webpda.server.core.util.LoggerUtil;
-import org.webpda.server.datainterface.controlsystem.VTypeJsonHelper;
+import org.webpda.server.datainterface.cs.VTypeJsonHelper;
 
 /**
  * An implementation of {@link IPV} using PVManager.
