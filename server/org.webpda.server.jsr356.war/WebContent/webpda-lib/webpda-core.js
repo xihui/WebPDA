@@ -10,7 +10,10 @@
  * A javascript library for accessing live process data in web browser using
  * WebSocket.
  * 
+ * @version 1.0.0
+ * 
  * @author Xihui Chen
+ * 
  */
 
 /**

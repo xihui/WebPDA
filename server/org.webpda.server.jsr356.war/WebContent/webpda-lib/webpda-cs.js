@@ -9,7 +9,10 @@
 /**
  * Extension of WebPDA for control system data protocol such as the one in
  * EPICS. WebPAD_CS is the namespace.
+ * 
  * @namespace
+ * 
+ * @version 1.0.0
  * 
  * @author Xihui Chen
  */

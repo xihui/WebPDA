@@ -5,16 +5,87 @@
 <title>Insert title here</title>
 </head>
 <body>
-<h1>Getting Started with WebPDA</h1>
-<p>This document will guide you to start using WebPDA step by step.</p>
+	<h1>Getting Started with WebPDA</h1>
+	<p>This document will guide you to start using WebPDA step by step.</p>
 
-<h2>Download</h2>
-<p>
-WebPDA can be downloaded from <a href="http://www.webpda.org">webpda.org</a>.
+	<h2>Download</h2>
+	<p>
+		WebPDA can be downloaded from <a href="http://www.webpda.org">webpda.org</a>.
+		Unzip the file. Inside the extracted folder, there are following files
+		or folders:
+	<ul>
+		<li>webpda.war - The WAR file that can be deployed on Glassfish 4
+			or Tomcat 8. (The deployment on Tomcat 8 is not fully tested yet)</li>
+		<li>webpda-lib - The client JavaScript library files.</li>
+		<li>webpda-lib-min The minimized client JavaScript files</li>
+	</ul>
 
-</p>
+	<h2>Server Side: Deploy webpda.war on Glassfish 4</h2>
+	<h3>Install Glassfish 4</h3>
+	<p>
+		Glassfish 4 can be downloaded from <a
+			href="https://glassfish.java.net/">glassfish.java.net</a>. Follow its
+		instruction to install it and start default domain
+		<code>domain1</code>
+		. You may create another domain with another name, then just replace
+		<code>domain1</code>
+		in following document with your domain name.
+	</p>
+	<h3>Configure JVM options</h3>
+	After Glassfish is installed and started, go to the admin page (By
+	default it is http://localhost:4848). Navigate to
+	<code>Configurations>server-config JVM Settings>JVM Options</code>
+	, add following JVM options as needed.
+	<table border="1">
+		<tr>
+			<th style="width: 358px; ">JVM option</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>-Dorg.webpda.server.jaas_name</td>
+			<td>JAAS configuration file entry. If this is not configured, the entry name is <code>Default</code></td>
+		</tr>		
+		<tr>
+			<td>-Dorg.webpda.server.authorization_provider</td>
+			<td>The authorization provider. If the authorization information is configured in
+			a file, the provider should be <code>org.webpda.server.core.security.FileBasedAuthorizationProvider</code>.
+			The authorization configuration file is configured from <code>-Dorg.webpda.server.authorization.config_file</code>.
+			If the authorization information should be provided from an LDAP server, the value should be <code> 
+			org.webpda.server.core.security.LDAPGroupAuthorizationProvider</code>. 
+			Please see <a href="LDAPAuthorization.html">Authorization with LDAP</a>. 
+			</td>
+			</tr>
+			<tr><td>-Dorg.webpda.server.authorization.config_file</td><td>Absolute
+				path of the authorization configuration file. Here is an <a href="authorization.conf">authorization
+					file example</a>.
+			</td>
+		</tr>
+	</table>
+	-Dorg.webpda.server.pvfactory=org.webpda.server.datainterface.controlsystem.pvmanager.PVManagerPVFactory
+	-Dcom.cosylab.epics.caj.CAJContext.addr_list=127.0.0.1
+	-Dcom.cosylab.epics.caj.CAJContext.max_array_bytes=40000000
 
+	-Dorg.webpda.server.authorization_provider=org.webpda.server.core.security.FileBasedAuthorizationProvider
+	-Dorg.webpda.server.authorization.config_file=/home/5hz/work/java/WebPV_repo/server/org.webpda.server.core/authorization.conf
+	</pre>
+	</p>
 
+	<h3>Configure authentication info</h3>
+	<p>
+		The authentication information is configured in
+		<code>
+			<Glasshfish_installation_dir>/glassfish/domains/domain1/config/login.conf
+		</code>
+		as a regular JAAS configuration.
+	<pre>
+Default {
+        org.webpda.server.core.security.JaasConfigFileLoginModule required
+        webpda="123456"
+        webpda-admin="123456"
+        jane="123456"
+        fred="123456";
+}
+</pre>
 
 </body>
 </html>
