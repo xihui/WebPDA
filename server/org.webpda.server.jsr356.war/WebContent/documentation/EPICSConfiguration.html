@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>EPICS configuration</title>
+</head>
+<body>
+	<h1>EPICS Related Configurations</h1>
+	<p>
+		To connect to an EPICS system, following JVM options may need to be
+		set.They are corresponding to the <a
+			href="http://www.aps.anl.gov/epics/base/R3-14/8-docs/CAref.html#EPICS">Channel
+			Access EPICS Environment Variables</a>.
+	<table>
+		<tr>
+			<th>JVM Option</th>
+			<th>Corresponding EPICS Environment Variables</th>
+		</tr>
+		<tr>
+			<td>-Dcom.cosylab.epics.caj.CAJContext.addr_list</td>
+			<td>EPICS_CA_ADDR_LIST
+		</tr>
+		<tr>
+			<td>-Dcom.cosylab.epics.caj.CAJContext.auto_addr_list</td>
+			<td>EPICS_CA_AUTO_ADDR_LIST (use &quot;true&quot; of
+				&quot;false&quot; here)</td>
+		</tr>
+		<tr>
+			<td>-Dcom.cosylab.epics.caj.CAJContext.connection_timeout</td>
+			<td>EPICS_CA_CONN_TMO</td>
+		</tr>
+		<tr>
+			<td>-Dcom.cosylab.epics.caj.CAJContext.beacon_period</td>
+			<td>EPICS_CA_BEACON_PERIOD</td>
+		</tr>
+		<tr>
+			<td>-Dcom.cosylab.epics.caj.CAJContext.repeater_port</td>
+			<td>EPICS_CA_REPEATER_PORT</td>
+		</tr>
+		<tr>
+			<td>-Dcom.cosylab.epics.caj.CAJContext.server_port</td>
+			<td>EPICS_CA_SERVER_PORT</td>
+		</tr>
+		<tr>
+			<td>-Dcom.cosylab.epics.caj.CAJContext.max_array_bytes</td>
+			<td>EPICS_CA_MAX_ARRAY_BYTES</td>
+		</tr>
+	</table>
+
+
+
+
+
+</body>
+</html>

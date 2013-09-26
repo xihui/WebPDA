@@ -10,8 +10,12 @@ sim://noise <input type="submit" value="Close PV" onclick="closePV();" /><br>
 <div id="output">Output:</div>
 
 <script>
+var protocol = "ws://";
+if(window.location.protocol =="https")
+	protocol = "wss://";
+	
 var pathName = document.location.pathname.replace("simpleDemo.html", "").replace("demo/", "");
-var wsUri = "ws://"+document.location.host+pathName+"webpda";
+var wsUri = protocol+document.location.host+pathName+"webpda";
 
 var wp = new WebPDA(wsUri, "webpda", "123456");
 

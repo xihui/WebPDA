@@ -2,9 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<link rel="stylesheet" type="text/css" media="screen" href="stylesheet.css">
+<title>WebPDA Getting Started</title>
 </head>
 <body>
+ <div id="main_content_wrap" class="outer">
+ <section id="main_content" class="inner">
 	<h1>Getting Started with WebPDA</h1>
 	<p>This document will guide you to start using WebPDA step by step.</p>
 
@@ -20,7 +23,10 @@
 		<li>webpda-lib-min The minimized client JavaScript files</li>
 	</ul>
 
-	<h2>Server Side: Deploy webpda.war on Glassfish 4</h2>
+	<h2>Server Side: Deploy webpda.war</h2>
+	<p>webpda.war can be deployed on any JSR356 compatible servlet container. By the time when
+	this document was written, only Glassfish 4 is fully compatible. Tomcat 8 is supposed to support
+	JSR356, but it is still in  unstable stage.
 	<h3>Install Glassfish 4</h3>
 	<p>
 		Glassfish 4 can be downloaded from <a
@@ -33,59 +39,94 @@
 	</p>
 	<h3>Configure JVM options</h3>
 	After Glassfish is installed and started, go to the admin page (By
-	default it is http://localhost:4848). Navigate to
-	<code>Configurations>server-config JVM Settings>JVM Options</code>
+	default it is <a href="http://localhost:4848">http://localhost:4848</a>). Navigate to
+	<code>Configurations>server-config>JVM Settings>JVM Options</code>
 	, add following JVM options as needed.
-	<table border="1">
+	<table>
 		<tr>
-			<th style="width: 358px; ">JVM option</th>
+			<th>JVM option</th>
 			<th>Description</th>
 		</tr>
 		<tr>
 			<td>-Dorg.webpda.server.jaas_name</td>
-			<td>JAAS configuration file entry. If this is not configured, the entry name is <code>Default</code></td>
-		</tr>		
-		<tr>
-			<td>-Dorg.webpda.server.authorization_provider</td>
-			<td>The authorization provider. If the authorization information is configured in
-			a file, the provider should be <code>org.webpda.server.core.security.FileBasedAuthorizationProvider</code>.
-			The authorization configuration file is configured from <code>-Dorg.webpda.server.authorization.config_file</code>.
-			If the authorization information should be provided from an LDAP server, the value should be <code> 
-			org.webpda.server.core.security.LDAPGroupAuthorizationProvider</code>. 
-			Please see <a href="LDAPAuthorization.html">Authorization with LDAP</a>. 
-			</td>
-			</tr>
-			<tr><td>-Dorg.webpda.server.authorization.config_file</td><td>Absolute
-				path of the authorization configuration file. Here is an <a href="authorization.conf">authorization
-					file example</a>.
+			<td>JAAS configuration file entry. If this is not configured,
+				the entry name is <code>Default</code>
 			</td>
 		</tr>
-	</table>
-	-Dorg.webpda.server.pvfactory=org.webpda.server.datainterface.controlsystem.pvmanager.PVManagerPVFactory
-	-Dcom.cosylab.epics.caj.CAJContext.addr_list=127.0.0.1
-	-Dcom.cosylab.epics.caj.CAJContext.max_array_bytes=40000000
-
-	-Dorg.webpda.server.authorization_provider=org.webpda.server.core.security.FileBasedAuthorizationProvider
-	-Dorg.webpda.server.authorization.config_file=/home/5hz/work/java/WebPV_repo/server/org.webpda.server.core/authorization.conf
-	</pre>
-	</p>
+		<tr>
+			<td>-Dorg.webpda.server.authorization_provider</td>
+			<td>The authorization provider. If the authorization information
+				is configured in a file, the provider should be <code>org.webpda.server.core.security.FileBasedAuthorizationProvider</code>.
+				The authorization configuration file is configured from <code>-Dorg.webpda.server.authorization.config_file</code>.
+				If the authorization information should be provided from an LDAP
+				server, the value should be <code>
+					org.webpda.server.core.security.LDAPGroupAuthorizationProvider</code>.
+				Please see <a href="LDAPAuthorization.html">Authorization with
+					LDAP</a>.
+			</td>
+		</tr>
+		<tr>
+			<td>-Dorg.webpda.server.authorization.config_file</td>
+			<td>Absolute path of the authorization configuration file. Here
+				is an <a href="authorization.conf">authorization file example</a>.
+			</td>
+		</tr>
+		<tr>
+			<td>-Dorg.webpda.server.pvfactory</td>
+			<td>Full class name of the PV Factory of the data interface
+				implementation. By default, it is <code>org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory</code>,
+				which uses PVManager as the data interface implementation. 
+			</td></table>
+	<p>
+	To connect to an <a href="http://www.aps.anl.gov/epics/">EPICS</a>
+	system using PVManagerPVFactory, <a href="EPICSConfiguration.html">additional JVM options</a> should be set.
+	<p>
+	Here is an example of settings to connect to a local IOC and use file as authorization provider.
+	<pre>
+-Dcom.cosylab.epics.caj.CAJContext.addr_list=127.0.0.1
+-Dorg.webpda.server.authorization_provider=org.webpda.server.core.security.FileBasedAuthorizationProvider
+-Dorg.webpda.server.authorization.config_file=/home/WebPDA_repo/server/org.webpda.server.core/authorization.conf</pre>
+	<p>
+	Here is the authorization file example <a href="authorization.conf">authorization.conf</a>.
 
 	<h3>Configure authentication info</h3>
 	<p>
-		The authentication information is configured in
+		For Glassfish, the authentication information is configured in
 		<code>
-			<Glasshfish_installation_dir>/glassfish/domains/domain1/config/login.conf
+			{Glasshfish_installation_dir}/glassfish/domains/domain1/config/login.conf
+			
 		</code>
-		as a regular JAAS configuration.
+		as a regular JAAS configuration file. For other servlet container, the JAAS configuration file
+		may be specified from JVM option
+		<code>-Djava.security.auth.login.config</code>.
+		In the JAAS configuration file, add an entry to specify the login module and its options. The login module
+		can be any standard login module, such as LdapLoginModule coming with JRE. In below example, <code>
+		org.webpda.server.core.security.JaasConfigFileLoginModule</code> is a login module that allows setting 
+		user name and password as login module options. The option key is user name and option value is password.
+		The number of user names is not limited.
 	<pre>
 Default {
-        org.webpda.server.core.security.JaasConfigFileLoginModule required
-        webpda="123456"
-        webpda-admin="123456"
-        jane="123456"
-        fred="123456";
+    org.webpda.server.core.security.JaasConfigFileLoginModule required
+    webpda="123456"
+    webpda-admin="mypassword"
+    jane="654321"
+    fred="abcdef";
 }
 </pre>
+<h3>Deploy webpda.war</h3>
+<p>After above items were properly configured, go to glassfish admin page > Applications page. 
+Click on "Deploy..." button, choose "webpda.war", leave other options as default and click "OK".
+Click on the launch link of will provide you two links to the webpda startup page. One link starts with
+<code>http://</code>, which use unencrypted HTTP and WebSocket connection. 
+In this case, the WebSocket URL starts with <code>ws://</code>. The other link starts with <code>https://</code>
+ which uses SSL encrypted HTTP and WebSocket connection. In this case, the WebSocket URL starts with <code>wss://</code>.
+ Click on one of the links, you will see the welcome page and be ready to roll!   
 
+
+<h2>Client Side: using WebPDA JavaScript API</h2>
+
+
+</section>
+</div>
 </body>
 </html>

@@ -6,27 +6,28 @@
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
 /**
- * WebPDA test
+ * WebPDA fully test.
  * 
  * @author Xihui Chen
  */
 
-// "ws://localhost/org.webpda.server.war/webpda";
-// var wsUri= "ws://localhost:57321/org.webpda.server/webpda";
-// var wsUri =
-// "ws://"+document.location.host+document.location.pathname+"webpda";
-// WebPDA.openWebSocket(wsUri);
-
-var pathName = document.location.pathname.replace("index.html", "").replace("demo/", "");
-
-document.getElementById("wsurl").value=	"ws://"+document.location.host+pathName+"webpda";
-document.getElementById("username").value="webpda";
-document.getElementById("password").value="123456";
 var wp;
 
 var WebPDATest;
 
 (function() {
+	
+	var pathName = document.location.pathname.replace("index.html", "").replace("demo/", "");
+
+	var protocol = "ws://";
+	if(window.location.protocol =="https")
+		protocol = "wss://";
+
+	document.getElementById("wsurl").value=	protocol+document.location.host+pathName+"webpda";
+	document.getElementById("username").value="webpda";
+	document.getElementById("password").value="123456";
+	
+	
 	WebPDATest = {
 		open : open,
 		login: login,

@@ -13,11 +13,12 @@ public class PVFactory extends AbstractPVFactory {
 
 		String pvFactoryName = System
 				.getProperty(ConfigurePropertyConstants.PV_FACTORY_CLASS);
+		if(pvFactoryName == null)
+			pvFactoryName = "org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory";//$NON-NLS-1$
 		
 		ClassLoader classLoader = getClass().getClassLoader();
 		Class<?> clazz=classLoader.loadClass(pvFactoryName);
 		
-//		 = Class.forName(pvFactoryName);
 		if (clazz != null) {
 			Object newInstance = clazz.newInstance();
 			if (newInstance instanceof AbstractPVFactory)
