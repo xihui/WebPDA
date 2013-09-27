@@ -25,7 +25,7 @@ function writeToScreen(message) {
 }
 
 // create a pv whose name is sim://noise, maximum update rate at 1hz, don't buffer value.
-var pv = wp.createPV("sim://noise", 1000, false);
+var pv = wp.createPV("sim://noise", 2000, true);
 
 // add listener to the pv.
 pv.addCallback(function(evt, pv, data) {
@@ -34,11 +34,19 @@ pv.addCallback(function(evt, pv, data) {
 		writeToScreen(pv.isConnected()?"Connected":"Disconnected.");
 		break;
 	case "val": //value changed
-		writeToScreen(pv.getValue());
+		//PV's value is usually a data structure that has timestamp, value, alarm and meta information.
+        //Here is an example on how to extract the timestamp and
+        //numeric value from PV if the PV holds numeric value        
+		var pvValue = pv.getValue();
+		writeToScreen(pvValue);
+		if(pvValue instanceof WebPDA_CS.VNumber){
+			console.log("Timestamp: " + pvValue.timestamp + 
+					" Value: " + pvValue.value);
+		}			
 		break;
 	case "bufVal": //buffered values changed.
 		// if value is buffered, it will receive an array of buffered values.
-		writeToScreen(pv.getAllBufferedValues());
+		writeToScreen("Bufferred Values: " + pv.getAllBufferedValues());
 		break;
 	case "error": //error happened
 		writeToScreen("Error: " + data);

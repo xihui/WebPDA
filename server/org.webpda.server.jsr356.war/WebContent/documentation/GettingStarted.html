@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" type="text/css" media="screen" href="stylesheet.css">
+<link type="text/css" rel="stylesheet" href="syntaxhighlighter/styles/shCoreEclipse.css"/>
+<script src="syntaxhighlighter/scripts/shCore.js"></script>
+<script src="syntaxhighlighter/scripts/shBrushJScript.js"></script>
+<script type="text/javascript">SyntaxHighlighter.all();</script>
 <title>WebPDA Getting Started</title>
 </head>
 <body>
@@ -124,9 +128,90 @@ In this case, the WebSocket URL starts with <code>ws://</code>. The other link s
 
 
 <h2>Client Side: using WebPDA JavaScript API</h2>
+The JavaScript API is supposed to be used with <a href="http://caniuse.com/#feat=websockets">modern Web Browsers that support WebSocket</a>.
 
+<h3>Including js files in HTML</h3>
+<p><code>webpda-core.js</code> is the core, which should be always included. <code>webpda-cs.js</code> includes
+control system data type definitions and decoding for server side that uses <code>org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory</code>
+as PVFactory.    
+<pre class="brush:js;">
+&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+&lt;script src="webpda-core.js">&lt;/script>
+&lt;script src="webpda-cs.js">&lt;/script>
+&lt;/head>
+&lt;body>&lt;/body>
+&lt;/html>
+</pre>
+<h3>The JavaScript API</h3>
+In your script, you only need to focus on the PV and its value instead of underneath communications.
+Here is a demo for the mostly used APIs. The complete JSDoc is available <a href="jsdoc/index.html">here.</a>
+
+<pre class="brush:js;">
+//This the WebSocket URL 
+var wsUrl = "ws://localhost:8080/webpda/webpda";
+
+//Connect to server and login with the username and password set on server side.
+var wp = new WebPDA(wsUrl, "myname", "mypassword");
+
+// create a pv whose name is sim://noise, maximum update rate at 1hz, don't buffer value.
+var pv = wp.createPV("sim://noise", 1000, false);
+
+// add a callback to the PV that will be called whenever there is an event on the PV
+pv.addCallback(function(evt, pv, data) {
+    switch (evt) {
+    case "conn": //connection state changed
+		console.log(pv.isConnected()?"Connected":"Disconnected.");
+        break;
+    case "val": //Value changed. The event will be "bufVal" if value is buffered.
+		//PV's value is usually a data structure that has timestamp, 
+		//value, alarm and meta information.
+        //Here is an example on how to extract the timestamp and
+        //numeric value from PV if the PV holds numeric value        
+		var pvValue = pv.getValue();
+		console.log(pvValue);
+		if(pvValue instanceof WebPDA_CS.VNumber){
+			console.log("Timestamp: " + pvValue.timestamp + 
+					" Value: " + pvValue.value);
+		}        
+        break;
+    case "bufVal": //Buffered values changed
+        // If value is buffered during the update period, 
+        // it will receive an array of buffered values.
+        // Each value in the array is same as a single PV value 
+        // which should be handled in the same way as above.         
+        break;
+    case "error": //error happened
+        console.log("Error: " + data);
+        break;
+    case "writePermission": // write permission changed.        
+        console.log("Writable: " + pv.isWriteAllowed());
+        break;
+    case "writeFinished": // write operation finished.        
+        console.log("Write finished "
+					+ (data ? "successfully!" : "unsuccessfully!"));
+        break;
+    default:
+        break;
+    }
+});
+
+//Write PV. The value must be a value type that the PV can accept,
+//for example, a number for PV that holds number, a string for PV that holds string.
+pv.setValue(10);
+
+//Close PV when it is not needed.
+pv.close();
+
+</pre>
+
+<h2>Further readings</h2>
+<p>Congratulations! You have successfully started with WebPDA. I wish you a joyful journey! 
+Please visit <a href="http://www.webpda.org">webpad.org</a> for more resources.
 
 </section>
 </div>
 </body>
+
 </html>
