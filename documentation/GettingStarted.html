@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" media="screen" href="stylesheet.css">
+<link type="text/css" rel="stylesheet" href="syntaxhighlighter/styles/shCoreEclipse.css"/>
+<script src="syntaxhighlighter/scripts/shCore.js"></script>
+<script src="syntaxhighlighter/scripts/shBrushJScript.js"></script>
+<script type="text/javascript">SyntaxHighlighter.all();</script>
+<title>WebPDA Getting Started</title>
+</head>
+<body>
+ <div id="main_content_wrap" class="outer">
+ <section id="main_content" class="inner">
+	<h1>Getting Started with WebPDA</h1>
+	<p>This document will guide you to start using WebPDA step by step.</p>
+
+	<h2>Download</h2>
+	<p>
+		WebPDA can be downloaded from <a href="http://www.webpda.org">webpda.org</a>.
+		Unzip the file. Inside the extracted folder, there are following files
+		or folders:
+	<ul>
+		<li>webpda.war - The WAR file that can be deployed on Glassfish 4
+			or Tomcat 8. (The deployment on Tomcat 8 is not fully tested yet)</li>
+		<li>webpda-lib - The client JavaScript library files.</li>
+		<li>webpda-lib-min The minimized client JavaScript files</li>
+	</ul>
+
+	<h2>Server Side: Deploy webpda.war</h2>
+	<p>webpda.war can be deployed on any JSR356 compatible servlet container. By the time when
+	this document was written, only Glassfish 4 is fully compatible. Tomcat 8 is supposed to support
+	JSR356, but it is still in  unstable stage.
+	<h3>Install Glassfish 4</h3>
+	<p>
+		Glassfish 4 can be downloaded from <a
+			href="https://glassfish.java.net/">glassfish.java.net</a>. Follow its
+		instruction to install it and start default domain
+		<code>domain1</code>
+		. You may create another domain with another name, then just replace
+		<code>domain1</code>
+		in following document with your domain name.
+	</p>
+	<h3>Configure JVM options</h3>
+	After Glassfish is installed and started, go to the admin page (By
+	default it is <a href="http://localhost:4848">http://localhost:4848</a>). Navigate to
+	<code>Configurations>server-config>JVM Settings>JVM Options</code>
+	, add following JVM options as needed.
+	<table>
+		<tr>
+			<th>JVM option</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>-Dorg.webpda.server.jaas_name</td>
+			<td>JAAS configuration file entry. If this is not configured,
+				the entry name is <code>Default</code>
+			</td>
+		</tr>
+		<tr>
+			<td>-Dorg.webpda.server.authorization_provider</td>
+			<td>The authorization provider. If the authorization information
+				is configured in a file, the provider should be <code>org.webpda.server.core.security.FileBasedAuthorizationProvider</code>.
+				The authorization configuration file is configured from <code>-Dorg.webpda.server.authorization.config_file</code>.
+				If the authorization information should be provided from an LDAP
+				server, the value should be <code>
+					org.webpda.server.core.security.LDAPGroupAuthorizationProvider</code>.
+				Please see <a href="LDAPAuthorization.html">Authorization with
+					LDAP</a>.
+			</td>
+		</tr>
+		<tr>
+			<td>-Dorg.webpda.server.authorization.config_file</td>
+			<td>Absolute path of the authorization configuration file. Here
+				is an <a href="authorization.conf">authorization file example</a>.
+			</td>
+		</tr>
+		<tr>
+			<td>-Dorg.webpda.server.pvfactory</td>
+			<td>Full class name of the PV Factory of the data interface
+				implementation. By default, it is <code>org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory</code>,
+				which uses PVManager as the data interface implementation. 
+			</td></table>
+	<p>
+	To connect to an <a href="http://www.aps.anl.gov/epics/">EPICS</a>
+	system using PVManagerPVFactory, <a href="EPICSConfiguration.html">additional JVM options</a> should be set.
+	<p>
+	Here is an example of settings to connect to a local IOC and use file as authorization provider.
+	<pre>
+-Dcom.cosylab.epics.caj.CAJContext.addr_list=127.0.0.1
+-Dorg.webpda.server.authorization_provider=org.webpda.server.core.security.FileBasedAuthorizationProvider
+-Dorg.webpda.server.authorization.config_file=/home/WebPDA_repo/server/org.webpda.server.core/authorization.conf</pre>
+	<p>
+	Here is the authorization file example <a href="authorization.conf">authorization.conf</a>.
+
+	<h3>Configure authentication info</h3>
+	<p>
+		For Glassfish, the authentication information is configured in
+		<code>
+			{Glasshfish_installation_dir}/glassfish/domains/domain1/config/login.conf
+			
+		</code>
+		as a regular JAAS configuration file. For other servlet container, the JAAS configuration file
+		may be specified from JVM option
+		<code>-Djava.security.auth.login.config</code>.
+		In the JAAS configuration file, add an entry to specify the login module and its options. The login module
+		can be any standard login module, such as LdapLoginModule coming with JRE. In below example, <code>
+		org.webpda.server.core.security.JaasConfigFileLoginModule</code> is a login module that allows setting 
+		user name and password as login module options. The option key is user name and option value is password.
+		The number of user names is not limited.
+	<pre>
+Default {
+    org.webpda.server.core.security.JaasConfigFileLoginModule required
+    webpda="123456"
+    webpda-admin="mypassword"
+    jane="654321"
+    fred="abcdef";
+}
+</pre>
+<h3>Deploy webpda.war</h3>
+<p>After above items were properly configured, go to glassfish admin page > Applications page. 
+Click on "Deploy..." button, choose "webpda.war", leave other options as default and click "OK".
+Click on the launch link of will provide you two links to the webpda startup page. One link starts with
+<code>http://</code>, which use unencrypted HTTP and WebSocket connection. 
+In this case, the WebSocket URL starts with <code>ws://</code>. The other link starts with <code>https://</code>
+ which uses SSL encrypted HTTP and WebSocket connection. In this case, the WebSocket URL starts with <code>wss://</code>.
+ Click on one of the links, you will see the welcome page and be ready to roll!   
+
+
+<h2>Client Side: using WebPDA JavaScript API</h2>
+The JavaScript API is supposed to be used with <a href="http://caniuse.com/#feat=websockets">modern Web Browsers that support WebSocket</a>.
+
+<h3>Including js files in HTML</h3>
+<p><code>webpda-core.js</code> is the core, which should be always included. <code>webpda-cs.js</code> includes
+control system data type definitions and decoding for server side that uses <code>org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory</code>
+as PVFactory.    
+<pre class="brush:js;">
+&lt;!DOCTYPE html>
+&lt;html>
+&lt;head>
+&lt;script src="webpda-core.js">&lt;/script>
+&lt;script src="webpda-cs.js">&lt;/script>
+&lt;/head>
+&lt;body>&lt;/body>
+&lt;/html>
+</pre>
+<h3>The JavaScript API</h3>
+In your script, you only need to focus on the PV and its value instead of underneath communications.
+Here is a demo for the mostly used APIs. The complete JSDoc is available <a href="jsdoc/index.html">here.</a>
+
+<pre class="brush:js;">
+//This the WebSocket URL 
+var wsUrl = "ws://localhost:8080/webpda/webpda";
+
+//Connect to server and login with the username and password set on server side.
+var wp = new WebPDA(wsUrl, "myname", "mypassword");
+
+// create a pv whose name is sim://noise, maximum update rate at 1hz, don't buffer value.
+var pv = wp.createPV("sim://noise", 1000, false);
+
+// add a callback to the PV that will be called whenever there is an event on the PV
+pv.addCallback(function(evt, pv, data) {
+    switch (evt) {
+    case "conn": //connection state changed
+		console.log(pv.isConnected()?"Connected":"Disconnected.");
+        break;
+    case "val": //Value changed. The event will be "bufVal" if value is buffered.
+		//PV's value is usually a data structure that has timestamp, 
+		//value, alarm and meta information.
+        //Here is an example on how to extract the timestamp and
+        //numeric value from PV if the PV holds numeric value        
+		var pvValue = pv.getValue();
+		console.log(pvValue);
+		if(pvValue instanceof WebPDA_CS.VNumber){
+			console.log("Timestamp: " + pvValue.timestamp + 
+					" Value: " + pvValue.value);
+		}        
+        break;
+    case "bufVal": //Buffered values changed
+        // If value is buffered during the update period, 
+        // it will receive an array of buffered values.
+        // Each value in the array is same as a single PV value 
+        // which should be handled in the same way as above.         
+        break;
+    case "error": //error happened
+        console.log("Error: " + data);
+        break;
+    case "writePermission": // write permission changed.        
+        console.log("Writable: " + pv.isWriteAllowed());
+        break;
+    case "writeFinished": // write operation finished.        
+        console.log("Write finished "
+					+ (data ? "successfully!" : "unsuccessfully!"));
+        break;
+    default:
+        break;
+    }
+});
+
+//Write PV. The value must be a value type that the PV can accept,
+//for example, a number for PV that holds number, a string for PV that holds string.
+pv.setValue(10);
+
+//Close PV when it is not needed.
+pv.close();
+
+</pre>
+
+<h2>Further readings</h2>
+<p>Congratulations! You have successfully started with WebPDA. I wish you a joyful journey! 
+Please visit <a href="http://www.webpda.org">webpad.org</a> for more resources.
+
+</section>
+</div>
+</body>
+
+</html>

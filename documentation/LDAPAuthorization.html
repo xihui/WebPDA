@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Authorization with  LDAP</title>
+</head>
+<body>
+<h2>Authorization with  LDAP</h2>
+ 
+  <p>To provide authorization information from LDAP, 
+  the LDAP directory must support the <code>posixGroup</code> schema.
+  
+  <p>Example LDAP entry:
+  <pre>
+  dn: cn=SetPVValue,ou=Groups,dc=example,dc=com
+  objectClass: top
+  objectClass: posixGroup
+  cn: SetPVValue
+  description: Allow writing to PV.
+  gidNumber: 1234
+  memberUid: fred
+  memberUid: jane
+  </pre>
+  
+  <p>The above entry defines a group "SetPVValue" with members
+  "fred" and "jane".
+  The LDAPGroupAuthorizationProvider will treat that
+  as granting the <code>SetPVValue</code> authorization to users
+  "fred" and "jane".
+  
+  <p>Note that members must specifically be listed via <code>memberUid</code>.
+  In the above example, there may be a user with primary group ID <code>1234</code>
+  that Linux would also consider to be a member of the "SetPVValue"
+  Linux group, but for authorization purposes such a user must also be
+  listed via <code>memberUid</code>. The numeric group ID is not used
+  for authorization.  
+
+</body>
+</html>
