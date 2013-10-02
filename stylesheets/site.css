@@ -33,8 +33,12 @@ footer p {
 	clear: left
 }
 
+pre {
+	background: #1c1e22
+}
+
 .splash {
-	padding: 0 0 1em;
+	padding: 1.5em 0 2em;
 	color: #fff;
 	text-align: center;
 	background-color: #1c1e22;
@@ -71,7 +75,7 @@ footer p {
 }
 
 .splash #social {
-	margin-top: 4em
+	margin-top: 2em
 }
 
 

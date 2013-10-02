@@ -2,62 +2,66 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<link rel="stylesheet" type="text/css" media="screen" href="stylesheet.css">
+<link href="./libs/bootswatch/FlatlyTheme/bootstrap.css"
+	rel="stylesheet" media="screen">
+	
 
-<link type="text/css" rel="stylesheet" href="syntaxhighlighter/styles/shCoreEclipse.css"/>
-<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link type="text/css" rel="stylesheet" href="libs/syntaxhighlighter/styles/shCoreDefault.css"/>
     <style type="text/css">
       body {
-        padding-top: 40px;
+        padding-top: 60px;
         padding-bottom: 40px;
       }
     </style>
-<script src="syntaxhighlighter/scripts/shCore.js"></script>
-<script src="syntaxhighlighter/scripts/shBrushJScript.js"></script>
+<script src="libs/syntaxhighlighter/scripts/shCore.js"></script>
+<script src="libs/syntaxhighlighter/scripts/shBrushJScript.js"></script>
 <script type="text/javascript">SyntaxHighlighter.all();</script>
 
 <title>WebPDA Getting Started</title>
 </head>
 <body>
 <!-- Menu bar -->
- <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="brand" href="http://www.webpda.org">WebPDA</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active"><a href="http://www.webpda.org">Home</a></li>
-              <li><a href="http://www.webpda.org/download.html">Download</a></li>
-               <li><a href="jsdoc/index.html">Demos</a></li>
-               <li class="dropdown">
-               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
-               <ul class="dropdown-menu">
-                <li><a href="documentation/GetStarted.html">Get Started</a></li>
-				 <li><a href="jsdoc/index.html">JSDoc</a></li>
-               </ul>
-               </li>
-             
-              <li><a href="#contact">Community</a></li>
-                      
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>   
+	<div class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="../" class="navbar-brand">WebPDA</a>
+				<button class="navbar-toggle" type="button" data-toggle="collapse"
+					data-target="#navbar-main">
+					<span class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="navbar-main">
+				<ul class="nav navbar-nav">
+					<li class="active"><a href="http://www.webpda.org">Home</a></li>
+					<li><a href="http://www.webpda.org/demos.html">Demo</a></li>
+					<li><a href="http://www.webpda.org/download.html">Download</a></li>
+					
+					<li class="dropdown"><a href="#" class="dropdown-toggle"
+						data-toggle="dropdown">Documentation <b class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li><a href="documentation/GettingStarted.html">Get
+									Started</a></li>
+							<li><a href="documentation/jsdoc/index.html">JSDoc</a></li>
+						</ul></li>
+					
+					<li><a href="https://groups.google.com/forum/#!forum/webpda">Community</a></li>
+					<li><a href="about.html">About</a></li>
+				</ul>
+
+			</div>
+		</div>
+	</div>
+
     
- <div id="main_content_wrap" class="outer">
- <section id="main_content" class="inner">
+ <div class="container">
+ <section>
 	<h1>Getting Started with WebPDA</h1>
 	<p>This document will guide you to start using WebPDA step by step.</p>
 
 	<h2>Download</h2>
 	<p>
-		WebPDA can be downloaded from <a href="http://www.webpda.org">webpda.org</a>.
+		WebPDA can be downloaded from <a href="http://www.webpda.org/download.html">here</a>.
 		Unzip the file. Inside the extracted folder, there are following files
 		or folders:
 	<ul>
@@ -86,10 +90,11 @@
 	default it is <a href="http://localhost:4848">http://localhost:4848</a>). Navigate to
 	<code>Configurations>server-config>JVM Settings>JVM Options</code>
 	, add following JVM options as needed.
-	<table>
+	<p>
+	<table class="table table-striped table-bordered table-hover">
 		<tr>
-			<th>JVM option</th>
-			<th>Description</th>
+			<th  style = "text-align: center">JVM option</th>
+			<th style = "text-align: center">Description</th>
 		</tr>
 		<tr>
 			<td>-Dorg.webpda.server.jaas_name</td>
@@ -185,8 +190,8 @@ as PVFactory.
 &lt;/html>
 </pre>
 <h3>The JavaScript API</h3>
-In your script, you only need to focus on the PV and its value instead of underneath communications.
-Here is a demo for the mostly used APIs. The complete JSDoc is available <a href="jsdoc/index.html">here.</a>
+In your script, you only need to focus on the PV and its value instead of communications.
+Here is the demo for the mostly used APIs. The complete JSDoc is available <a href="jsdoc/index.html">here.</a>
 
 <pre class="brush:js;">
 //This the WebSocket URL 
@@ -253,8 +258,8 @@ Please visit <a href="http://www.webpda.org">webpad.org</a> for more resources.
 </section>
 </div>
 
-<script src="jquery-1.10.2.min.js"></script>
-<script src="bootstrap/js/bootstrap.min.js"></script>
+<script src="libs/jquery-1.10.2.min.js"></script>
+<script src="libs/bootstrap/js/bootstrap.min.js"></script>
 </body>
 
 </html>
