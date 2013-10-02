@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset='utf-8' />
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="description"
+	content="WebPDA : WebSocket based Process Data Access" />
+
+<link rel="stylesheet" type="text/css" media="screen"
+	href="stylesheets/stylesheet.css">
+<link href="libraries/bootstrap/css/bootstrap.css" rel="stylesheet">
+<style>
+body {
+	padding-top: 40px;
+	/* 60px to make the container go all the way to the bottom of the topbar */
+}
+</style>
+<link href="ibraries/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+<link type="text/css" rel="stylesheet"
+	href="documentation/syntaxhighlighter/styles/shCoreDefault.css" />
+<script src="documentation/syntaxhighlighter/scripts/shCore.js"></script>
+<script src="documentation/syntaxhighlighter/scripts/shBrushJScript.js"></script>
+<script type="text/javascript">
+	SyntaxHighlighter.all();
+</script>
+
+<title>WebPDA</title>
+</head>
+
+<body>
+<!-- Menu bar -->
+ <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="http://www.webpda.org">WebPDA</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="http://www.webpda.org">Home</a></li>
+              <li><a href="documentation/GettingStarted.html">Get Started</a></li>
+              <li><a href="documentation/GettingStarted.html">Download</a></li>
+               <li><a href="documentation/GettingStarted.html">Documentation</a></li>
+              <li><a href="documentation/GettingStarted.html">Demos</a></li>
+              <li><a href="#contact">Community</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>   
+	<!-- HEADER -->
+	<div id="header_wrap" class="outer">
+		<header class="inner">
+		
+
+			<h1 id="project_title">WebPDA</h1>
+			<h2 id="project_tagline">Access your real-time data in
+				real-time, from the web</h2>
+
+			<section id="downloads">
+			<a class="tar_download_link"
+					href="https://github.com/xihui/WebPDA/tarball/master">Download
+					this project as a tar.gz file</a>
+				<a class="zip_download_link" href="release/1.0.0/webpda.war">Download
+					this project as a .zip file</a> 
+			</section>
+		</header>
+	</div>
+
+	<!-- MAIN CONTENT -->
+	<div id="main_content_wrap" class="outer">
+		<section id="main_content" class="inner">
+			<h2>
+				<a name="websocket-based-process-data-access" class="anchor"
+					href="#websocket-based-process-data-access"><span
+					class="octicon octicon-link"></span></a>WebSocket based Process Data
+				Access
+			</h2>
+
+			<p>
+				WebPDA is a protocol for accessing real-time data using <a
+					href="http://en.wikipedia.org/wiki/WebSocket">WebSocket</a>.
+			</p>
+
+			<p>
+				Real-time data is usually related to a process, so it is also
+				called process data. For example, current temperature of a furnace, price
+				of a stock, blood pressure of a person, CPU and memory usage of a
+				server...  These variables are called <a
+					href="http://en.wikipedia.org/wiki/Process_variable">Process
+					Variable (PV)</a> in WebPDA.
+			<p>Internet of Things, SCADA, finance, health, weather,
+				environment monitoring, measurement and control systems, data
+				center, whenever you need to access your real-time data from the
+				web, WebPDA can ease your life.
+			<h2>
+				<a name="goals--features" class="anchor" href="#goals--features"><span
+					class="octicon octicon-link"></span></a>Features
+			</h2>
+			<ul>
+				<li>Real-time server side push.</li>
+				<li>Highly efficient: use binary format for values and JSON for
+					other info.</li>
+				<li>Extensible to arbitrary data sources. <a
+					href="http://www.aps.anl.gov/epics/">EPICS</a> support is included.
+				</li>
+				<li>Protocol specification is language independent. Currently,
+					it provides server side implementation on <a
+					href="http://jcp.org/en/jsr/detail?id=356">JSR 356</a> and client
+					side implementation on JavaScript.
+				</li>
+				<li>Focus on your data, instead of communications. Super easy
+					client side API.</li>
+
+			</ul>
+			<h2>
+				<a name="API" class="anchor" href="#API"><span
+					class="octicon octicon-link"></span></a>JavaScript API
+			</h2>
+			<p>Few lines code would allow you to connect to your data
+			<pre class="brush:js;">
+var wsUrl = "ws://localhost:8080/webpda/webpda";
+var wp = new WebPDA(wsUrl, "myname", "mypassword");
+var pv = wp.createPV("sim://noise", 1000, false);
+pv.addCallback(function(evt, pv, data) {
+    switch (evt) {
+    case "conn": //connection state changed
+        break;
+    case "val": //Value changed. 	
+        break;
+    case "bufVal": //Buffered values changed        
+        break;
+    case "error": //error happened        
+        break;
+    case "writePermission": // write permission changed.        
+        break;
+    case "writeFinished": // write operation finished. 
+        break;
+    default:
+        break;
+    }
+});
+
+//Write PV.
+pv.setValue(10);
+
+//Close PV
+pv.close();
+</pre>
+
+			<p>Pre-wrapped widgets allows binding a widget with PV in one
+				line of code
+			<pre class="brush:js;">
+					&lt;div class="webpda-widgets" data-widget="rgraph-gauge"
+					data-pvname="sim://noise">&lt;/div>
+					</pre>
+
+		</section>
+	</div>
+
+	<!-- FOOTER  -->
+	<div id="footer_wrap" class="outer">
+		<footer class="inner">
+			<p class="copyright">
+				WebPDA maintained by <a href="https://github.com/xihui">xihui</a>
+			</p>
+			<p>
+				Published with <a href="http://pages.github.com">GitHub Pages</a>
+			</p>
+		</footer>
+	</div>
+
+	<script type="text/javascript">
+		var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl."
+				: "http://www.");
+		document
+				.write(unescape("%3Cscript src='"
+						+ gaJsHost
+						+ "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+		try {
+			var pageTracker = _gat._getTracker("UA-13250727-5");
+			pageTracker._trackPageview();
+		} catch (err) {
+		}
+	</script>
+
+
+</body>
+</html>

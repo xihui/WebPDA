@@ -3,13 +3,53 @@
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" type="text/css" media="screen" href="stylesheet.css">
+
 <link type="text/css" rel="stylesheet" href="syntaxhighlighter/styles/shCoreEclipse.css"/>
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+      }
+    </style>
 <script src="syntaxhighlighter/scripts/shCore.js"></script>
 <script src="syntaxhighlighter/scripts/shBrushJScript.js"></script>
 <script type="text/javascript">SyntaxHighlighter.all();</script>
+
 <title>WebPDA Getting Started</title>
 </head>
 <body>
+<!-- Menu bar -->
+ <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="http://www.webpda.org">WebPDA</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="http://www.webpda.org">Home</a></li>
+              <li><a href="http://www.webpda.org/download.html">Download</a></li>
+               <li><a href="jsdoc/index.html">Demos</a></li>
+               <li class="dropdown">
+               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Documentation <b class="caret"></b></a>
+               <ul class="dropdown-menu">
+                <li><a href="documentation/GetStarted.html">Get Started</a></li>
+				 <li><a href="jsdoc/index.html">JSDoc</a></li>
+               </ul>
+               </li>
+             
+              <li><a href="#contact">Community</a></li>
+                      
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>   
+    
  <div id="main_content_wrap" class="outer">
  <section id="main_content" class="inner">
 	<h1>Getting Started with WebPDA</h1>
@@ -83,7 +123,7 @@
 			</td></table>
 	<p>
 	To connect to an <a href="http://www.aps.anl.gov/epics/">EPICS</a>
-	system using PVManagerPVFactory, <a href="EPICSConfiguration.html">additional JVM options</a> should be set.
+	system using PVManagerPVFactory, <a href="EPICSConfiguration.html">EPICS related JVM options</a> should be set.
 	<p>
 	Here is an example of settings to connect to a local IOC and use file as authorization provider.
 	<pre>
@@ -212,6 +252,9 @@ Please visit <a href="http://www.webpda.org">webpad.org</a> for more resources.
 
 </section>
 </div>
+
+<script src="jquery-1.10.2.min.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
 </body>
 
 </html>
