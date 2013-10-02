@@ -63,9 +63,9 @@ body {
 			</div>
 			<div class="navbar-collapse collapse" id="navbar-main">
 				<ul class="nav navbar-nav">
-					<li class="active"><a href="http://www.webpda.org">Home</a></li>
-					<li><a href="http://www.webpda.org/demos.html">Demo</a></li>
-					<li><a href="http://www.webpda.org/download.html">Download</a></li>
+					<li class="active"><a href="#">Home</a></li>
+					<li><a href="demo.html">Demo</a></li>
+					<li><a href="download.html">Download</a></li>
 
 					<li class="dropdown"><a href="#" class="dropdown-toggle"
 						data-toggle="dropdown">Documentation <b class="caret"></b></a>
@@ -75,8 +75,9 @@ body {
 							<li><a href="documentation/jsdoc/index.html">JSDoc</a></li>
 						</ul></li>
 
-					<li><a href="https://groups.google.com/forum/#!forum/webpda">Community</a></li>
-					<li><a href="about.html">About</a></li>
+					<li><a href="https://groups.google.com/forum/#!forum/webpda">Community</a></li>		
+					<li class="active"><a href="about.html">About</a></li>
+								
 				</ul>
 
 			</div>
@@ -185,7 +186,7 @@ body {
 					<a name="API" class="anchor" href="#API"><span
 						class="octicon octicon-link"></span></a>JavaScript API
 				</h2>
-				<p>Few lines code would allow you to connect to your data
+				<p>Few lines code would allow you to connect to your data:
 				<pre class="brush:js;">
 					var wsUrl = "ws://localhost:8080/webpda/webpda";
 					var wp = new WebPDA(wsUrl, "myname", "mypassword");
@@ -217,7 +218,7 @@ body {
 				</pre>
 
 				<p>Pre-wrapped widgets allows binding a widget with PV in one
-					line of code
+					line of code:
 				<pre class="brush:js;">
 					&lt;div class="webpda-widgets" data-widget="rgraph-gauge" data-pvname="sim://noise">&lt;/div>
 					</pre>
