@@ -27,10 +27,12 @@ var WebPDA_Debug = false;
 var WebPDA_Util = {};
 
 /**
- * The WebPDA Object constructor.
+ * Create a new WebPDA object, which establish a new connection to the server.
  * @class WebPDA
  * @constructor
  * @param url url of the webpda server.
+ * @param username user name
+ * @param password password for the user
  * @returns a new WebPDA object.
  */
 

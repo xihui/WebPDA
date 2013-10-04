@@ -6,15 +6,31 @@
  * http://www.eclipse.org/legal/epl-v10.html
  ******************************************************************************/
 /**
- * WebPDA widgets library
+ * WebPDA widgets library. It currently only wrapped RGraph Gauge widget as a demo.
+ * More widgets will be added soon.
+ * 
+ * This library requires: 
+ * JQuery: http://jquery.com/
+ * RGraph common and RGraph gauge: http://www.rgraph.net/
+ * 
+ * For example, including following js files in your html:
+ * 
+ * 	<pre>
+ * 	<script src="jquery-2.0.3.min.js"></script>
+    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="RGraph/libraries/RGraph.gauge.js" ></script>
+    <script src="webpda-lib/webpda-widgets.js" ></script>  
+    </pre>
+    And create an webpda object before creating your widget, for example:
+    <pre>
+     <script type="text/javascript">
+    var webpda = new WebPDA("ws://localhost:8080/webpda", "username", "password");
+    </script>
+    <div class="webpda-widgets" data-widget="rgraph-gauge" data-pvname="sim://noise"></div>
+  	</pre>
  * 
  * @author Xihui Chen
  */
-var pathName = document.location.pathname.replace("index.html", "").replace(
-		"demo/WidgetsDemo/", "");
-var wsUri = "ws://" + document.location.host + pathName + "webpda";
-WebPDA_Debug = false;
-var wp = new WebPDA(wsUri, "webpda", "123456");
 
 $(document).ready(function() {
 
@@ -27,14 +43,15 @@ $(document).ready(function() {
 			nodes[i].innerHTML = '<canvas id="'+id+'">[No canvas support]</canvas>';
 			fitToContainer(nodes[i].firstChild);
 			if (pvname != null && pvname.trim().length > 0) {
-				var pv = wp.createPV(pvname, 100, false);
+				var pv = webpda.createPV(pvname, 100, false);
 				var gauge, displayLow=0, displayHigh=100;
 				pv.addCallback(function(evt, pv, data) {
 							switch (evt) {
 							case "conn":
 								gauge = new RGraph.Gauge(id,
 										displayLow, displayHigh,
-										0).Set('colors.ranges', []);
+										0).Set('chart.title',
+										pvname).Set('colors.ranges', []);
 								break;
 							case "val":
 								var pvValue = pv.getValue();
@@ -44,7 +61,8 @@ $(document).ready(function() {
 									displayHigh = pvValue.display.displayHigh;
 									gauge = new RGraph.Gauge(id,
 											displayLow, displayHigh,
-											pvValue.value).Set('colors.ranges', []);
+											pvValue.value).Set('chart.title',
+													pvname).Set('colors.ranges', []);
 
 								}
 								gauge.value = pvValue.value;
@@ -69,7 +87,7 @@ $(document).ready(function() {
 });
 
 window.onbeforeunload = function() {
-	wp.close();
+	webpda.close();
 };
 
 function fitToContainer(canvas){
@@ -77,4 +95,4 @@ function fitToContainer(canvas){
 	  canvas.style.height='100%';
 	  canvas.width  = canvas.offsetWidth;
 	  canvas.height = canvas.offsetHeight;
-	}
+}

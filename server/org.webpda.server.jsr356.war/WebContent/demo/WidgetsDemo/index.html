@@ -22,8 +22,8 @@
 	<script src="jquery-2.0.3.min.js"></script>
     <script src="RGraph/libraries/RGraph.common.core.js" ></script>
     <script src="RGraph/libraries/RGraph.gauge.js" ></script>
+    <script src="../../webpda-lib/webpda-widgets.js" ></script>  
     <script src="WidgetsDemo.js" ></script>
-    <script src="webpda-widgets.js" ></script>    
     <script type="text/javascript" src="flotr2.min.js"></script>
     <!--[if lt IE 9]><script src="../excanvas/excanvas.js"></script><![endif]-->
     
@@ -36,8 +36,14 @@
 <body>
 
     <h1>Using WebPDA with Widgets Demo</h1>
-    <p>WebPDA aware RGraph Gauge</p>
-    <div id = "gauge1" class="webpda-widgets" data-widget="rgraph-gauge" data-pvname="sim://sine(0,100,50,0.1)"></div>
+    <p>WebPDA pre-wrapped RGraph Gauge</p>
+    <script type="text/javascript">
+    var pathName = document.location.pathname.replace("index.html", "").replace("demo/WidgetsDemo/", "");
+    var wsUri = "ws://"+document.location.host+pathName+"webpda";
+    WebPDA_Debug=false;
+    var webpda = new WebPDA(wsUri, "webpda", "123456");
+    </script>
+    <div id = "gauge1" class="webpda-widgets" data-widget="rgraph-gauge" data-pvname="sim://sine"></div>
     
 	<p>Directly use RGraph Gauge with WebPDA</p>
     <canvas id="gauge2" width="250" height="250">[No canvas support]</canvas>
