@@ -163,6 +163,16 @@ Default {
     fred="abcdef";
 }
 </pre>
+
+<h3>Restart domain</h3>
+<p>The above configurations only take effect after domain restarted.
+You can restart the domain from the admin page or you
+	can use <code>{glassfish}/bin/asadmin</code>:
+	<pre>
+asadmin> stop-domain domain1
+asadmin> start-domain domain1
+	</pre>
+</p>
 <h3>Deploy webpda.war</h3>
 <p>After above items were properly configured, go to glassfish admin page > Applications page. 
 Click on "Deploy..." button, choose "webpda.war", leave other options as default and click "OK".
