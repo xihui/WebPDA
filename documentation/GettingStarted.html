@@ -149,11 +149,11 @@
 		as a regular JAAS configuration file. For other servlet container, the JAAS configuration file
 		may be specified from JVM option
 		<code>-Djava.security.auth.login.config</code>.
-		In the JAAS configuration file, add an entry to specify the login module and its options. The login module
+		In the JAAS configuration file, add an entry such as below example to specify the login module and its options. The login module
 		can be any standard login module, such as LdapLoginModule coming with JRE. In below example, <code>
 		org.webpda.server.core.security.JaasConfigFileLoginModule</code> is a login module that allows setting 
 		user name and password as login module options. The option key is user name and option value is password.
-		The number of user names is not limited.
+		The number of user names is not limited. For example:
 	<pre>
 Default {
     org.webpda.server.core.security.JaasConfigFileLoginModule required
@@ -161,7 +161,7 @@ Default {
     webpda-admin="mypassword"
     jane="654321"
     fred="abcdef";
-}
+};
 </pre>
 
 <h3>Restart domain</h3>
