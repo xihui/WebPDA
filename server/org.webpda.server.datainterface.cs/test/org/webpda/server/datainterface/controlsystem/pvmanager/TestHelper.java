@@ -36,7 +36,7 @@ public class TestHelper
 //        sources.setDefaultDataSource("sim");
 //        PVManager.setDefaultDataSource(sources);
     	System.setProperty(ConfigurePropertyConstants.PV_FACTORY_CLASS, 
-    			"org.webpda.server.datainterface.controlsystem.pvmanager.PVManagerPVFactory");
+    			"org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory");
         factory = PVFactory.getInstance();
     }
     

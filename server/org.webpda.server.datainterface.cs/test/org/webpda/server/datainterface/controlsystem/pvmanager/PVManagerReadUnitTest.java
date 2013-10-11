@@ -49,7 +49,7 @@ public class PVManagerReadUnitTest extends TestHelper
         parameters.put(PVManagerPVFactory.READ_ONLY, readonly);
         parameters.put(PVManagerPVFactory.UPDATE_PERIOD, 10);
         parameters.put(PVManagerPVFactory.BUFFER_ALL_VALUES, buffer);
-        final IPV pv = factory.createPV("='sim://ramp'*2", parameters);
+        final IPV pv = factory.createPV("sim://noise", parameters);
         pv.addListener(new IPVListener()
         {
             @Override
