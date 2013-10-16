@@ -61,7 +61,7 @@ function writeToScreen(message) {
 var pv = wp.createPV("sim://noise", 1000, false);
 
 // add listener to the pv.
-pv.addListenerFunc(function(evt, pv, data) {
+pv.addCallback(function(evt, pv, data) {
 	switch (evt) {
 	case "conn":
 		writeToScreen("connected");
