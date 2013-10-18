@@ -13,8 +13,6 @@ package org.webpda.server.core.servermessage;
  */
 public enum PVEventType {
 	conn,
-	val,
-	bufVal,
 	error,
 	writePermission,
 	writeFinished

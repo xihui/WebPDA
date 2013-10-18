@@ -28,7 +28,7 @@ public class PVEventMessage extends AbstractTextMessage{
 
 	private static final String EVENT = "e";
 
-	private static final String PVNAME = "pv";
+	private static final String PVID = "pv";
 
 	//pv id.
 	private int id;
@@ -54,7 +54,7 @@ public class PVEventMessage extends AbstractTextMessage{
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			JsonGenerator jg = JsonUtil.jsonFactory.createGenerator(outputStream);
 			jg.writeStartObject();
-			jg.writeNumberField(PVNAME, id);
+			jg.writeNumberField(PVID, id);
 			jg.writeStringField(EVENT, evt.name());
 			jg.writeFieldName(DATA);
 			if(isRawJson)
