@@ -32,6 +32,10 @@ div#toc>ul {
 pre {
 	color: #d14;
 }
+
+.image-footnote {
+	text-align: center;
+}
 </style>
 <script src="libs/syntaxhighlighter/scripts/shCore.js"></script>
 <script src="libs/syntaxhighlighter/scripts/shBrushJScript.js"></script>
@@ -39,7 +43,7 @@ pre {
 	SyntaxHighlighter.all();
 </script>
 
-<title>WebPDA Getting Started</title>
+<title>WebPDA Specification</title>
 </head>
 <body>
 	<!-- Menu bar -->
@@ -112,6 +116,7 @@ pre {
 				<img style="display: block; margin-left: auto; margin-right: auto;"
 					alt="WebPDA communication sequence"
 					src="images/WebPDA_Communication.png" height="350px">
+				<p class="image-footnote">WebPDA communication sequence</p>
 			</div>
 			<h3 id="the_protocol">The protocol</h3>
 			<p>
@@ -124,15 +129,19 @@ pre {
 			</p>
 			<p>
 				In this specification, the message which is sent from client to
-				server is called <a href="#client_commands"><b>Client Command</b></a>, such as login, create PV,
-				close PV etc. It is called command because the server usually needs to execute an action
-				upon receiving the command. The message which is sent from server to client is called <a href="#server_messages"><b>Server
-					Message</b></a>.
+				server is called <a href="#client_commands"><b>Client
+						Command</b></a>, such as login, create PV, close PV etc. It is called
+				command because the server usually needs to execute an action upon
+				receiving the command. The message which is sent from server to
+				client is called <a href="#server_messages"><b>Server
+						Message</b></a>.
 			</p>
-			<p>Each client has a unique session on server and the session is isolated from others.</p>
+			<p>Each client has a unique session on server and the session is
+				isolated from others.</p>
 			<h3 id="client_commands">Client Commands</h3>
-			<p>Client command is the message sent from client to server.
-				For each client command, it has a
+			<p>
+				Client command is the message sent from client to server. For each
+				client command, it has a
 				<code>commandName</code>
 				property so the server can identify it. For the commands that should
 				be protected from authorization, it has an authorization key that
@@ -263,49 +272,51 @@ pre {
 { "commandName" : "ClosePV",
   "id" : &lt;id of the PV&gt;
 }</pre>
-					
+
 				</dd>
 			</dl>
-			
-						<h4 id="setserverbuffersize_command">SetServerBufferSize Command</h4>
+
+			<h4 id="setserverbuffersize_command">SetServerBufferSize Command</h4>
 			<dl>
 				<dt>Purpose:</dt>
-				<dd>Set server side buffer size. The server side buffer
-	 is used to temporarily buffer the data to be sent to client when there is temporary disconnection,
-	 so the client won't lose any data for temporary disconnection. The connection will be
-	 closed by server when the buffer is full. 
-	 The default buffer size is 100K. The max allowed size is 1M.</dd>
+				<dd>Set server side buffer size. The server side buffer is used
+					to temporarily buffer the data to be sent to client when there is
+					temporary disconnection, so the client won't lose any data for
+					temporary disconnection. The connection will be closed by server
+					when the buffer is full. The default buffer size is 100K. The max
+					allowed size is 1M.</dd>
 				<dt>JSON Format:</dt>
 				<dd>
 					<pre>
 { "commandName" : "SetServerBufferSize",
   "size" : &lt;size in bytes&gt;
 }</pre>
-					
+
 				</dd>
 			</dl>
-<h4 id="pong_command">Pong Command</h4>
+			<h4 id="pong_command">Pong Command</h4>
 			<dl>
 				<dt>Purpose:</dt>
-				<dd>Tell the server that the client is still alive. The client should only and must send the command upon
-				the receiving of a <a href="#ping_message">Ping Message</a> from server.</dd>
+				<dd>
+					Tell the server that the client is still alive. The client should
+					only and must send the command upon the receiving of a <a
+						href="#ping_message">Ping Message</a> from server.
+				</dd>
 				<dt>JSON Format:</dt>
 				<dd>
 					<pre>
 { "commandName" : "Pong",
   "count" : &lt;the same count number of the ping message&gt;
 }</pre>
-					
+
 				</dd>
 			</dl>
 
 
-<h3 id="server_messages">Server Messages</h3>
-			<p>
-				Server message is the message sent from server to client.
-			</p>
-			
-<h4 id="pvevent_message">PVEvent Message</h4>
+			<h3 id="server_messages">Server Messages</h3>
+			<p>Server message is the message sent from server to client.</p>
+
+			<h4 id="pvevent_message">PVEvent Message</h4>
 			<dl>
 				<dt>Purpose:</dt>
 				<dd>Notify the client that an event has occurred on the PV.</dd>
@@ -316,14 +327,82 @@ pre {
   "e" : "conn"|"error"|"writePermission"|"writeFinished",
   "d" : &lt;data of the event&gt;
 }</pre>
-					<table>
-					<th><td>Event type</td><td>Meaning</td><td>Data of the event</td></th>
-					<tr><td>conn</td><td>connection state of the PV has changed</td><td>A boolean value. <code>true</code> means connected.
-					<tr></table>
-					<li><code>conn</code> event means connection state of the PV has changed.</li>
-					</ul>
+					<table class="table table-striped table-bordered">
+						<tr>
+							<th>Event type</th>
+							<th>Meaning</th>
+							<th>Data of the event</th>
+						</tr>
+						<tr>
+							<td>conn</td>
+							<td>connection state of the PV has changed</td>
+							<td>A boolean value. <code>true</code> means connected.
+						<tr>
+							<td>error</td>
+							<td>Error has occurred on the PV</td>
+							<td>Error message</td>
+						</tr>
+						<tr>
+							<td>writePermission</td>
+							<td>Write permission of the PV has changed.</td>
+							<td>A boolean value. <code>true</code> means the PV is
+								allowed to write from the client.
+							</td>
+						</tr>
+						<tr>
+							<td>writeFinished</td>
+							<td>Last write operation on the PV has finished.</td>
+							<td>A boolean value. The value is <code>true</code> if last
+								write was successful.
+							</td>
+						</tr>
+					</table>
 				</dd>
 			</dl>
+
+			<h4 id="pvvalue_message">PVValue Message</h4>
+			<dl>
+				<dt>Content:</dt>
+				<dd>New value of the PV. If PV's value is supposed to buffered,
+					it will be all the values during the buffering period.</dd>
+				<dt>Format:</dt>
+				<dd>
+					PV value message is transferred in binary format. It uses
+					little-endian for encoding. Below is the general frame format. The
+					first four bytes is an integer representing type of the value
+					message type. 0 means it is a single value. 1 means it is buffered
+					values, so it might have more than one Value Frames.
+					<p>
+						<img
+							style="display: block; margin-left: auto; margin-right: auto;"
+							alt="value frame" src="images/PVValue_Message_Format.png"
+							height="200px">
+					</p>
+					<p class="image-footnote">PVValue Message binary format</p>
+					<p>Each Value Frame represents a PV value. If there are
+						multiple values were buffered, the multiple value frames are
+						simply concatenated. For each value frame, it is a mix of
+						flattened JSON text and binary part. It also has few bytes of
+						paddings after JSON part to ensure the binary part starts at an
+						index of multiple of 8, so the client side can parse it easier.
+					<p>The mixed JSON and binary format brings us both flexibility
+						and efficiency. The JSON part can be easily extended with new
+						properties and parsed by client side. The binary part would keep
+						the value precision. The JSON part usually holds PV value's
+						properties. For example, for a control system VDouble value, the
+						JSON part may include the time stamp, alarm or display information.
+						The binary part would be an 8-bytes representation of the double
+						value. If some of the PV value's properties did not change in the new value,
+						they will not be transferred again. For example, display limits, units etc,.
+					<p>
+						<img
+							style="display: block; margin-left: auto; margin-right: auto;"
+							alt="value frame" src="images/ValueFrame.png" height="200px">
+					</p>
+					<p class="image-footnote">Value Frame</p>
+				</dd>
+			</dl>
+
 
 
 
