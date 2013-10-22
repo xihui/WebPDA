@@ -71,7 +71,7 @@ pre {
 							<li class="active"><a href="GettingStarted.html">Get
 									Started</a></li>
 							<li><a href="jsdoc/index.html">JSDoc</a></li>
-							<li><a href="Specification.html">Specification</a>
+							<li><a href="Specification.html">Specification</a></li>
 							<li><a href="resources.html">Resources </a></li>
 						</ul></li>
 
@@ -138,6 +138,12 @@ pre {
 			</p>
 			<p>Each client has a unique session on server and the session is
 				isolated from others.</p>
+			<a style="position: fixed; bottom: 5px; left: 5px;" href="#"
+				title="Click to go to top">Back to Top</a>
+			<h3 id="pv_reuse">Client Side PV Connection Reuse</h3>
+			<h3 id="pings_pongs">Pings and Pongs</h3>
+			<h3 id="connection_recovery">Intermittent Connection Recovery</h3>
+
 			<h3 id="client_commands">Client Commands</h3>
 			<p>
 				Client command is the message sent from client to server. For each
@@ -165,8 +171,8 @@ pre {
 				<dd>
 					<pre>
 { "commandName" : "Login",
-  "username" : "&lt;myname&gt;",
-  "password" : "&lt;mypassword&gt;"  
+  "username" : "&lt;the user name&gt;",
+  "password" : "&lt;the password&gt;"  
 }</pre>
 				</dd>
 			</dl>
@@ -371,7 +377,8 @@ pre {
 					little-endian for encoding. Below is the general frame format. The
 					first four bytes is an integer representing type of the value
 					message type. 0 means it is a single value. 1 means it is buffered
-					values, so it might have more than one Value Frames.
+					values, so it might have more than one Value Frames.<br>
+					<br>
 					<p>
 						<img
 							style="display: block; margin-left: auto; margin-right: auto;"
@@ -384,34 +391,109 @@ pre {
 						simply concatenated. For each value frame, it is a mix of
 						flattened JSON text and binary part. It also has few bytes of
 						paddings after JSON part to ensure the binary part starts at an
-						index of multiple of 8, so the client side can parse it easier.
+						index of multiple of 8, so the client side can parse it easier.</p>
 					<p>The mixed JSON and binary format brings us both flexibility
 						and efficiency. The JSON part can be easily extended with new
-						properties and parsed by client side. The binary part would keep
+						properties and parsed by client side. The binary part could keep
 						the value precision. The JSON part usually holds PV value's
 						properties. For example, for a control system VDouble value, the
-						JSON part may include the time stamp, alarm or display information.
-						The binary part would be an 8-bytes representation of the double
-						value. If some of the PV value's properties did not change in the new value,
-						they will not be transferred again. For example, display limits, units etc,.
+						JSON part may include the time stamp, alarm or display
+						information. The binary part would be an 8-bytes representation of
+						the double value. If some of the PV value's properties did not
+						change in the new value, they will not be transferred again. For
+						example, display limits, units etc,.</p>
 					<p>
 						<img
 							style="display: block; margin-left: auto; margin-right: auto;"
-							alt="value frame" src="images/ValueFrame.png" height="200px">
+							alt="value frame" src="images/ValueFrame.png" height="150px">
 					</p>
 					<p class="image-footnote">Value Frame</p>
+				</dd>
+				<dt>Value Frame Example: VDouble</dt>
+				<dd>
+					Below are the Value Frames JSON part examples for a VDouble PV
+					value. The binary part of a VDouble is the 8-byte representation of
+					the double value in little-endian. For an array value, it simply
+					concatenate the double values.
+					<p>JSON part of the first frame includes all the properties
+						information, such as type, units, precision, alarm high/low
+						limits. For example:
+					<pre>
+{ "ah" : 4.0,
+  "al" : -4.0,
+  "an" : "LOW",
+  "dh" : 5.0,
+  "dl" : -5.0,
+  "prec" : 3,
+  "sev" : "MINOR",
+  "t" : { "ns" : 398384142,
+      "s" : 1382465704
+    },
+  "type" : "VDouble",
+  "units" : "x",
+  "wh" : 3.0,
+  "wl" : -3.0
+}</pre>
+					<p>JSON part of the afterwards frames only contains changed
+						properties, such as alarm state and timestamp. For example:
+					<pre>
+{ "an" : "HIHI",
+  "sev" : "MAJOR",
+  "t" : { "ns" : 584795067,
+      	  "s" : 1382466048
+    }
+}</pre>
+				</dd>
+			</dl>
+
+			<h4 id="info_message">Info Message</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Notify the client with normal information such as login
+					succeeded, user has logout etc,.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "msg" : "Info",
+  "title" : "&lt;title of the information&gt;",
+  "details" : "&lt;details of the information&gt;"
+}</pre>
+				</dd>
+			</dl>
+			<h4 id="error_message">Error Message</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>
+					Notify the client with error information from the server. Note that
+					it doesn't include errors on a specific PV, which is transferred by
+					<a href="#pvevent_message">PVEvent Message</a>
+				</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "msg" : "Error",
+  "title" : "&lt;title of the error&gt;",
+  "details" : "&lt;details of the error&gt;"
+}</pre>
+				</dd>
+			</dl>
+
+			<h4 id="ping_message">Ping Message</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Pings the client regularly to keep the WebSocket connection
+					alive and detect if the client is still alive. The default pinging
+					interval is 10 second.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "msg" : "Error",
+  "Count" : "&lt;a mono increased integer&gt;"
+}</pre>
 				</dd>
 			</dl>
 
 
-
-
-			&lt;&gt;
-
-
-			<h3 id="pv_reuse">Client Side PV Connection Reuse</h3>
-			<h3 id="pings_pongs">Pings and Pongs</h3>
-			<h3 id="connection_recovery">Intermittent Connection Recovery</h3>
 		</section>
 	</div>
 
