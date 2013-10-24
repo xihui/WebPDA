@@ -12,9 +12,11 @@ import java.util.List;
 
 /**The frame that represents each value in bytes.
  *  It has below format:<br> 
-	 * |Json Part Length|JSON Part|value binary part|
+	 * |Json Part Length|JSON Part|paddings|value binary part|
 	 * <br>
-	 * The first two bytes indicates the bytes length of JSON string part.
+	 * The first four bytes indicates the bytes length of JSON string part.
+	 * Paddings are added to make sure value binary part starts at an index of multiple of 8 
+	 * to make client parsing easier.
 	 * value binary part is the binary representation of the core value. For example, 
 	 * it is 8 bytes for double value, 4 bytes for integer value, or multiple 8-bytes
 	 * for double array.
