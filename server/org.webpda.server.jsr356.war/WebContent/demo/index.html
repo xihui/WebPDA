@@ -9,33 +9,33 @@
 	<h1>WebPDA Test</h1>
 	WebSocket URL:
 	<input id="wsurl" size="47" type="text" placeholder="WebSocket URL" />
-	<br>
-	User Name:
+	<br> User Name:
 	<input id="username" size="20" type="text" placeholder="User Name" />
 	Password:
 	<input id="password" size="20" type="password" placeholder="password" />
-	<br>	
+	<br>
 	<button type="button" autofocus="autofocus"
 		onclick="WebPDATest.open();">Open &#38; Login</button>
 	<button type="button" onclick="WebPDATest.login();">login</button>
 	<button type="button" onclick="WebPDATest.logout();">logout</button>
-	<br>Tip: The user name could be webpda, webpda-admin, jane or fred. The password is 123456. User webpda has no write permission.
-	<br>
-	Server side buffer size (bytes):
-	<input id="buffersize" size="10" type="number" value="10000" placeholder="10000" />
+	<br>Tip: The user name could be webpda, webpda-admin, jane or
+	fred. The password is 123456. User webpda has no write permission.
+	<br> Server side buffer size (bytes):
+	<input id="buffersize" size="10" type="number" value="10000"
+		placeholder="10000" />
 	<button type="button" onclick="WebPDATest.setServerBufferSize();">Set</button>
-	<br>	
 	<br>
-	<form>
+	<br>
+	<form onsubmit="return WebPDATest.createPV();">
 		PV Name: <input id="pvName" class="text-field" type="text"
-			name="pvname" value="sim://noise" placeholder="PV Name" /> Minimum
+			name="pvname" value="sim://noise" placeholder="PV Name" /> <a
+			href="http://htmlpreview.github.io/?https://raw.github.com/ControlSystemStudio/cs-studio/3.2.x/core/plugins/org.csstudio.utility.pvmanager.sim/html/sim-datasource.html"
+			target="_blank"> See available simulated PVs</a> <br>Minimum
 		Update Period (ms): <input id="updatePeriod" class="text-field"
 			type="number" value="1000" /> <input id="bufferAllValue"
 			type="checkbox" value="bufferAllValues" /> Buffering All Values<br>
-	</form>
-
-	<button type="button" onclick="WebPDATest.createPV();">Create PV</button>
-	<button type="button" onclick="WebPDATest.debug();"> Debug On/Off </button>
+		<input type="submit" value="Create PV" />
+	</form>	
 	<br>
 	<table id="pvtable" border="1">
 
@@ -44,6 +44,8 @@
 	<br>
 
 	<div>
+		<button type="button" onclick="WebPDATest.debug();">Debug
+			On/Off</button>
 		<input type="submit" value="Close WebSocket"
 			onclick="WebPDATest.closeWebSocket();" />
 	</div>

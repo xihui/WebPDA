@@ -96,6 +96,10 @@ var WebPDATest;
 		var pvName = document.getElementById("pvName").value.trim();
 		var updatePeriod = +document.getElementById("updatePeriod").value;
 		var buffering = document.getElementById("bufferAllValue").checked;
+		if(wp==null){
+			alert("Please open & login first!");
+			return false;
+		}
 		var pv = wp.createPV(pvName, updatePeriod, buffering);
 		var count =0;
 		updateTable();
@@ -141,6 +145,7 @@ var WebPDATest;
 						break;
 					}
 				});
+		return false;
 	}
 
 	function setCellColor(valueCell, severity) {
