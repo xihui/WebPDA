@@ -291,9 +291,12 @@ public class PVManagerPV implements IPV {
 						if (event == null || event.isConnectionChanged())
 							l.writePermissionChanged(PVManagerPV.this);
 						if (event != null) {
-							if (event.isExceptionChanged())
-								l.exceptionOccurred(PVManagerPV.this, event.getPvWriter()
-										.lastWriteException());
+							//TODO: PVManager could throw unnecessary exception when data source is read only
+							//See: https://github.com/ControlSystemStudio/cs-studio/issues/66
+							//Need to enable following line when above issue is fixed.
+//							if (event.isExceptionChanged())
+//								l.exceptionOccurred(PVManagerPV.this, event.getPvWriter()
+//										.lastWriteException());
 							if (event.isWriteFailed() || event.isWriteSucceeded()) {
 								l.writeFinished(PVManagerPV.this, event.isWriteSucceeded());
 							}
