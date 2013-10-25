@@ -138,11 +138,34 @@ pre {
 			</p>
 			<p>Each client has a unique session on server and the session is
 				isolated from others.</p>
+				
 			<a style="position: fixed; bottom: 5px; left: 5px;" href="#"
 				title="Click to go to top">Back to Top</a>
-			<h3 id="pv_reuse">Client Side PV Connection Reuse</h3>
+				
+			<h3 id="pv_reuse">PV Connection Reuse</h3>
+			<p>
+			If there are multiple PVs which have same name and creating parameters, they 
+			will share the same connection to server, so the server don't need to 
+			transfer the same data multiple times. Actually, the server has no idea on how many PVs
+			with the same name and parameters on client side. 
+			
+			</p>
 			<h3 id="pings_pongs">Pings and Pongs</h3>
+			<p>
+			There are regular Pings and Pongs messages between server and client. The default interval
+			is 10 second. This can help to keep the WebSocket connection alive because some routers/switches
+			may close the TCP connection if there is no activity more than 30 seconds.
+			This can also help to detect if the client is still alive. If no pong messages are received 
+			from client for 12 (the default retry times) consecutive ping messages, which is 120 seconds,
+			the server will close connection to the client.
+			</p>
 			<h3 id="connection_recovery">Intermittent Connection Recovery</h3>
+			<p>
+			To bumplessly recover the connection when there is intermittent disconnection (less than 120 seconds by default),
+			server side has a queue buffer for each client. The default buffer size is 100K, but it can be changed
+			with <a href="#setserverbuffersize_command">SetServerBufferSize Command</a>. The maximum allowed number of messages
+			of the queue buffer is 10240 regardless buffer size. 
+			</p>
 
 			<h3 id="client_commands">Client Commands</h3>
 			<p>
