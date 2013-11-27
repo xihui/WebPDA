@@ -100,6 +100,7 @@ public class ClientSession {
 				pv.setWritePermission(hasPermission(SetPVValueCommand.AUTHORIZATION_KEY));
 			}			
 		} catch (Exception e) {
+			LoggerUtil.getLogger().log(Level.SEVERE, "SecurityManager.login failed.", e);
 			send(new ErrorMessage("Login Failed", e.getMessage()));
 		}
 	}
