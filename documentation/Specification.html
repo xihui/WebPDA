@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="./libs/bootswatch/FlatlyTheme/bootstrap.min.css"
+	rel="stylesheet" media="screen">
+
+<link type="text/css" rel="stylesheet"
+	href="libs/syntaxhighlighter/styles/shCoreDefault.css" />
+
+<style type="text/css">
+.dl-horizontal dt {
+	float: left;
+	width: 100px;
+	clear: left;
+	text-align: left;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+dl {
+	margin-left: 20px;
+}
+
+div#toc>ul {
+	margin-left: 0;
+	list-style: none;
+	padding: 10px;
+}
+
+pre {
+	color: #d14;
+}
+
+.image-footnote {
+	text-align: center;
+}
+</style>
+<script src="libs/syntaxhighlighter/scripts/shCore.js"></script>
+<script src="libs/syntaxhighlighter/scripts/shBrushJScript.js"></script>
+<script type="text/javascript">
+	SyntaxHighlighter.all();
+</script>
+
+<title>WebPDA Specification</title>
+</head>
+<body>
+	<!-- Menu bar -->
+	<div class="navbar navbar-default">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="../" class="navbar-brand">WebPDA</a>
+				<button class="navbar-toggle" type="button" data-toggle="collapse"
+					data-target="#navbar-main">
+					<span class="icon-bar"></span><span class="icon-bar"></span><span
+						class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="navbar-main">
+				<ul class="nav navbar-nav">
+					<li><a href="http://www.webpda.org">Home</a></li>
+					<li><a href="http://www.webpda.org/demo.html">Demo</a></li>
+					<li><a href="http://www.webpda.org/download.html">Download</a>
+					</li>
+
+					<li class="dropdown active"><a href="#"
+						class="dropdown-toggle" data-toggle="dropdown">Documentation <b
+							class="caret"></b></a>
+						<ul class="dropdown-menu">
+							<li class="active"><a href="GettingStarted.html">Get
+									Started</a></li>
+							<li><a href="jsdoc/index.html">JSDoc</a></li>
+							<li><a href="Specification.html">Specification</a></li>
+							<li><a href="resources.html">Resources </a></li>
+						</ul></li>
+
+					<li><a href="https://groups.google.com/forum/#!forum/webpda">Community</a>
+					</li>
+					<li><a href="http://www.webpda.org/about.html">About</a></li>
+				</ul>
+
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<section>
+			<h2>WebPDA protocol specification</h2>
+			<b>Table of Contents</b>
+			<div id="toc"></div>
+
+			<h3 id="intro">Introduction</h3>
+			<p>The WebPDA (WebSocket-based Process Data Access) protocol
+				enables two-way real-time data communication between WebSocket
+				client and server.</p>
+
+			<p>
+				In WebPDA, each real-time data channel is called a <b>Process
+					Variable (PV)</b>. A PV represents a variable from the data source,
+				which is usually related to a process. For example, temperature,
+				stock price, blood pressure, CPU and memory usage etc,. Each PV is
+				identified by its name, so each PV should have a unique name on the
+				same server.
+			</p>
+
+			<h3 id="how_it_works">How it works</h3>
+			<p>A typical communication sequence has been shown as below.
+				WebPDA server sits in the middle to bridge the communication between
+				data source and clients. The way for the WebPDA server to talk the
+				data source is not specified. For example, it may directly read the
+				CPU and memory usage of the server, or connect to a database or
+				control system.</p>
+			<p>
+			<div>
+				<img style="display: block; margin-left: auto; margin-right: auto;"
+					alt="WebPDA communication sequence"
+					src="images/WebPDA_Communication.png" height="350px">
+				<p class="image-footnote">WebPDA communication sequence</p>
+			</div>
+			<h3 id="the_protocol">The protocol</h3>
+			<p>
+				The protocol is built on WebSocket. The sub-protocol name is
+				<code>org.webpda</code>
+				. It uses JSON format text message for all communications except for
+				PV's value message, which uses binary format so it can keep the
+				float precision with the least space (It may change to use text
+				message later when WebSocket compression is widely adopted).
+			</p>
+			<p>
+				In this specification, the message which is sent from client to
+				server is called <a href="#client_commands"><b>Client
+						Command</b></a>, such as login, create PV, close PV etc. It is called
+				command because the server usually needs to execute an action upon
+				receiving the command. The message which is sent from server to
+				client is called <a href="#server_messages"><b>Server
+						Message</b></a>.
+			</p>
+			<p>Each client has a unique session on server and the session is
+				isolated from others.</p>
+				
+			<a style="position: fixed; bottom: 5px; left: 5px;" href="#"
+				title="Click to go to top">Back to Top</a>
+				
+			<h3 id="pv_reuse">PV Connection Reuse</h3>
+			<p>
+			If there are multiple PVs which have same name and creating parameters, they 
+			will share the same connection to server, so the server don't need to 
+			transfer the same data multiple times. Actually, the server has no idea on how many PVs
+			with the same name and parameters on client side. 
+			
+			</p>
+			<h3 id="pings_pongs">Pings and Pongs</h3>
+			<p>
+			There are regular Pings and Pongs messages between server and client. The default interval
+			is 10 second. This can help to keep the WebSocket connection alive because some routers/switches
+			may close the TCP connection if there is no activity more than 30 seconds.
+			This can also help to detect if the client is still alive. If no pong messages are received 
+			from client for 12 (the default retry times) consecutive ping messages, which is 120 seconds,
+			the server will close connection to the client.
+			</p>
+			<h3 id="connection_recovery">Intermittent Connection Recovery</h3>
+			<p>
+			To bumplessly recover the connection when there is intermittent disconnection (less than 120 seconds by default),
+			server side has a queue buffer for each client. The default buffer size is 100K, but it can be changed
+			with <a href="#setserverbuffersize_command">SetServerBufferSize Command</a>. The maximum allowed number of messages
+			of the queue buffer is 10240 regardless buffer size. 
+			</p>
+
+			<h3 id="client_commands">Client Commands</h3>
+			<p>
+				Client command is the message sent from client to server. For each
+				client command, it has a
+				<code>commandName</code>
+				property so the server can identify it. For the commands that should
+				be protected from authorization, it has an authorization key that
+				can be used for the authorization configuration. A command can only
+				be executed by users who have been configured to own the
+				authorization key. The details of each command is described below.
+			</p>
+			<h4 id="login_command">Login Command</h4>
+
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>
+					Perform authentication. Server will perform the authentication upon
+					receiving this command. If login succeeds, server will send back an
+					<a href="#info_message">Info Message</a>: "&lt;username&gt;
+					successfully logged in!". Otherwise, client will receive an <a
+						href="#error_message">Error Message</a>: "Login Failed".
+
+				</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "commandName" : "Login",
+  "username" : "&lt;the user name&gt;",
+  "password" : "&lt;the password&gt;"  
+}</pre>
+				</dd>
+			</dl>
+
+			<h4 id="logout_command">Logout Command</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Logout current user.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "commandName" : "Logout"}</pre>
+				</dd>
+			</dl>
+
+			<h4 id="createpv_command">CreatePV Command</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Create a PV and connected to it.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "commandName" : "CreatePV",
+  "id" : &lt;unique_number_id&gt;,
+  "pvName" : "&lt;name of the PV&gt;",
+  "parameters" : &lt;PV specific parameters&gt;  
+}</pre>
+					<code>id</code>
+					is a unique number that identifies this PV on this client. PV
+					specific parameters is a JSON object that represents the parameters
+					needed to create the PV. For example, below is a command to create
+					a control system PV:
+					<pre>{ "commandName" : "CreatePV",
+  "id" : 7,
+  "pvName" : "sim://noise",
+  "parameters" : { "bufferAllValues" : false,
+      	           "minUpdatePeriodInMs" : 1000
+    	         }  
+}</pre>
+				</dd>
+				<dt>Authorization Key</dt>
+				<dd>
+					<code>CreatePV</code>
+				</dd>
+			</dl>
+
+
+			<h4 id="setpvvalue_command">SetPVValue Command</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Set</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "commandName" : "SetPVValue",
+  "id" : &lt;id of the PV&gt; ,
+  "value" : &lt;value object&gt;
+}</pre>
+					The value can be any type as long as the server side can accept it.
+					For example, this command will write a number to a control system
+					PV.
+					<pre>{ "commandName" : "SetPVValue",
+  "id" : 8,
+  "value" : 123
+}
+</pre>
+				</dd>
+				<dt>Authorization Key</dt>
+				<dd>
+					<code>SetPVValue</code>
+				</dd>
+			</dl>
+
+			<h4 id="pausepv_command">PausePV Command</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Pause or resume to receive updates from the PV. Updates
+					during the paused period will be skipped.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "commandName" : "PausePV",
+  "id" : &lt;id of the PV&gt; ,
+  "paused" : true|false;
+}</pre>
+					If
+					<code>paused</code>
+					is
+					<code>true</code>
+					, it will pause the PV updates. If it is
+					<code>false</code>
+					, it will resume the updates.
+				</dd>
+			</dl>
+
+			<h4 id="closepv_command">ClosePV Command</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Close the PV from server.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "commandName" : "ClosePV",
+  "id" : &lt;id of the PV&gt;
+}</pre>
+
+				</dd>
+			</dl>
+
+			<h4 id="setserverbuffersize_command">SetServerBufferSize Command</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Set server side buffer size. The server side buffer is used
+					to temporarily buffer the data to be sent to client when there is
+					temporary disconnection, so the client won't lose any data for
+					temporary disconnection. The connection will be closed by server
+					when the buffer is full. The default buffer size is 100K. The max
+					allowed size is 1M.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "commandName" : "SetServerBufferSize",
+  "size" : &lt;size in bytes&gt;
+}</pre>
+
+				</dd>
+			</dl>
+			<h4 id="pong_command">Pong Command</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>
+					Tell the server that the client is still alive. The client should
+					only and must send the command upon the receiving of a <a
+						href="#ping_message">Ping Message</a> from server.
+				</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "commandName" : "Pong",
+  "count" : &lt;the same count number of the ping message&gt;
+}</pre>
+
+				</dd>
+			</dl>
+
+
+			<h3 id="server_messages">Server Messages</h3>
+			<p>Server message is the message sent from server to client.</p>
+
+			<h4 id="pvevent_message">PVEvent Message</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Notify the client that an event has occurred on the PV.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "pv" : &lt;PV id&gt;,
+  "e" : "conn"|"error"|"writePermission"|"writeFinished",
+  "d" : &lt;data of the event&gt;
+}</pre>
+					<table class="table table-striped table-bordered">
+						<tr>
+							<th>Event type</th>
+							<th>Meaning</th>
+							<th>Data of the event</th>
+						</tr>
+						<tr>
+							<td>conn</td>
+							<td>connection state of the PV has changed</td>
+							<td>A boolean value. <code>true</code> means connected.
+						<tr>
+							<td>error</td>
+							<td>Error has occurred on the PV</td>
+							<td>Error message</td>
+						</tr>
+						<tr>
+							<td>writePermission</td>
+							<td>Write permission of the PV has changed.</td>
+							<td>A boolean value. <code>true</code> means the PV is
+								allowed to write from the client.
+							</td>
+						</tr>
+						<tr>
+							<td>writeFinished</td>
+							<td>Last write operation on the PV has finished.</td>
+							<td>A boolean value. The value is <code>true</code> if last
+								write was successful.
+							</td>
+						</tr>
+					</table>
+				</dd>
+			</dl>
+
+			<h4 id="pvvalue_message">PVValue Message</h4>
+			<dl>
+				<dt>Content:</dt>
+				<dd>New value of the PV. If PV's value is supposed to buffered,
+					it will be all the values during the buffering period.</dd>
+				<dt>Format:</dt>
+				<dd>
+					PV value message is transferred in binary format. It uses
+					little-endian for encoding. Below is the general frame format. The
+					first four bytes is an integer representing type of the value
+					message type. 0 means it is a single value. 1 means it is buffered
+					values, so it might have more than one Value Frames.<br>
+					<br>
+					<p>
+						<img
+							style="display: block; margin-left: auto; margin-right: auto;"
+							alt="value frame" src="images/PVValue_Message_Format.png"
+							height="200px">
+					</p>
+					<p class="image-footnote">PVValue Message binary format</p>
+					<p>Each Value Frame represents a PV value. If there are
+						multiple values were buffered, the multiple value frames are
+						simply concatenated. For each value frame, it is a mix of
+						flattened JSON text and binary part. It also has few bytes of
+						paddings after JSON part to ensure the binary part starts at an
+						index of multiple of 8, so the client side can parse it easier.</p>
+					<p>The mixed JSON and binary format brings us both flexibility
+						and efficiency. The JSON part can be easily extended with new
+						properties and parsed by client side. The binary part could keep
+						the value precision. The JSON part usually holds PV value's
+						properties. For example, for a control system VDouble value, the
+						JSON part may include the time stamp, alarm or display
+						information. The binary part would be an 8-bytes representation of
+						the double value. If some of the PV value's properties did not
+						change in the new value, they will not be transferred again. For
+						example, display limits, units etc,.</p>
+					<p>
+						<img
+							style="display: block; margin-left: auto; margin-right: auto;"
+							alt="value frame" src="images/ValueFrame.png" height="150px">
+					</p>
+					<p class="image-footnote">Value Frame</p>
+				</dd>
+				<dt>Value Frame Example: VDouble</dt>
+				<dd>
+					Below are the Value Frames JSON part examples for a VDouble PV
+					value. The binary part of a VDouble is the 8-byte representation of
+					the double value in little-endian. For an array value, it simply
+					concatenate the double values.
+					<p>JSON part of the first frame includes all the properties
+						information, such as type, units, precision, alarm high/low
+						limits. For example:
+					<pre>
+{ "ah" : 4.0,
+  "al" : -4.0,
+  "an" : "LOW",
+  "dh" : 5.0,
+  "dl" : -5.0,
+  "prec" : 3,
+  "sev" : "MINOR",
+  "t" : { "ns" : 398384142,
+      "s" : 1382465704
+    },
+  "type" : "VDouble",
+  "units" : "x",
+  "wh" : 3.0,
+  "wl" : -3.0
+}</pre>
+					<p>JSON part of the afterwards frames only contains changed
+						properties, such as alarm state and timestamp. For example:
+					<pre>
+{ "an" : "HIHI",
+  "sev" : "MAJOR",
+  "t" : { "ns" : 584795067,
+      	  "s" : 1382466048
+    }
+}</pre>
+				</dd>
+			</dl>
+
+			<h4 id="info_message">Info Message</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Notify the client with normal information such as login
+					succeeded, user has logout etc,.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "msg" : "Info",
+  "title" : "&lt;title of the information&gt;",
+  "details" : "&lt;details of the information&gt;"
+}</pre>
+				</dd>
+			</dl>
+			<h4 id="error_message">Error Message</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>
+					Notify the client with error information from the server. Note that
+					it doesn't include errors on a specific PV, which is transferred by
+					<a href="#pvevent_message">PVEvent Message</a>
+				</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "msg" : "Error",
+  "title" : "&lt;title of the error&gt;",
+  "details" : "&lt;details of the error&gt;"
+}</pre>
+				</dd>
+			</dl>
+
+			<h4 id="ping_message">Ping Message</h4>
+			<dl>
+				<dt>Purpose:</dt>
+				<dd>Pings the client regularly to keep the WebSocket connection
+					alive and detect if the client is still alive. The default pinging
+					interval is 10 second.</dd>
+				<dt>JSON Format:</dt>
+				<dd>
+					<pre>
+{ "msg" : "Error",
+  "Count" : "&lt;a mono increased integer&gt;"
+}</pre>
+				</dd>
+			</dl>
+
+
+		</section>
+	</div>
+
+
+
+
+	<script src="libs/jquery-1.10.2.min.js"></script>
+	<script src="libs/bootstrap/js/bootstrap.min.js"></script>
+	<script src="libs/jquery.toc-1.1.4.min.js"></script>
+	<script type="text/javascript">
+		$('#toc').toc({
+			exclude : 'h2, h6'
+		});
+	</script>
+</body>
+
+</html>

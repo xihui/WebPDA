@@ -4,24 +4,28 @@
 <meta charset="UTF-8">
 <link href="./libs/bootswatch/FlatlyTheme/bootstrap.css"
 	rel="stylesheet" media="screen">
-	
 
-<link type="text/css" rel="stylesheet" href="libs/syntaxhighlighter/styles/shCoreDefault.css"/>
-    <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-    </style>
+
+<link type="text/css" rel="stylesheet"
+	href="libs/syntaxhighlighter/styles/shCoreDefault.css" />
+<style type="text/css">
+div#toc>ul {
+	margin-left: 0;
+	list-style: none;
+	padding: 10px;
+}
+</style>
 <script src="libs/syntaxhighlighter/scripts/shCore.js"></script>
 <script src="libs/syntaxhighlighter/scripts/shBrushJScript.js"></script>
-<script type="text/javascript">SyntaxHighlighter.all();</script>
+<script type="text/javascript">
+	SyntaxHighlighter.all();
+</script>
 
 <title>WebPDA Getting Started</title>
 </head>
 <body>
-<!-- Menu bar -->
-	<div class="navbar navbar-default navbar-fixed-top">
+	<!-- Menu bar -->
+	<div class="navbar navbar-default">
 		<div class="container">
 			<div class="navbar-header">
 				<a href="../" class="navbar-brand">WebPDA</a>
@@ -36,151 +40,193 @@
 					<li><a href="http://www.webpda.org">Home</a></li>
 					<li><a href="http://www.webpda.org/demo.html">Demo</a></li>
 					<li><a href="http://www.webpda.org/download.html">Download</a></li>
-					
-					<li class="dropdown active"><a href="#" class="dropdown-toggle"
-						data-toggle="dropdown">Documentation <b class="caret"></b></a>
+
+					<li class="dropdown active"><a href="#"
+						class="dropdown-toggle" data-toggle="dropdown">Documentation <b
+							class="caret"></b></a>
 						<ul class="dropdown-menu">
-							<li  class="active"><a href="GettingStarted.html">Get
+							<li class="active"><a href="GettingStarted.html">Get
 									Started</a></li>
 							<li><a href="jsdoc/index.html">JSDoc</a></li>
+							<li><a href="Specification.html">Specification</a></li>
 							<li><a href="resources.html">Resources </a></li>
 						</ul></li>
-					
+
 					<li><a href="https://groups.google.com/forum/#!forum/webpda">Community</a></li>
-					<li ><a href="http://www.webpda.org/about.html">About</a></li>
+					<li><a href="http://www.webpda.org/about.html">About</a></li>
 				</ul>
 
 			</div>
 		</div>
 	</div>
 
-    
- <div class="container">
- <section>
-	<h1>Getting Started with WebPDA</h1>
-	<p>This document will guide you to start using WebPDA step by step.</p>
 
-	<h2>Download</h2>
-	<p>
-		WebPDA can be downloaded from <a href="http://www.webpda.org/download.html">here</a>.
-		Unzip the file. Inside the extracted folder, there are following files
-		or folders:
-	<ul>
-		<li>webpda.war - The WAR file that can be deployed on Glassfish 4
-			or Tomcat 8. (The deployment on Tomcat 8 is not fully tested yet)</li>
-		<li>webpda-lib - The client JavaScript library files.</li>
-		<li>webpda-lib-min The minimized client JavaScript files</li>
-	</ul>
+	<div class="container">
+		<section>
+			<h1>Getting Started with WebPDA</h1>
+			<b>Table of Contents</b>
+			<div id="toc"></div>
 
-	<h2>Server Side: Deploy webpda.war</h2>
-	<p>webpda.war can be deployed on any JSR356 compatible servlet container. By the time when
-	this document was written, only Glassfish 4 is fully compatible. Tomcat 8 is supposed to support
-	JSR356, but it is still in  unstable stage.
-	<h3>Install Glassfish 4</h3>
-	<p>
-		Glassfish 4 can be downloaded from <a
-			href="https://glassfish.java.net/">glassfish.java.net</a>. Follow its
-		instruction to install it and start default domain
-		<code>domain1</code>
-		. You may create another domain with another name, then just replace
-		<code>domain1</code>
-		in following document with your domain name.
-	</p>
-	<h3>Configure JVM options</h3>
-	After Glassfish is installed and started, go to the admin page (By
-	default it is <a href="http://localhost:4848">http://localhost:4848</a>). Navigate to
-	<code>Configurations>server-config>JVM Settings>JVM Options</code>
-	, add following JVM options as needed.
-	<p>
-	<table class="table table-striped table-bordered table-hover">
-		<tr>
-			<th  style = "text-align: center">JVM option</th>
-			<th style = "text-align: center">Description</th>
-		</tr>
-		<tr>
-			<td>-Dorg.webpda.server.jaas_name</td>
-			<td>JAAS configuration file entry. If this is not configured,
-				the entry name is <code>Default</code>
-			</td>
-		</tr>
-		<tr>
-			<td>-Dorg.webpda.server.authorization_provider</td>
-			<td>The authorization provider. If the authorization information
-				is configured in a file, the provider should be <code>org.webpda.server.core.security.FileBasedAuthorizationProvider</code>.
-				The authorization configuration file is configured from <code>-Dorg.webpda.server.authorization.config_file</code>.
-				If the authorization information should be provided from an LDAP
-				server, the value should be <code>
-					org.webpda.server.core.security.LDAPGroupAuthorizationProvider</code>.
-				Please see <a href="LDAPAuthorization.html">Authorization with
-					LDAP</a>.
-			</td>
-		</tr>
-		<tr>
-			<td>-Dorg.webpda.server.authorization.config_file</td>
-			<td>Absolute path of the authorization configuration file. Here
-				is an <a href="authorization.conf">authorization file example</a>.
-			</td>
-		</tr>
-		<tr>
-			<td>-Dorg.webpda.server.pvfactory</td>
-			<td>Full class name of the PV Factory of the data interface
-				implementation. By default, it is <code>org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory</code>,
-				which uses PVManager as the data interface implementation. 
-			</td></table>
-	<p>
-	To connect to an <a href="http://www.aps.anl.gov/epics/">EPICS</a>
-	system using PVManagerPVFactory, <a href="EPICSConfiguration.html">EPICS related JVM options</a> should be set.
-	<p>
-	Here is an example of settings to connect to a local IOC and use file as authorization provider.
-	<pre>
+			<h2 id="download">Download</h2>
+			<p>
+				WebPDA can be downloaded from <a
+					href="http://www.webpda.org/download.html">here</a>. Unzip the
+				file. Inside the extracted folder, there are following files or
+				folders:
+			<ul>
+				<li>webpda.war - The WAR file that can be deployed on Glassfish
+					4 or Tomcat 8. (The deployment on Tomcat 8 is not fully tested yet)</li>
+				<li>webpda-lib - The client JavaScript library files.</li>
+				<li>webpda-lib-min The minimized client JavaScript files</li>
+			</ul>
+
+			<h2 id="server">Server Side: Deploy webpda.war</h2>
+			<p>webpda.war can be deployed on any JSR356 compatible servlet
+				container. By the time when this document was written, only
+				Glassfish 4 is fully compatible. Tomcat 8 is supposed to support
+				JSR356, but it is still in unstable stage.
+			<h3 id="install_glassfish">Install Glassfish 4</h3>
+			<p>
+				Glassfish 4 can be downloaded from <a
+					href="https://glassfish.java.net/">glassfish.java.net</a>. Follow
+				its instruction to install it and start default domain
+				<code>domain1</code>
+				. You may create another domain with another name, then just replace
+				<code>domain1</code>
+				in following document with your domain name.
+			</p>
+			<a style="position: fixed; bottom:5px;left:5px;" href="#" title="Click to go to top">Back to Top</a>
+			<h3 id="configure_jvm">Configure JVM options</h3>
+			After Glassfish is installed and started, go to the admin page (By
+			default it is <a href="http://localhost:4848">http://localhost:4848</a>).
+			Navigate to
+			<code>Configurations>server-config>JVM Settings>JVM Options</code>
+			, add following JVM options as needed.
+			<p>
+			<table class="table table-striped table-bordered table-hover">
+				<tr>
+					<th style="text-align: center">JVM option</th>
+					<th style="text-align: center">Description</th>
+				</tr>
+				<tr>
+					<td>-Dorg.webpda.server.jaas_name</td>
+					<td>JAAS configuration file entry. If this is not configured,
+						the entry name is <code>Default</code>
+					</td>
+				</tr>
+				<tr>
+					<td>-Dorg.webpda.server.authorization_provider</td>
+					<td>The authorization provider. If the authorization
+						information is configured in a file, the provider should be <code>org.webpda.server.core.security.FileBasedAuthorizationProvider</code>.
+						This is also the default authorization provider if this property is not set.
+						The authorization configuration file is configured from <code>-Dorg.webpda.server.authorization.config_file</code>.
+						If the authorization information should be provided from an LDAP
+						server, the value should be <code>
+							org.webpda.server.core.security.LDAPGroupAuthorizationProvider</code>.
+						Please see <a href="LDAPAuthorization.html">Authorization with
+							LDAP</a>.
+					</td>
+				</tr>
+				<tr>
+					<td>-Dorg.webpda.server.authorization.config_file</td>
+					<td>Absolute path of the authorization configuration file.
+						Here is an <a href="authorization.conf">authorization file
+							example</a>.
+					</td>
+				</tr>
+				<tr>
+					<td>-Dorg.webpda.server.pvfactory</td>
+					<td>Full class name of the PV Factory of the data interface
+						implementation. By default, it is <code>org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory</code>,
+						which uses PVManager as the data interface implementation.
+					</td>
+			</table>
+			<p>
+				To connect to an <a href="http://www.aps.anl.gov/epics/">EPICS</a>
+				system using PVManagerPVFactory, <a href="EPICSConfiguration.html">EPICS
+					related JVM options</a> should be set.
+			<p>Here is an example of settings to connect to a local IOC and
+				use file as authorization provider.
+			<pre>
 -Dcom.cosylab.epics.caj.CAJContext.addr_list=127.0.0.1
 -Dorg.webpda.server.authorization_provider=org.webpda.server.core.security.FileBasedAuthorizationProvider
 -Dorg.webpda.server.authorization.config_file=/home/WebPDA_repo/server/org.webpda.server.core/authorization.conf</pre>
-	<p>
-	Here is the authorization file example <a href="authorization.conf">authorization.conf</a>.
+			<p>
+				Here is the authorization file example <a href="authorization.conf">authorization.conf</a>.
 
-	<h3>Configure authentication info</h3>
-	<p>
-		For Glassfish, the authentication information is configured in
-		<code>
-			{Glasshfish_installation_dir}/glassfish/domains/domain1/config/login.conf
 			
-		</code>
-		as a regular JAAS configuration file. For other servlet container, the JAAS configuration file
-		may be specified from JVM option
-		<code>-Djava.security.auth.login.config</code>.
-		In the JAAS configuration file, add an entry to specify the login module and its options. The login module
-		can be any standard login module, such as LdapLoginModule coming with JRE. In below example, <code>
-		org.webpda.server.core.security.JaasConfigFileLoginModule</code> is a login module that allows setting 
-		user name and password as login module options. The option key is user name and option value is password.
-		The number of user names is not limited.
-	<pre>
+			<h3 id="configure_authentication">Configure authentication info</h3>
+			<p>
+				For Glassfish, the authentication information is configured in
+				<code>
+					{Glasshfish_installation_dir}/glassfish/domains/domain1/config/login.conf
+
+				</code>
+				as a regular JAAS configuration file. For other servlet container,
+				the JAAS configuration file may be specified from JVM option
+				<code>-Djava.security.auth.login.config</code>
+				. In the JAAS configuration file, add an entry such as below example
+				to specify the login module and its options. The login module can be
+				any standard login module, such as LdapLoginModule coming with JRE.
+				In below example,
+				<code>
+					org.webpda.server.core.security.JaasConfigFileLoginModule</code>
+				is a login module that allows setting user name and password as
+				login module options. The option key is user name and option value
+				is password. The number of user names is not limited. For example:
+			<pre>
 Default {
     org.webpda.server.core.security.JaasConfigFileLoginModule required
     webpda="123456"
     webpda-admin="mypassword"
     jane="654321"
     fred="abcdef";
-}
+};
 </pre>
-<h3>Deploy webpda.war</h3>
-<p>After above items were properly configured, go to glassfish admin page > Applications page. 
-Click on "Deploy..." button, choose "webpda.war", leave other options as default and click "OK".
-Click on the launch link of will provide you two links to the webpda startup page. One link starts with
-<code>http://</code>, which use unencrypted HTTP and WebSocket connection. 
-In this case, the WebSocket URL starts with <code>ws://</code>. The other link starts with <code>https://</code>
- which uses SSL encrypted HTTP and WebSocket connection. In this case, the WebSocket URL starts with <code>wss://</code>.
- Click on one of the links, you will see the welcome page and be ready to roll!   
 
+			<h3 id="restart_domain">Restart domain</h3>
+			<p>
+				The above configurations only take effect after domain restarted.
+				You can restart the domain from the admin page or you can use
+				<code>{glassfish}/bin/asadmin</code>
+				:
+			<pre>
+asadmin> stop-domain domain1
+asadmin> start-domain domain1</pre>
+			</p>
+			<h3 id="deploy">Deploy webpda.war</h3>
+			<p>
+				After above items were properly configured, go to glassfish admin
+				page > Applications page. Click on "Deploy..." button, choose
+				"webpda.war", leave other options as default and click "OK". Click
+				on the launch link of will provide you two links to the webpda
+				startup page. One link starts with
+				<code>http://</code>
+				, which use unencrypted HTTP and WebSocket connection. In this case,
+				the WebSocket URL starts with
+				<code>ws://</code>
+				. The other link starts with
+				<code>https://</code>
+				which uses SSL encrypted HTTP and WebSocket connection. In this
+				case, the WebSocket URL starts with
+				<code>wss://</code>
+				. Click on one of the links, you will see the welcome page and be
+				ready to roll!
+			<h2 id="client">Client Side: using WebPDA JavaScript API</h2>
+			The JavaScript API is supposed to be used with <a
+				href="http://caniuse.com/#feat=websockets">modern Web Browsers
+				that support WebSocket</a>.
 
-<h2>Client Side: using WebPDA JavaScript API</h2>
-The JavaScript API is supposed to be used with <a href="http://caniuse.com/#feat=websockets">modern Web Browsers that support WebSocket</a>.
-
-<h3>Including js files in HTML</h3>
-<p><code>webpda-core.js</code> is the core, which should be always included. <code>webpda-cs.js</code> includes
-control system data type definitions and decoding for server side that uses <code>org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory</code>
-as PVFactory.    
-<pre class="brush:js;">
+			<h3 id="js_html">Including js files in HTML</h3>
+			<p>
+				<code>webpda-core.js</code>
+				is the core, which should be always included.
+				<code>webpda-cs.js</code>
+				includes control system data type definitions and decoding for
+				server side that uses
+				<code>org.webpda.server.datainterface.cs.pvmanager.PVManagerPVFactory</code>
+				as PVFactory.
+			<pre class="brush:js;">
 &lt;!DOCTYPE html>
 &lt;html>
 &lt;head>
@@ -190,11 +236,12 @@ as PVFactory.
 &lt;body>&lt;/body>
 &lt;/html>
 </pre>
-<h3>The JavaScript API</h3>
-In your script, you only need to focus on the PV and its value instead of communications.
-Here is the demo for the mostly used APIs. The complete JSDoc is available <a href="jsdoc/index.html">here.</a>
+			<h3 id="js_api">The JavaScript API</h3>
+			In your script, you only need to focus on the PV and its value
+			instead of communications. Here is the demo for the mostly used APIs.
+			The complete JSDoc is available <a href="jsdoc/index.html">here.</a>
 
-<pre class="brush:js;">
+			<pre class="brush:js;">
 //This the WebSocket URL 
 var wsUrl = "ws://localhost:8080/webpda/webpda";
 
@@ -252,15 +299,22 @@ pv.close();
 
 </pre>
 
-<h2>Further readings</h2>
-<p>Congratulations! You have successfully started with WebPDA. I wish you a joyful journey! 
-Please visit <a href="http://www.webpda.org">webpad.org</a> for more resources.
+			<h2 id="further_reading">Further readings</h2>
+			<p>
+				Congratulations! You have successfully started with WebPDA. I wish
+				you a joyful journey! Please visit <a href="http://www.webpda.org">webpad.org</a>
+				for more resources.
+		</section>
+	</div>
 
-</section>
-</div>
-
-<script src="libs/jquery-1.10.2.min.js"></script>
-<script src="libs/bootstrap/js/bootstrap.min.js"></script>
+	<script src="libs/jquery-1.10.2.min.js"></script>
+	<script src="libs/bootstrap/js/bootstrap.min.js"></script>
+	<script src="libs/jquery.toc-1.1.4.min.js"></script>
+	<script type="text/javascript">
+		$('#toc').toc({
+			exclude : 'h1, h6'
+		});
+	</script>
 </body>
 
 </html>
