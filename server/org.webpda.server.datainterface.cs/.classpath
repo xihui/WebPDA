@@ -3,17 +3,17 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry exported="true" kind="lib" path="lib/antlr-runtime-3.5.jar"/>
-	<classpathentry kind="lib" path="lib/pvmanager-core-2.3-20130731.213506-20.jar"/>
-	<classpathentry kind="lib" path="lib/pvmanager-extra-2.3-20130731.213843-12.jar"/>
-	<classpathentry kind="lib" path="lib/pvmanager-jca-2.3-20130731.213712-20.jar" sourcepath="lib/pvmanager-jca-2.3-20130731.213712-20-sources.jar"/>
-	<classpathentry kind="lib" path="lib/pvmanager-loc-2.3-20130731.213804-19.jar"/>
-	<classpathentry kind="lib" path="lib/pvmanager-sim-2.3-20130731.213736-19.jar"/>
-	<classpathentry kind="lib" path="lib/pvmanager-sys-2.3-20130731.213856-12.jar"/>
-	<classpathentry kind="lib" path="lib/pvmanager-vtype-2.3-20130731.213646-20.jar"/>
-	<classpathentry kind="lib" path="lib/caj-1.1.12.jar"/>
-	<classpathentry kind="lib" path="lib/epics-vtype-2.3-20130731.213624-20.jar" sourcepath="lib/epics-vtype-2.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/jca-2.3.7-20130613.130830-10.jar"/>
-	<classpathentry kind="lib" path="lib/epics-util-0.2.3.jar" sourcepath="lib/epics-util-0.2.4-20130716.190802-4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/epics-util-0.2.4.jar" sourcepath="lib/epics-util-0.2.4-20130716.190802-4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/caj-1.1.13.jar"/>
+	<classpathentry kind="lib" path="lib/epics-vtype-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/pvmanager-core-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/pvmanager-extra-2.3.jar" sourcepath="lib/pvmanager-extra-2.3-sources.jar"/>
+	<classpathentry kind="lib" path="lib/pvmanager-jca-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/pvmanager-loc-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/pvmanager-sim-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/pvmanager-sys-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/pvmanager-vtype-2.3.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="con" path="oracle.eclipse.tools.glassfish.lib.system">
 		<attributes>

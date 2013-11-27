@@ -9,22 +9,21 @@
       #gauge1 {
         width : 250px;
         height: 250px;
-      }
-      #chart {
-        width : 600px;
-        height: 384px;
-      }
-      
+      }   
     </style>
     
     <script src="../../webpda-lib/webpda-core.js"></script>
 	<script src="../../webpda-lib/webpda-cs.js"></script>
-	<script src="jquery-2.0.3.min.js"></script>
-    <script src="RGraph/libraries/RGraph.common.core.js" ></script>
-    <script src="RGraph/libraries/RGraph.gauge.js" ></script>
+	<script src="lib/jquery-2.0.3.min.js"></script>
+    <script src="lib/RGraph/libraries/RGraph.common.core.js" ></script>
+    <script src="lib/RGraph/libraries/RGraph.gauge.js" ></script>
     <script src="../../webpda-lib/webpda-widgets.js" ></script>  
-    <script src="WidgetsDemo.js" ></script>
-    <script type="text/javascript" src="flotr2.min.js"></script>
+    <script src="lib/dygraph-combined.js"></script>    
+    <script src="lib/flotr2.min.js"></script>    
+    
+    <!-- This is the demo javascript  -->
+    <script src="WidgetsDemo.js" ></script>    
+    
     <!--[if lt IE 9]><script src="../excanvas/excanvas.js"></script><![endif]-->
     
     <title>Using WebPDA with Widgets Demo</title>
@@ -37,24 +36,32 @@
 
     <h1>Using WebPDA with Widgets Demo</h1>
     <p>WebPDA pre-wrapped RGraph Gauge</p>
+    
+    <!-- Connect to WebPDA server -->
     <script type="text/javascript">
     var pathName = document.location.pathname.replace("index.html", "").replace("demo/WidgetsDemo/", "");
     var wsUri = "ws://"+document.location.host+pathName+"webpda";
     WebPDA_Debug=false;
     var webpda = new WebPDA(wsUri, "webpda", "123456");
     </script>
-    <div id = "gauge1" class="webpda-widgets" data-widget="rgraph-gauge" data-pvname="sim://sine"></div>
     
-	<p>Directly use RGraph Gauge with WebPDA</p>
+    <!-- Use pre-wrapped webpda widget -->
+    <div id = "gauge1" class="webpda-widgets" data-widget="rgraph-gauge" data-pvname="sim://sine"></div>    
+    
+    <!-- Directly use RGraph Gauge -->
+	<p>Directly use <a href="http://www.rgraph.net/">RGraph</a> Gauge with WebPDA</p>
     <canvas id="gauge2" width="250" height="250">[No canvas support]</canvas>
+  
+    <div id="textupdate">textupdate</div>
     
-    <p>Directly use Flotr2 Chart with WebPDA</p>
-    <div id="chart"></div>
-	<div id="output">Output:</div>	
-    <p>
-       The gauge is from <a href="http://www.rgraph.net/">RGraph</a>.<br>
-       The chart is from <a href="http://www.humblesoftware.com/flotr2/documentation">Flotr2</a>.
-    </p>
-
+    <!-- Directly use Dygraphs -->
+    <p>Directly use <a href="http://dygraphs.com/">Dygraphs</a> for trends</p>
+    <div id="dygraphdiv" style="width:500px; height:300px;"></div>  
+    
+    <!-- Directly use Flotr2 -->
+    <p>Directly use <a href="http://www.humblesoftware.com/flotr2/documentation">Flotr2</a> for waveform</p>
+    <div id="chart" style="width:500px; height:300px;"></div>
+    
+	<div id="output">Output:<br></div>	
 </body>
 </html>

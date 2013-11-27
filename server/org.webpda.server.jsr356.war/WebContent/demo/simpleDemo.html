@@ -7,6 +7,9 @@
 <body>
 
 sim://noise <input type="submit" value="Close PV" onclick="closePV();" /><br>
+
+<div id="value">value</div>
+<br>
 <div id="output">Output:</div>
 
 <script>
@@ -25,7 +28,7 @@ function writeToScreen(message) {
 }
 
 // create a pv whose name is sim://noise, maximum update rate at 1hz, don't buffer value.
-var pv = wp.createPV("sim://noise", 2000, true);
+var pv = wp.createPV("sim://noise", 1000, false);
 
 // add listener to the pv.
 pv.addCallback(function(evt, pv, data) {
@@ -38,7 +41,7 @@ pv.addCallback(function(evt, pv, data) {
         //Here is an example on how to extract the timestamp and
         //numeric value from PV if the PV holds numeric value        
 		var pvValue = pv.getValue();
-		writeToScreen(pvValue);
+		document.getElementById("value").innerHTML = pvValue.value;
 		if(pvValue instanceof WebPDA_CS.VNumber){
 			console.log("Timestamp: " + pvValue.timestamp + 
 					" Value: " + pvValue.value);
