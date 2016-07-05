@@ -343,19 +343,22 @@ body {
 	</a>
 
 	<script type="text/javascript">
+	/**
 	 function installGA(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
 		  }
+		  */
 	function runGoogleAnalytics(json){
 		alert(json.country);
 		
-		installGA((window,document,'script','//www.google-analytics.com/analytics.js','ga'));
+	/**	installGA((window,document,'script','//www.google-analytics.com/analytics.js','ga'));
 		  ga('create', 'UA-68822082-1', 'auto');
 		  ga('send', 'pageview');
+	*/
 	}
 	
-	<script type="text/javascript" src="http://jsonip.appspot.com/?callback=runGoogleAnalytics">
+	<script type="text/javascript" src="http://ip-api.com/json/?callback=runGoogleAnalytics">
 		
 	</script> 
  
