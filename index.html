@@ -358,7 +358,13 @@ body {
 	*/
 	}
 	</script>
-	<script type="text/javascript" src="http://ip-api.com/json/?callback=runGoogleAnalytics">
+	<script type="application/javascript">
+    function getip(json){
+      alert(json.ip); // alerts the ip address
+    }
+</script>
+
+	<script type="text/javascript" src="http://ip-api.com/json/?callback=getip">
 		
 	</script> 
  
